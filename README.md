@@ -30,7 +30,6 @@ skonteneryzowany przy pomocy Dockera. Projekt stanowi podstawę całej aplikacji
 **Technologie:**
 - Kotlin
 - Spring Boot
-- Thymeleaf / statyczne zasoby HTML/CSS
 - Docker
 
 ---
@@ -45,10 +44,7 @@ git clone https://github.com/NorArax-NeflinOwl/webcv.git
 cd webcv/cv-spring-kotlin
 
 # Budowanie obrazu
-docker build -t webcv .
-
-# Uruchomienie kontenera
-docker run -p 8080:8080 webcv
+docker compose up --build -d
 ```
 
 Aplikacja dostępna pod adresem: `http://localhost:8080`
@@ -58,7 +54,7 @@ Aplikacja dostępna pod adresem: `http://localhost:8080`
 ## Roadmap
 
 - [x] Projekt 01 — Kotlin + Spring Boot + Docker
-- [ ] Projekt 02 — *(planowane)*
+- [ ] Projekt 02 — Panda Game
 - [ ] Wdrożenie na hosting
 
 ---
