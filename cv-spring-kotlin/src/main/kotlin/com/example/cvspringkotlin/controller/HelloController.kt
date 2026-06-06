@@ -1,4 +1,4 @@
-package com.example.cvspringkotlin
+package com.example.cvspringkotlin.controller
 
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
@@ -6,6 +6,6 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 class HelloController {
 
-    @GetMapping("/hello")
-    fun hello(): String = "Hello from Kotlin + Spring Boot! 🚀"
+    @GetMapping("/api/hello")
+    fun hello(): String = "Hello World from Kotlin + Spring Boot! 🚀"
 }
