@@ -5,14 +5,14 @@ import java.util.UUID
 
 @Entity
 @Table(name = "profile")
-class Profile(
+data class Profile(
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     val id: UUID? = null,
 
     @Column(nullable = false, length = 256)
-    val name: String,
+    val name: String = "",
 
     @Column(length = 128)
     val eyebrow: String? = null,

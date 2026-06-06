@@ -5,7 +5,7 @@ import java.util.UUID
 
 @Entity
 @Table(name = "profile_stack")
-class ProfileStack(
+data class ProfileStack(
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -13,11 +13,11 @@ class ProfileStack(
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "profile_id", nullable = false)
-    val profile: Profile,
+    val profile: Profile = Profile(),
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "stack_item_id", nullable = false)
-    val stackItem: StackItem,
+    val stackItem: StackItem = StackItem(),
 
     @Column(name = "sort_order", nullable = false)
     val sortOrder: Int = 0

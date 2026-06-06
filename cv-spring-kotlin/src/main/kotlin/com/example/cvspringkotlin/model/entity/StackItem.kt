@@ -5,14 +5,14 @@ import java.util.UUID
 
 @Entity
 @Table(name = "stack_item")
-class StackItem(
+data class StackItem(
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     val id: UUID? = null,
 
     @Column(nullable = false, length = 128)
-    val label: String,
+    val label: String = "",
 
     @Column(name = "sort_order", nullable = false)
     val sortOrder: Int = 0,

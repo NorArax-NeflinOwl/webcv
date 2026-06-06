@@ -5,7 +5,7 @@ import java.util.UUID
 
 @Entity
 @Table(name = "profile_skill")
-class ProfileSkill(
+data class ProfileSkill(
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -13,11 +13,11 @@ class ProfileSkill(
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "profile_id", nullable = false)
-    val profile: Profile,
+    val profile: Profile = Profile(),
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "skill_id", nullable = false)
-    val skill: Skill,
+    val skill: Skill = Skill(),
 
     @Column(length = 128)
     val tag: String? = null,

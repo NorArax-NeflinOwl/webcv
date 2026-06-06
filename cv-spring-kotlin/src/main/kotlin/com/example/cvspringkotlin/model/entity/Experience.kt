@@ -6,7 +6,7 @@ import java.util.UUID
 
 @Entity
 @Table(name = "experience")
-class Experience(
+data class Experience(
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -14,19 +14,19 @@ class Experience(
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "profile_id", nullable = false)
-    val profile: Profile,
+    val profile: Profile = Profile(),
 
     @Column(nullable = false, length = 256)
-    val company: String,
+    val company: String = "",
 
     @Column(nullable = false, length = 256)
-    val position: String,
+    val position: String = "",
 
     @Column(name = "contract_type", length = 64)
     val contractType: String? = null,
 
     @Column(name = "date_from", nullable = false)
-    val dateFrom: LocalDate,
+    val dateFrom: LocalDate = LocalDate.now(),
 
     @Column(name = "date_to")
     val dateTo: LocalDate? = null,

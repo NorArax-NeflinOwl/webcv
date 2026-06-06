@@ -5,17 +5,17 @@ import java.util.UUID
 
 @Entity
 @Table(name = "skill")
-class Skill(
+data class Skill(
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     val id: UUID? = null,
 
     @Column(nullable = false, length = 128)
-    val name: String,
+    val name: String = "",
 
     @Column(nullable = false, length = 64)
-    val category: String,
+    val category: String = "",
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "icon_id")
