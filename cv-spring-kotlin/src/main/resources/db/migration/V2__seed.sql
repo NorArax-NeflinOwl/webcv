@@ -8,29 +8,37 @@ INSERT INTO icon (key, svg_path, label) VALUES
                                             ('database',  'M12 2C6.48 2 2 4.24 2 7v10c0 2.76 4.48 5 10 5s10-2.24 10-5V7c0-2.76-4.48-5-10-5z', 'Database'),
                                             ('tool',      'M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z', 'Tool'),
                                             ('git',       'M9 19V6l12-3v13M9 19c0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2 2 .9 2 2zm12-3c0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2 2 .9 2 2z', 'Git'),
-                                            ('pulse',     'M22 12h-4l-3 9L9 3l-3 9H2', 'Actuator');
+                                            ('pulse',     'M22 12h-4l-3 9L9 3l-3 9H2', 'Actuator'),
+                                            ('web',       'M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2zm0 2c1.66 0 3.18.56 4.39 1.48L5.48 16.39A7.96 7.96 0 0 1 4 12c0-4.41 3.59-8 8-8zm0 16c-1.66 0-3.18-.56-4.39-1.48l10.91-10.91A7.96 7.96 0 0 1 20 12c0 4.41-3.59 8-8 8z', 'Web');
 
 -- ── Skills ───────────────────────────────────────────────
 INSERT INTO skill (name, category, icon_id) VALUES
-    ('Kotlin',      'primary language', (SELECT id FROM icon WHERE key = 'kotlin')),
-('Spring Boot', 'web / rest api',   NULL),
-('Docker',      'containerization', (SELECT id FROM icon WHERE key = 'docker')),
-('PostgreSQL',  'database',         (SELECT id FROM icon WHERE key = 'database')),
-('Gradle',      'build tool',       (SELECT id FROM icon WHERE key = 'tool')),
-('Git',         'version control',  (SELECT id FROM icon WHERE key = 'git'));
+                                                ('Kotlin',      'primary language',  (SELECT id FROM icon WHERE key = 'kotlin')),
+                                                ('Spring Boot', 'web / rest api',    NULL),
+                                                ('Docker',      'containerization',  (SELECT id FROM icon WHERE key = 'docker')),
+                                                ('PostgreSQL',  'database',          (SELECT id FROM icon WHERE key = 'database')),
+                                                ('Gradle',      'build tool',        (SELECT id FROM icon WHERE key = 'tool')),
+                                                ('Git',         'version control',   (SELECT id FROM icon WHERE key = 'git')),
+                                                ('HTML / CSS',  'frontend',          (SELECT id FROM icon WHERE key = 'web')),
+                                                ('Flyway',      'db migrations',     (SELECT id FROM icon WHERE key = 'database'));
 
 -- ── Stack items ──────────────────────────────────────────
 INSERT INTO stack_item (label, sort_order) VALUES
                                                ('JVM 17',          1),
                                                ('Spring MVC',      2),
                                                ('Spring Actuator', 3),
-                                               ('Jackson',         4),
-                                               ('JUnit 5',         5),
-                                               ('MockK',           6),
-                                               ('Docker Compose',  7),
-                                               ('IntelliJ IDEA',   8),
-                                               ('GitHub Actions',  9),
-                                               ('REST API',        10);
+                                               ('Spring Data JPA', 4),
+                                               ('Hibernate',       5),
+                                               ('Flyway',          6),
+                                               ('Jackson',         7),
+                                               ('HikariCP',        8),
+                                               ('JUnit 5',         9),
+                                               ('MockK',           10),
+                                               ('H2 (testy)',      11),
+                                               ('Docker Compose',  12),
+                                               ('IntelliJ IDEA',   13),
+                                               ('GitHub Actions',  14),
+                                               ('REST API',        15);
 
 -- ── Profile ───────────────────────────────────────────────
 INSERT INTO profile (name, eyebrow, role, bio, footer, email, github_url, linkedin_url) VALUES
@@ -41,7 +49,7 @@ INSERT INTO profile (name, eyebrow, role, bio, footer, email, github_url, linked
         'Backend developer z pasją do czystego kodu i skalowalnych systemów. Buduję RESTowe API i mikroserwisy w ekosystemie JVM — od projektu do produkcji w kontenerze.',
         'dostępny do współpracy w ciągu 3 miesięcy',
         'pudwel.n.patryk@gmail.com',
-        'https://github.com/NorArax-NeflinOwl',
+        'https://github.com/NorArax-NeflinOwl/webcv',
         'https://www.linkedin.com/in/ppudwel199527/'
     );
 
@@ -64,12 +72,12 @@ FROM stack_item si;
 
 -- ── Experience ────────────────────────────────────────────
 INSERT INTO experience (profile_id, company, position, contract_type, date_from, is_current, description) VALUES
-                                                                                                              (
-                                                                                                                  (SELECT id FROM profile LIMIT 1),
-    'Przykładowa Firma Sp. z o.o.',
-    'Junior Backend Developer',
-    'B2B',
-    '2023-03-01',
-    TRUE,
-    'Rozwój mikroserwisów w Kotlin + Spring Boot. Utrzymanie infrastruktury Docker.'
+    (
+        (SELECT id FROM profile LIMIT 1),
+        'Przykładowa Firma Sp. z o.o.',
+        'Junior Backend Developer',
+        'B2B',
+        '2023-03-01',
+        TRUE,
+        'Rozwój mikroserwisów w Kotlin + Spring Boot. Utrzymanie infrastruktury Docker.'
     );
