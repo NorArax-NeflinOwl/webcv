@@ -113,24 +113,18 @@ async function loadProfile() {
         const res  = await fetch('/api/profileinfo');
         const data = await res.json();
 
-        // <title>
-        document.title = data.title;
+        document.title = data.title ?? document.title;
 
-        // Header
-        setText('eyebrow',   data.eyebrow);
-        setText('name',      data.name);
-        setHTML('role',      data.role);      // role zawiera <span>
-        setText('bio',       data.bio);
-
-        // Footer
+        setText('eyebrow', data.eyebrow);
+        setText('name',    data.name);
+        setHTML('role',    data.role);
+        setText('bio',     data.bio);
         setText('footer-status', data.footer);
 
-        // Dynamiczne sekcje
-        renderLinks(data.links);
-        renderTechnologies(data.technologies);
-        renderChips(data.stacks);
+        if (data.links)        renderLinks(data.links);
+        if (data.technologies) renderTechnologies(data.technologies);
+        if (data.stacks)       renderChips(data.stacks);
 
-        // Animacja kart po wyrenderowaniu
         animateSkills();
 
     } catch (err) {

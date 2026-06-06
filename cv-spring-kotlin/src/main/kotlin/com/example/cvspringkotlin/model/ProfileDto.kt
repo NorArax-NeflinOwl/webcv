@@ -9,5 +9,16 @@ data class ProfileDto(
     val links: Map<String, String>,
     val technologies: Map<String, String>,
     val stacks: List<String>,
-    val footer: String
+    val footer: String,
+    val experiences: List<ExperienceDto> = emptyList()
+)
+
+data class ExperienceDto(
+    val company: String,
+    val position: String,
+    val contractType: String?,
+    val dateFrom: String,
+    val dateTo: String?,
+    val isCurrent: Boolean,
+    val description: String?
 )

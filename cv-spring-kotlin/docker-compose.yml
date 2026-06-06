@@ -1,0 +1,30 @@
+services:
+  app:
+    build: ./cv-spring-kotlin
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/cvdb
+      SPRING_DATASOURCE_USERNAME: cvuser
+      SPRING_DATASOURCE_PASSWORD: cvpass
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: cvdb
+      POSTGRES_USER: cvuser
+      POSTGRES_PASSWORD: cvpass
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "cvuser", "-d", "cvdb"]
+      interval: 5s
+      retries: 5
+
+volumes:
+  pgdata:
