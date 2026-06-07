@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Panda Runner</title>
+  <link rel="stylesheet" th:href="@{/css/pangaGameStyle.css}">
+</head>
+<body>
+  <div id="game-wrap">
+    <div id="side-controls">
+      <span id="scale-label">ROZMIAR</span>
+      <input type="range" id="scaleSlider" min="60" max="150" value="100" step="5">
+      <span id="scale-val">100%</span>
+    </div>
+    <div id="game-main">
+      <div id="game-title">Panda Runner</div>
+      <div id="game-sub">Skacz przez bambusy!</div>
+      <div id="canvas-wrap">
+        <canvas id="gc" width="884" height="300"></canvas>
+      </div>
+      <div id="stats">
+        <div id="lives-wrap">
+          <span id="lives-label">ŻYCIA</span>
+          <span id="lv1" class="life-icon">🐾</span>
+          <span id="lv2" class="life-icon">🐾</span>
+          <span id="lv3" class="life-icon">🐾</span>
+        </div>
+        <div class="sep"></div>
+        <div class="stat-box">
+          <div class="stat-lbl">WYNIK</div>
+          <div id="sc" class="stat-val">0</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-lbl">REKORD</div>
+          <div id="hi" class="stat-val">0</div>
+        </div>
+      </div>
+      <button id="jumpBtn">Skocz</button>
+      <div id="hint">Kliknij przycisk lub użyj Spacji</div>
+    </div>
+  </div>
+  <script th:src="@{/js/pandaGame.js}"></script>
+</body>
+</html>
