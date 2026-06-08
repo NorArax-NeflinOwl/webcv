@@ -1,8 +1,8 @@
-package com.example.cvspringkotlin.controller
+package com.cvspringkotlin.controller
 
-import com.example.cvspringkotlin.model.ExperienceDto
-import com.example.cvspringkotlin.model.ProfileDto
-import com.example.cvspringkotlin.service.ProfileService
+import com.cvspringkotlin.model.ExperienceDto
+import com.cvspringkotlin.model.ProfileDto
+import com.cvspringkotlin.service.ProfileService
 import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk

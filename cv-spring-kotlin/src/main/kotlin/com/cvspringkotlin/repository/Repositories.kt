@@ -1,6 +1,6 @@
-package com.example.cvspringkotlin.repository
+package com.cvspringkotlin.repository
 
-import com.example.cvspringkotlin.model.entity.*
+import com.cvspringkotlin.model.entity.*
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository

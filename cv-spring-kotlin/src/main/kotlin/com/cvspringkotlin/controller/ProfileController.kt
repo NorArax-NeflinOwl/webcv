@@ -1,7 +1,7 @@
-package com.example.cvspringkotlin.controller
+package com.cvspringkotlin.controller
 
-import com.example.cvspringkotlin.model.ProfileDto
-import com.example.cvspringkotlin.service.ProfileService
+import com.cvspringkotlin.model.ProfileDto
+import com.cvspringkotlin.service.ProfileService
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
 

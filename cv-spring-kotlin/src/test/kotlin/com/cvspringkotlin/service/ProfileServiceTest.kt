@@ -1,7 +1,7 @@
-package com.example.cvspringkotlin.service
+package com.cvspringkotlin.service
 
-import com.example.cvspringkotlin.model.entity.*
-import com.example.cvspringkotlin.repository.*
+import com.cvspringkotlin.model.entity.*
+import com.cvspringkotlin.repository.*
 import io.mockk.*
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK

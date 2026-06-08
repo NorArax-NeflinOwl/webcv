@@ -1,6 +1,6 @@
-package com.example.cvspringkotlin.repository
+package com.cvspringkotlin.repository
 
-import com.example.cvspringkotlin.model.entity.*
+import com.cvspringkotlin.model.entity.*
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

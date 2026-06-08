@@ -1,4 +1,4 @@
-package com.example.cvspringkotlin.model.entity
+package com.cvspringkotlin.model.entity
 
 import jakarta.persistence.*
 import java.util.UUID

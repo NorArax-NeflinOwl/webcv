@@ -1,4 +1,4 @@
-package com.example.cvspringkotlin.model
+package com.cvspringkotlin.model
 
 data class ProfileDto(
     val title: String,

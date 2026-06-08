@@ -1,4 +1,4 @@
-package com.example.cvspringkotlin
+package com.cvspringkotlin
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication

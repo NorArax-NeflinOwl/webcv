@@ -1,8 +1,8 @@
-package com.example.cvspringkotlin.service
+package com.cvspringkotlin.service
 
-import com.example.cvspringkotlin.model.ExperienceDto
-import com.example.cvspringkotlin.model.ProfileDto
-import com.example.cvspringkotlin.repository.*
+import com.cvspringkotlin.model.ExperienceDto
+import com.cvspringkotlin.model.ProfileDto
+import com.cvspringkotlin.repository.*
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -50,7 +50,7 @@ class ProfileService(
         )
     }
 
-    private fun buildLinksMap(profile: com.example.cvspringkotlin.model.entity.Profile): Map<String, String> =
+    private fun buildLinksMap(profile: com.cvspringkotlin.model.entity.Profile): Map<String, String> =
         buildMap {
             profile.githubUrl?.takeIf   { it.isNotBlank() }?.let { put("GithubLink", it) }
             profile.linkedinUrl?.takeIf { it.isNotBlank() }?.let { put("LinkedIn",   it) }
