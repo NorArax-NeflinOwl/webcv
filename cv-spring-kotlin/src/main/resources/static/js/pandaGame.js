@@ -139,7 +139,7 @@
 
         frame++;
         score++;
-        speed=5+Math.floor(score/500)*0.4;
+        speed=5+Math.floor(score/100)*0.4;
 
         panda.vy+=0.65;
         panda.y+=panda.vy;
@@ -154,7 +154,7 @@
         if(obsTimer>=obsInterval){
             spawnObs();
             obsTimer=0;
-            obsInterval=65+Math.random()*65;
+            obsInterval=50+Math.random()*50;
         }
         for(const o of obstacles)
             o.x-=speed;
@@ -172,9 +172,11 @@
         // update spin
         if(spinning){
             spinFrames++;
-            spinAngle = (spinFrames / SPIN_TOTAL) * Math.PI * 4; // 2 full rotations
+            spinAngle = (spinFrames / SPIN_TOTAL) * Math.PI * 2; // 1 full rotations
             if(spinFrames >= SPIN_TOTAL){
-                spinning=false; spinAngle=0; spinFrames=0;
+                spinning=false;
+                spinAngle=0;
+                spinFrames=0;
             }
         }
 
@@ -235,7 +237,7 @@
         ctx.stroke();
         for(let i=0;i<8;i++){
             const gx=(groundX+i*(W/8))%W;
-            ctx.fillStyle='#a5d6a7'; //ctx.fillStyle='#bbb';
+            ctx.fillStyle='#c8e6c9'; //ctx.fillStyle='#bbb';
             ctx.beginPath();
             ctx.arc(gx,GROUND+8,4,Math.PI,0);
             ctx.fill();
@@ -298,7 +300,7 @@
 
         // body
         fe(px+22,py+32,18,21,0,'#f0f0f0');
-        fe(px+22,py+35,10,13,0,'#ddd');
+        //fe(px+22,py+35,10,13,0,'#ddd');
 
         // arms
         fe(px+5,py+28+(panda.onGround?leg*0.3:-4),6,10,0.5,'#111');
@@ -312,8 +314,8 @@
         fa(px+35,py+4,6,'#111');
         // ears inner
         setOutline(1);
-        fa(px+9,py+4,3.5,'#555');
-        fa(px+35,py+4,3.5,'#555');
+        fa(px+9,py+4,3.5,'#ee77d3');
+        fa(px+35,py+4,3.5,'#ee77d3');
 
         setOutline(1.5);
         // eye patches
@@ -366,8 +368,8 @@
         fa(cx+9,cy+3+bob,6,'#111');
         fa(cx+35,cy+3+bob,6,'#111');
         setOutline(1);
-        fa(cx+9,cy+3+bob,3.5,'#555');
-        fa(cx+35,cy+3+bob,3.5,'#555');
+        fa(cx+9,cy+3+bob,3.5,'#ee77d3');
+        fa(cx+35,cy+3+bob,3.5,'#ee77d3');
 
         setOutline(1.5);
         fe(cx+14,cy+13+bob,5.5,4.5,-0.3,'#222');
@@ -444,7 +446,7 @@
 
     function draw(){
         ctx.clearRect(0,0,W,H);
-        ctx.fillStyle='#f0f7ee'; //ctx.fillStyle='#f8f8f8';
+        ctx.fillStyle='#94c1e8'; //ctx.fillStyle='#f8f8f8';
         ctx.fillRect(0,0,W,H);
         for(const c of clouds) drawCloud(c);
         drawGround();
