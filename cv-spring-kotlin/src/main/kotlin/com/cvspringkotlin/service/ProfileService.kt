@@ -2,6 +2,7 @@ package com.cvspringkotlin.service
 
 import com.cvspringkotlin.model.ExperienceDto
 import com.cvspringkotlin.model.ProfileDto
+import com.cvspringkotlin.model.entity.Profile
 import com.cvspringkotlin.repository.*
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -22,21 +23,22 @@ class ProfileService(
         val id = profile.id!!
 
         // Każda kolekcja ładowana osobnym zapytaniem — brak MultipleBagFetchException
-        val skills  = profileSkillRepository.findByProfileId(id)
-        val stacks  = profileStackRepository.findByProfileId(id)
+        val skills      = profileSkillRepository.findByProfileId(id)
+        val stacks      = profileStackRepository.findByProfileId(id)
         val experiences = experienceRepository.findByProfileIdOrderByDateFromDesc(id)
 
         return ProfileDto(
-            title   = "${profile.name} — Backend Developer",
-            eyebrow = profile.eyebrow ?: "",
-            name    = profile.name,
-            role    = profile.role ?: "",
-            bio     = profile.bio ?: "",
-            footer  = profile.footer ?: "",
-            links   = buildLinksMap(profile),
+            title        = "${profile.name} — Backend Developer",
+            eyebrow      = profile.eyebrow ?: "",
+            name         = profile.name,
+            role         = profile.role ?: "",
+            bio          = profile.bio ?: "",
+            footer       = profile.footer ?: "",
+            footerStatus = profile.footerStatus.name,
+            links        = buildLinksMap(profile),
             technologies = skills.associate { it.skill.name to (it.tag ?: it.skill.category) },
-            stacks  = stacks.map { it.stackItem.label },
-            experiences = experiences.map { exp ->
+            stacks       = stacks.map { it.stackItem.label },
+            experiences  = experiences.map { exp ->
                 ExperienceDto(
                     company      = exp.company,
                     position     = exp.position,
@@ -50,7 +52,7 @@ class ProfileService(
         )
     }
 
-    private fun buildLinksMap(profile: com.cvspringkotlin.model.entity.Profile): Map<String, String> =
+    private fun buildLinksMap(profile: Profile): Map<String, String> =
         buildMap {
             profile.githubUrl?.takeIf   { it.isNotBlank() }?.let { put("GithubLink", it) }
             profile.linkedinUrl?.takeIf { it.isNotBlank() }?.let { put("LinkedIn",   it) }

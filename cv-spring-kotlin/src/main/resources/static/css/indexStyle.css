@@ -14,6 +14,11 @@
     --muted:   #6b6b7a;
     --mono:    'DM Mono', monospace;
     --display: 'Syne', sans-serif;
+
+    /* Status colours */
+    --status-green:  #22c55e;
+    --status-yellow: #eab308;
+    --status-red:    #ef4444;
 }
 
 html {
@@ -265,12 +270,27 @@ body::before {
     gap: 6px;
 }
 
+/* ── Status dot — trzy stany ── */
+
 .footer .dot {
     width: 7px;
     height: 7px;
     border-radius: 50%;
-    background: var(--accent);
+    background: var(--status-yellow);   /* domyślny: żółty */
     animation: pulse 2s ease infinite;
+}
+
+.footer .dot--green {
+    background: var(--status-green);
+}
+
+.footer .dot--yellow {
+    background: var(--status-yellow);
+}
+
+.footer .dot--red {
+    background: var(--status-red);
+    animation: pulse-red 2s ease infinite;
 }
 
 /* ── Animations ── */
@@ -278,6 +298,11 @@ body::before {
 @keyframes pulse {
     0%, 100% { opacity: 1; }
     50%       { opacity: .3; }
+}
+
+@keyframes pulse-red {
+    0%, 100% { opacity: 1;  transform: scale(1); }
+    50%       { opacity: .4; transform: scale(1.15); }
 }
 
 @keyframes fadeUp {

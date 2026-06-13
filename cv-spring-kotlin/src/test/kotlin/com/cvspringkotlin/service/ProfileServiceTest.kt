@@ -1,5 +1,6 @@
 package com.cvspringkotlin.service
 
+import com.cvspringkotlin.model.FooterStatus
 import com.cvspringkotlin.model.entity.*
 import com.cvspringkotlin.repository.*
 import io.mockk.*
@@ -28,15 +29,16 @@ class ProfileServiceTest {
     private val profileId = UUID.randomUUID()
 
     private val defaultProfile = Profile(
-        id          = profileId,
-        name        = "Jan Kowalski",
-        eyebrow     = "backend developer",
-        role        = "<span>Kotlin</span>",
-        bio         = "Bio testowe",
-        footer      = "dostępny",
-        email       = "test@example.com",
-        githubUrl   = "https://github.com/test",
-        linkedinUrl = "https://linkedin.com/in/test"
+        id           = profileId,
+        name         = "Jan Kowalski",
+        eyebrow      = "backend developer",
+        role         = "<span>Kotlin</span>",
+        bio          = "Bio testowe",
+        footer       = "dostępny",
+        footerStatus = FooterStatus.YELLOW,
+        email        = "test@example.com",
+        githubUrl    = "https://github.com/test",
+        linkedinUrl  = "https://linkedin.com/in/test"
     )
 
     private val defaultSkills = listOf(
@@ -91,6 +93,35 @@ class ProfileServiceTest {
         assertEquals("dostępny", result.footer)
     }
 
+    // ── Footer status ─────────────────────────────────────
+
+    @Test
+    fun `getProfile zwraca YELLOW footerStatus domyslnie`() {
+        val result = profileService.getProfile()
+
+        assertEquals("YELLOW", result.footerStatus)
+    }
+
+    @Test
+    fun `getProfile zwraca GREEN footerStatus`() {
+        every { profileRepository.findFirst() } returns defaultProfile.copy(footerStatus = FooterStatus.GREEN)
+
+        val result = profileService.getProfile()
+
+        assertEquals("GREEN", result.footerStatus)
+    }
+
+    @Test
+    fun `getProfile zwraca RED footerStatus`() {
+        every { profileRepository.findFirst() } returns defaultProfile.copy(footerStatus = FooterStatus.RED)
+
+        val result = profileService.getProfile()
+
+        assertEquals("RED", result.footerStatus)
+    }
+
+    // ── Linki ─────────────────────────────────────────────
+
     @Test
     fun `getProfile zwraca poprawne linki`() {
         val result = profileService.getProfile()
@@ -99,37 +130,6 @@ class ProfileServiceTest {
         assertEquals("https://linkedin.com/in/test", result.links["LinkedIn"])
         assertEquals("test@example.com", result.links["E-mail"])
     }
-
-    @Test
-    fun `getProfile zwraca poprawne technologie`() {
-        val result = profileService.getProfile()
-
-        assertEquals("primary language", result.technologies["Kotlin"])
-        assertEquals("web / rest api", result.technologies["Spring Boot"])
-    }
-
-    @Test
-    fun `getProfile zwraca poprawny stack`() {
-        val result = profileService.getProfile()
-
-        assertEquals(listOf("JVM 17", "Docker"), result.stacks)
-    }
-
-    @Test
-    fun `getProfile zwraca poprawne doswiadczenie`() {
-        val result = profileService.getProfile()
-
-        assertEquals(1, result.experiences.size)
-        val exp = result.experiences.first()
-        assertEquals("Firma Sp. z o.o.", exp.company)
-        assertEquals("Developer", exp.position)
-        assertEquals("B2B", exp.contractType)
-        assertEquals("2023-01-01", exp.dateFrom)
-        assertNull(exp.dateTo)
-        assertTrue(exp.isCurrent)
-    }
-
-    // ── Linki ─────────────────────────────────────────────
 
     @Test
     fun `getProfile pomija null i puste linki`() {
@@ -153,6 +153,23 @@ class ProfileServiceTest {
         assertTrue(result.links.isEmpty())
     }
 
+    // ── Technologie i stack ───────────────────────────────
+
+    @Test
+    fun `getProfile zwraca poprawne technologie`() {
+        val result = profileService.getProfile()
+
+        assertEquals("primary language", result.technologies["Kotlin"])
+        assertEquals("web / rest api", result.technologies["Spring Boot"])
+    }
+
+    @Test
+    fun `getProfile zwraca poprawny stack`() {
+        val result = profileService.getProfile()
+
+        assertEquals(listOf("JVM 17", "Docker"), result.stacks)
+    }
+
     // ── Wartości null ─────────────────────────────────────
 
     @Test
@@ -167,6 +184,22 @@ class ProfileServiceTest {
         assertEquals("", result.role)
         assertEquals("", result.bio)
         assertEquals("", result.footer)
+    }
+
+    // ── Doświadczenie ─────────────────────────────────────
+
+    @Test
+    fun `getProfile zwraca poprawne doswiadczenie`() {
+        val result = profileService.getProfile()
+
+        assertEquals(1, result.experiences.size)
+        val exp = result.experiences.first()
+        assertEquals("Firma Sp. z o.o.", exp.company)
+        assertEquals("Developer", exp.position)
+        assertEquals("B2B", exp.contractType)
+        assertEquals("2023-01-01", exp.dateFrom)
+        assertNull(exp.dateTo)
+        assertTrue(exp.isCurrent)
     }
 
     @Test

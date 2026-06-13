@@ -10,6 +10,7 @@ data class ProfileDto(
     val technologies: Map<String, String>,
     val stacks: List<String>,
     val footer: String,
+    val footerStatus: String,          // "GREEN" | "YELLOW" | "RED"
     val experiences: List<ExperienceDto> = emptyList()
 )
 

@@ -1,5 +1,6 @@
 package com.cvspringkotlin.model.entity
 
+import com.cvspringkotlin.model.FooterStatus
 import jakarta.persistence.*
 import java.util.UUID
 
@@ -25,6 +26,11 @@ data class Profile(
 
     @Column(length = 256)
     val footer: String? = null,
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "footer_status", nullable = false, length = 16,
+        columnDefinition = "footer_status_enum")
+    val footerStatus: FooterStatus = FooterStatus.RED,
 
     @Column(length = 256)
     val email: String? = null,

@@ -1,5 +1,6 @@
 package com.cvspringkotlin.controller
 
+import com.cvspringkotlin.controller.ProfileController
 import com.cvspringkotlin.model.ExperienceDto
 import com.cvspringkotlin.model.ProfileDto
 import com.cvspringkotlin.service.ProfileService
@@ -31,6 +32,7 @@ class ProfileControllerTest {
 
     private fun buildProfileDto(
         name: String = "Jan Kowalski",
+        footerStatus: String = "YELLOW",
         links: Map<String, String> = mapOf(
             "GithubLink" to "https://github.com/test",
             "E-mail"     to "test@example.com"
@@ -45,6 +47,7 @@ class ProfileControllerTest {
         role         = "<span>Kotlin</span>",
         bio          = "Bio testowe",
         footer       = "dostępny",
+        footerStatus = footerStatus,
         links        = links,
         technologies = technologies,
         stacks       = stacks,
@@ -53,7 +56,6 @@ class ProfileControllerTest {
 
     @BeforeEach
     fun setUp() {
-        // Resetuj licznik wywołań MockK między testami
         clearMocks(profileService)
     }
 
@@ -86,6 +88,40 @@ class ProfileControllerTest {
                 jsonPath("$.footer")  { value("dostępny") }
             }
     }
+
+    // ── Footer status ─────────────────────────────────────
+
+    @Test
+    fun `GET api profileinfo zwraca footerStatus YELLOW domyslnie`() {
+        every { profileService.getProfile() } returns buildProfileDto(footerStatus = "YELLOW")
+
+        mockMvc.get("/api/profileinfo")
+            .andExpect {
+                jsonPath("$.footerStatus") { value("YELLOW") }
+            }
+    }
+
+    @Test
+    fun `GET api profileinfo zwraca footerStatus GREEN`() {
+        every { profileService.getProfile() } returns buildProfileDto(footerStatus = "GREEN")
+
+        mockMvc.get("/api/profileinfo")
+            .andExpect {
+                jsonPath("$.footerStatus") { value("GREEN") }
+            }
+    }
+
+    @Test
+    fun `GET api profileinfo zwraca footerStatus RED`() {
+        every { profileService.getProfile() } returns buildProfileDto(footerStatus = "RED")
+
+        mockMvc.get("/api/profileinfo")
+            .andExpect {
+                jsonPath("$.footerStatus") { value("RED") }
+            }
+    }
+
+    // ── Linki ─────────────────────────────────────────────
 
     @Test
     fun `GET api profileinfo zwraca linki`() {

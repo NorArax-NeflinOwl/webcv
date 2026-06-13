@@ -25,17 +25,20 @@ CREATE TABLE stack_item (
                             icon_id    UUID         REFERENCES icon(id)
 );
 
+CREATE TYPE footer_status_enum AS ENUM ('GREEN', 'YELLOW', 'RED');
+
 -- ── profile ───────────────────────────────────────────────
 CREATE TABLE profile (
-                         id           UUID         PRIMARY KEY DEFAULT gen_random_uuid(),
-                         name         VARCHAR(256) NOT NULL,
-                         eyebrow      VARCHAR(128),
-                         role         VARCHAR(256),
-                         bio          TEXT,
-                         footer       VARCHAR(256),
-                         email        VARCHAR(256),
-                         github_url   VARCHAR(512),
-                         linkedin_url VARCHAR(512)
+                         id            UUID         PRIMARY KEY DEFAULT gen_random_uuid(),
+                         name          VARCHAR(256) NOT NULL,
+                         eyebrow       VARCHAR(128),
+                         role          VARCHAR(256),
+                         bio           TEXT,
+                         footer        VARCHAR(256),
+                         footer_status footer_status_enum NOT NULL DEFAULT 'RED',
+                         email         VARCHAR(256),
+                         github_url    VARCHAR(512),
+                         linkedin_url  VARCHAR(512)
 );
 
 -- ── profile_skill ─────────────────────────────────────────

@@ -41,13 +41,14 @@ INSERT INTO stack_item (label, sort_order) VALUES
                                                ('REST API',        15);
 
 -- ── Profile ───────────────────────────────────────────────
-INSERT INTO profile (name, eyebrow, role, bio, footer, email, github_url, linkedin_url) VALUES
+INSERT INTO profile (name, eyebrow, role, bio, footer, footer_status, email, github_url, linkedin_url) VALUES
     (
         'Patryk Norbert Pudwel',
         'backend developer',
         '<span>Kotlin</span> / Spring Boot / Docker / PostgreSQL',
         'Backend developer z pasją do czystego kodu i skalowalnych systemów. Buduję RESTowe API i mikroserwisy w ekosystemie JVM — od projektu do produkcji w kontenerze.',
         'dostępny do współpracy w ciągu 3 miesięcy',
+        'YELLOW',
         'pudwel.n.patryk@gmail.com',
         'https://github.com/NorArax-NeflinOwl/webcv',
         'https://www.linkedin.com/in/ppudwel199527/'
