@@ -40,10 +40,12 @@ dane przechowywane w PostgreSQL z migracjami Flyway, skonteneryzowany przy pomoc
 ---
 
 ### 02 — Panda Game
-> Status: 🚧 W toku
+> Status: ✅ Gotowy
 
 Podstrona z minigierką w stylu Dino z Google Chrome — panda skacząca przez przeszkody.
 Gra napisana w czystym HTML + CSS + JavaScript, serwowana przez ten sam serwer Spring Boot.
+Wyniki graczy zapisywane są w bazie PostgreSQL (tabela `panda_game_player_score`) i prezentowane
+jako tablica wyników.
 
 📁 Katalog: `/cv-spring-kotlin/src/main/resources/static/panda-game`
 
@@ -51,6 +53,10 @@ Gra napisana w czystym HTML + CSS + JavaScript, serwowana przez ten sam serwer S
 - HTML5 Canvas
 - CSS3 + animacje
 - JavaScript (vanilla)
+- Spring MVC + Spring Data JPA (zapis i odczyt wyników)
+- PostgreSQL + Flyway (migracja `V1`)
+- JUnit 5 + MockK + H2 (testy serwisu, kontrolera i repozytorium)
+- REST API (`/api/pandagame/scores`)
 
 ---
 
@@ -75,6 +81,7 @@ Aplikacja dostępna pod adresem: `http://localhost:8080`
 | `http://localhost:8080/panda-game/` | Minigierka Panda |
 | `http://localhost:8080/api/profileinfo` | Dane profilu (JSON) |
 | `http://localhost:8080/api/hello` | Hello World |
+| `http://localhost:8080/api/pandagame/scores` | Wyniki Panda Game (GET — wszystkie wyniki, POST — zapis wyniku) |
 | `http://localhost:8080/actuator/health` | Status aplikacji |
 
 ---
@@ -100,8 +107,10 @@ docker compose up --build -d
 ./gradlew test
 ```
 
-Testy jednostkowe (`ProfileServiceTest`) i kontrolera (`ProfileControllerTest`) używają MockK.
-Testy repozytoriów (`RepositoryTest`) używają bazy H2 in-memory — nie wymagają PostgreSQL.
+Testy jednostkowe (`ProfileServiceTest`, `PandaGameServiceTest`) i kontrolerów
+(`ProfileControllerTest`, `PandaGameControllerTest`) używają MockK.
+Testy repozytoriów (`RepositoryTest`, `PandaScoreRepositoryTest`) używają bazy H2 in-memory —
+nie wymagają PostgreSQL.
 
 ---
 
@@ -111,6 +120,7 @@ Testy repozytoriów (`RepositoryTest`) używają bazy H2 in-memory — nie wymag
 - [x] Projekt 01 — Integracja PostgreSQL + Flyway
 - [x] Projekt 01 — REST API + testy jednostkowe
 - [x] Projekt 02 — Panda Game
+- [x] Projekt 02 — Tablica wyników (PostgreSQL + REST API)
 - [ ] Wdrożenie na hosting
 
 ---
