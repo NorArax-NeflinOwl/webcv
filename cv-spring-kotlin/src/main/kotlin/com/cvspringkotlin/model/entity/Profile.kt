@@ -28,8 +28,7 @@ data class Profile(
     val footer: String? = null,
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "footer_status", nullable = false, length = 16,
-        columnDefinition = "footer_status_enum")
+    @Column(name = "footer_status", nullable = false, length = 16)
     val footerStatus: FooterStatus = FooterStatus.RED,
 
     @Column(length = 256)

@@ -35,10 +35,19 @@
           <div id="hi" class="stat-val">0</div>
         </div>
       </div>
-      <a class="jump-btn" id="jumpBtn">
+      <a class="pgbutton" id="jumpBtn">
         <span id="jumpBtnLabel">Skocz</span>
       </a>
       <div id="hint">Kliknij przycisk lub użyj Spacji</div>
+      <div id="save-score-wrap">
+        <label id="nick-label" for="nickInput">Nick:</label>
+        <input type="text" id="nickInput" maxlength="20" placeholder="Twój nick">
+        <button class="pgbutton" id="saveScoreBtn">Zapisz wynik</button>
+        <div id="save-confirm"></div>
+      </div>
+      <a class="pgbutton" href="/api/pandagame/scores">
+        🐼 Scores
+      </a>
     </div>
   </div>
   <script th:src="@{/js/pandaGame.js}"></script>

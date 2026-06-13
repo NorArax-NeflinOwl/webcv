@@ -72,3 +72,12 @@ CREATE TABLE experience (
                             is_current    BOOLEAN      NOT NULL DEFAULT FALSE,
                             description   TEXT
 );
+
+CREATE TABLE panda_game_player_score (
+                             id        UUID         PRIMARY KEY DEFAULT gen_random_uuid(),
+                             nick      VARCHAR(64)  NOT NULL,
+                             score     INT          NOT NULL,
+                             played_at TIMESTAMP    NOT NULL DEFAULT now()
+);
+
+CREATE INDEX idx_panda_score_score ON panda_game_player_score (score DESC, played_at ASC);

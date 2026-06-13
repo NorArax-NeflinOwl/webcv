@@ -53,3 +53,9 @@ interface StackItemRepository : JpaRepository<StackItem, UUID>
 interface IconRepository : JpaRepository<Icon, UUID> {
     fun findByKey(key: String): Icon?
 }
+
+@Repository
+interface PandaGamePlayerScoreRepository : JpaRepository<PandaGamePlayerScore, UUID> {
+
+    fun findTop10ByOrderByScoreDescPlayedAtAsc(): List<PandaGamePlayerScore>
+}

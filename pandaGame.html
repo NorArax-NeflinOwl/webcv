@@ -41,7 +41,7 @@
   }
 
   /* ── Przycisk skoku ── */
-  .jump-btn {
+  .pgbutton {
     display: inline-flex;
     align-items: center;
     gap: 8px;
@@ -57,13 +57,13 @@
     cursor: pointer;
   }
 
-  .jump-btn:hover {
+  .pgbutton:hover {
     border-color: var(--accent);
     color: var(--accent);
     background: rgba(127, 219, 202, .05);
   }
 
-  .jump-btn svg {
+  .pgbutton svg {
     width: 16px;
     height: 16px;
     stroke: currentColor;
@@ -287,16 +287,20 @@
         <div id="hi" class="stat-val">0</div>
       </div>
     </div>
-    <a class="jump-btn" id="jumpBtn">
+    <a class="pgbutton" id="jumpBtn">
       <span id="jumpBtnLabel">Skocz</span>
     </a>
     <div id="hint">Kliknij przycisk lub użyj Spacji</div>
     <div id="save-score-wrap">
       <label id="nick-label" for="nickInput">Nick:</label>
       <input type="text" id="nickInput" maxlength="20" placeholder="Twój nick">
-      <button class="jump-btn" id="saveScoreBtn">Zapisz wynik</button>
+      <button class="pgbutton" id="saveScoreBtn">Zapisz wynik</button>
       <div id="save-confirm"></div>
     </div>
+    <br>
+    <a class="pgbutton" href="/api/pandagame/scores">
+        🐼 Scores
+    </a>
   </div>
 </div>
 
@@ -429,7 +433,7 @@
     if (e.code === 'Space') { e.preventDefault(); jump(); }
   });
 
-  saveBtn.addEventListener('click', function () {
+  /*saveBtn.addEventListener('click', function () {
     const nick = nickInput.value.trim() || 'Anonim';
     const entries = JSON.parse(localStorage.getItem('pandaScores') || '[]');
     entries.push({ nick, score });
@@ -438,6 +442,37 @@
     saveConfirm.textContent = `Zapisano: ${nick} — ${score} pkt`;
     saveBtn.disabled = true;
     saveBtn.style.opacity = '0.5';
+  });*/
+  
+  saveBtn.addEventListener('click', function () {
+    const nick = nickInput.value.trim() || 'Anonim';
+
+    saveBtn.disabled    = true;
+    saveBtn.style.opacity = '0.5';
+    saveConfirm.textContent = 'Zapisywanie...';
+
+    fetch('/api/pandagame/scores', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nick, score })
+    })
+      .then(res =>
+        res.json()
+          .catch(() => ({}))
+          .then(data => {
+            if (!res.ok) throw new Error(data.error || ('HTTP ' + res.status));
+            return data;
+          })
+      )
+      .then(data => {
+        saveConfirm.textContent = `Zapisano: ${data.nick} — ${data.score} pkt`;
+      })
+      .catch(err => {
+        console.error('Błąd zapisu wyniku:', err);
+        saveConfirm.textContent = 'Nie udało się zapisać wyniku: ' + err.message;
+        saveBtn.disabled      = false;
+        saveBtn.style.opacity = '1';
+      });
   });
 
   function startGame() {
@@ -551,6 +586,7 @@
         btnLabel.textContent   = 'Start';
         hintEl.textContent     = 'Kliknij Start lub Spacja aby zagrać ponownie';
         saveWrap.style.display = 'flex';
+        nickInput.focus();
       }
       return;
     }

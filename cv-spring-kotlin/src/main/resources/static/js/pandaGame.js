@@ -5,8 +5,12 @@
   const wrap     = document.getElementById('canvas-wrap');
   const slider   = document.getElementById('scaleSlider');
   const scaleVal = document.getElementById('scale-val');
-  const btnLabel = document.getElementById('jumpBtnLabel');
-  const hintEl   = document.getElementById('hint');
+  const btnLabel    = document.getElementById('jumpBtnLabel');
+  const hintEl      = document.getElementById('hint');
+  const saveWrap    = document.getElementById('save-score-wrap');
+  const nickInput   = document.getElementById('nickInput');
+  const saveBtn     = document.getElementById('saveScoreBtn');
+  const saveConfirm = document.getElementById('save-confirm');
 
   const W      = 884;
   const H      = 300;
@@ -122,6 +126,37 @@
     if (e.code === 'Space') { e.preventDefault(); jump(); }
   });
 
+  saveBtn.addEventListener('click', function () {
+    const nick = nickInput.value.trim() || 'Anonim';
+
+    saveBtn.disabled    = true;
+    saveBtn.style.opacity = '0.5';
+    saveConfirm.textContent = 'Zapisywanie...';
+
+    fetch('/api/pandagame/scores', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nick, score })
+    })
+        .then(res =>
+            res.json()
+                .catch(() => ({}))
+                .then(data => {
+                  if (!res.ok) throw new Error(data.error || ('HTTP ' + res.status));
+                  return data;
+                })
+        )
+        .then(data => {
+          saveConfirm.textContent = `Zapisano: ${data.nick} — ${data.score} pkt`;
+        })
+        .catch(err => {
+          console.error('Błąd zapisu wyniku:', err);
+          saveConfirm.textContent = 'Nie udało się zapisać wyniku: ' + err.message;
+          saveBtn.disabled      = false;
+          saveBtn.style.opacity = '1';
+        });
+  });
+
   function startGame() {
     // stan gry
     state     = 'running';
@@ -145,6 +180,12 @@
     deathFrame = 0;
     deathY     = GROUND;
     deathVY    = 0;
+
+    // panel zapisu — ukryj przy nowej grze
+    saveWrap.style.display  = 'none';
+    saveConfirm.textContent = '';
+    saveBtn.disabled        = false;
+    saveBtn.style.opacity   = '1';
 
     // świat
     obstacles    = [];
@@ -224,8 +265,10 @@
       if (deathY >= GROUND) deathY = GROUND;
       if (deathFrame >= DEATH_SPIN_TOTAL) {
         state = 'dead';
-        btnLabel.textContent = 'Start';
-        hintEl.textContent   = 'Kliknij Start lub Spacja aby zagrać ponownie';
+        btnLabel.textContent   = 'Start';
+        hintEl.textContent     = 'Kliknij Start lub Spacja aby zagrać ponownie';
+        saveWrap.style.display = 'flex';
+        nickInput.focus();
       }
       return;
     }
