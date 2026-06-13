@@ -7,9 +7,12 @@ import com.cvspringkotlin.repository.PandaGamePlayerScoreRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
+import java.time.ZoneId
 
 @Service
 class PandaGamePlayerScoreService(private val pandaScoreRepository: PandaGamePlayerScoreRepository) {
+
+    private val POLISH_TIMEZONE = ZoneId.of("Europe/Warsaw")
 
     companion object {
         const val MAX_NICK_LENGTH = 64
@@ -32,7 +35,7 @@ class PandaGamePlayerScoreService(private val pandaScoreRepository: PandaGamePla
         }
 
         val saved = pandaScoreRepository.save(
-            PandaGamePlayerScore(nick = nick, score = request.score, playedAt = LocalDateTime.now())
+            PandaGamePlayerScore(nick = nick, score = request.score, playedAt = LocalDateTime.now(POLISH_TIMEZONE))
         )
 
         return saved.toDto()
