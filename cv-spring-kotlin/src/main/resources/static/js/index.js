@@ -3,7 +3,7 @@ async function checkHealth() {
     const link = document.getElementById('health-link');
     if (!link) return;
     try {
-        const res = await fetch('/actuator/health');
+        const res  = await fetch('/actuator/health');
         const data = await res.json();
         if (data.status === 'UP') {
             link.classList.add('health-ok');
@@ -18,15 +18,44 @@ async function checkHealth() {
     }
 }
 
+// ── Footer status dot ────────────────────────────────────
+/**
+ * Ustawia kolor i klasę kropki w footerze na podstawie wartości
+ * footerStatus z API: "GREEN" | "YELLOW" | "RED"
+ */
+function applyFooterStatus(status) {
+    const dot = document.querySelector('.footer .dot');
+    if (!dot) return;
+
+    // Usuń poprzednie klasy statusu
+    dot.classList.remove('dot--green', 'dot--yellow', 'dot--red');
+
+    switch (status) {
+        case 'GREEN':
+            dot.classList.add('dot--green');
+            dot.title = 'Dostępny';
+            break;
+        case 'RED':
+            dot.classList.add('dot--red');
+            dot.title = 'Niedostępny';
+            break;
+        case 'YELLOW':
+        default:
+            dot.classList.add('dot--yellow');
+            dot.title = 'Częściowo dostępny';
+            break;
+    }
+}
+
 // ── Staggered skill card animation ──────────────────────
 function animateSkills() {
     const items = document.querySelectorAll('.skill-item');
     items.forEach((el, i) => {
-        el.style.opacity = '0';
-        el.style.transform = 'translateY(12px)';
+        el.style.opacity    = '0';
+        el.style.transform  = 'translateY(12px)';
         el.style.transition = `opacity .4s ${i * 0.06}s ease, transform .4s ${i * 0.06}s ease, border-color .2s, background .2s`;
         setTimeout(() => {
-            el.style.opacity = '1';
+            el.style.opacity   = '1';
             el.style.transform = 'translateY(0)';
         }, 100 + i * 60);
     });
@@ -52,28 +81,27 @@ function renderLinks(links) {
     const container = document.getElementById('links');
     if (!container) return;
 
-    // Zachowaj stałe przyciski (health, hello, profile) — usuń tylko dynamiczne
+    // Zachowaj stałe przyciski — usuń tylko dynamiczne
     const dynamic = container.querySelectorAll('.link-btn--dynamic');
     dynamic.forEach(el => el.remove());
 
-    // Wstaw dynamiczne linki przed stałymi
-    const staticBtns = container.querySelectorAll('.link-btn:not(.link-btn--dynamic)');
+    const staticBtns  = container.querySelectorAll('.link-btn:not(.link-btn--dynamic)');
     const firstStatic = staticBtns[0] || null;
 
     Object.entries(links).forEach(([key, url]) => {
-        if (!url) return; // pomiń puste (np. RocketJob bez URL)
+        if (!url) return;
 
         const isEmail = key === 'E-mail';
         const href    = isEmail ? `mailto:${url}` : url;
         const label   = LINK_LABELS[key] !== undefined
-            ? (LINK_LABELS[key] || url)   // pusty label → pokaż URL/adres
+            ? (LINK_LABELS[key] || url)
             : key;
         const icon    = LINK_ICONS[key] ?? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>`;
 
-        const a = document.createElement('a');
-        a.className = 'link-btn link-btn--dynamic';
-        a.href      = href;
-        a.innerHTML = `${icon} ${label}`;
+        const a       = document.createElement('a');
+        a.className   = 'link-btn link-btn--dynamic';
+        a.href        = href;
+        a.innerHTML   = `${icon} ${label}`;
         if (!isEmail) {
             a.target = '_blank';
             a.rel    = 'noopener';
@@ -115,15 +143,16 @@ async function loadProfile() {
 
         document.title = data.title ?? document.title;
 
-        setText('eyebrow', data.eyebrow);
-        setText('name',    data.name);
-        setHTML('role',    data.role);
-        setText('bio',     data.bio);
+        setText('eyebrow',       data.eyebrow);
+        setText('name',          data.name);
+        setHTML('role',          data.role);
+        setText('bio',           data.bio);
         setText('footer-status', data.footer);
 
-        if (data.links)        renderLinks(data.links);
-        if (data.technologies) renderTechnologies(data.technologies);
-        if (data.stacks)       renderChips(data.stacks);
+        if (data.footerStatus)  applyFooterStatus(data.footerStatus);
+        if (data.links)         renderLinks(data.links);
+        if (data.technologies)  renderTechnologies(data.technologies);
+        if (data.stacks)        renderChips(data.stacks);
 
         animateSkills();
 
