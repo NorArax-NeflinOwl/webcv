@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Panda Runner</title>
-  <link rel="stylesheet" th:href="@{/css/pangaGameStyle.css}">
+  <link rel="stylesheet" th:href="@{/css/pandaGameStyle.css}">
 </head>
 <body>
   <div id="game-wrap">
@@ -14,16 +14,16 @@
     </div>
     <div id="game-main">
       <div id="game-title">Panda Runner</div>
-      <div id="game-sub">Skacz przez bambusy!</div>
+      <div id="game-sub">Skacz przez bambusy — nie skacz na czarownicę!</div>
       <div id="canvas-wrap">
         <canvas id="gc" width="884" height="300"></canvas>
       </div>
       <div id="stats">
         <div id="lives-wrap">
           <span id="lives-label">ŻYCIA</span>
-          <span id="lv1" class="life-icon">🐾</span>
-          <span id="lv2" class="life-icon">🐾</span>
-          <span id="lv3" class="life-icon">🐾</span>
+          <span id="lv1" class="life-icon">🐼</span>
+          <span id="lv2" class="life-icon">🐼</span>
+          <span id="lv3" class="life-icon">🐼</span>
         </div>
         <div class="sep"></div>
         <div class="stat-box">
@@ -35,7 +35,9 @@
           <div id="hi" class="stat-val">0</div>
         </div>
       </div>
-      <button id="jumpBtn">Skocz</button>
+      <a class="jump-btn" id="jumpBtn">
+        <span id="jumpBtnLabel">Skocz</span>
+      </a>
       <div id="hint">Kliknij przycisk lub użyj Spacji</div>
     </div>
   </div>

@@ -1,112 +1,212 @@
+
+*, *::before, *::after {
+box-sizing: border-box;
+margin: 0;
+padding: 0;
+}
+
+/* ── Motyw (zgodny z indexStyle.css) ── */
+:root {
+--bg:      #0a0a0f;
+--surface: #12121a;
+--border:  #1e1e2e;
+--accent:  #7fdbca;
+--accent2: #f97316;
+--text:    #e2e2e8;
+--muted:   #6b6b7a;
+--mono:    'DM Mono', monospace;
+--display: 'Syne', sans-serif;
+}
+
+body {
+background: var(--bg);
+color: var(--text);
+font-family: var(--mono);
+min-height: 100vh;
+overflow-x: hidden;
+}
+
+/* Siatka tła */
+body::before {
+content: '';
+position: fixed;
+inset: 0;
+background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+background-size: 48px 48px;
+opacity: .4;
+pointer-events: none;
+z-index: 0;
+}
+
+/* ── Przycisk skoku ── */
+.jump-btn {
+display: inline-flex;
+align-items: center;
+gap: 8px;
+padding: 9px 18px;
+border: 1px solid var(--border);
+border-radius: 999px;
+font-family: var(--mono);
+font-size: 13px;
+color: var(--text);
+text-decoration: none;
+background: var(--surface);
+transition: border-color .2s, color .2s, background .2s;
+cursor: pointer;
+}
+
+.jump-btn:hover {
+border-color: var(--accent);
+color: var(--accent);
+background: rgba(127, 219, 202, .05);
+}
+
+.jump-btn svg {
+width: 16px;
+height: 16px;
+stroke: currentColor;
+fill: none;
+stroke-width: 1.8;
+stroke-linecap: round;
+stroke-linejoin: round;
+flex-shrink: 0;
+}
+
+/* ── Layout gry ── */
 #game-wrap {
-    display:flex;
-    gap:16px;
-    align-items:flex-start;
-    padding:1rem 0;
-    user-select:none;
+display: flex;
+gap: 16px;
+align-items: flex-start;
+padding: 1rem 0;
+user-select: none;
+position: relative;
+z-index: 1;
 }
+
 #side-controls {
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    gap:8px;
-    padding-top:4px;
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: 8px;
+padding-top: 4px;
 }
+
 #scale-label {
-    font-size:11px;
-    color:var(--color-text-secondary);
-    font-weight:500;
-    letter-spacing:1px;
-    writing-mode:vertical-rl;
-    transform:rotate(180deg);
+font-size: 11px;
+color: var(--muted);
+letter-spacing: .18em;
+text-transform: uppercase;
+writing-mode: vertical-rl;
+transform: rotate(180deg);
 }
+
 #scaleSlider {
-    writing-mode:vertical-lr;
-    direction:rtl;
-    width:24px;
-    height:160px;
-    cursor:pointer;
+writing-mode: vertical-lr;
+direction: rtl;
+width: 24px;
+height: 160px;
+cursor: pointer;
+accent-color: var(--accent);
 }
+
 #scale-val {
-    font-size:12px;
-    color:var(--color-text-secondary);
-    font-weight:500;
+font-size: 12px;
+color: var(--muted);
 }
+
 #game-main {
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    flex:1;
+display: flex;
+flex-direction: column;
+align-items: center;
+flex: 1;
 }
+
 #game-title {
-    font-size:22px;
-    font-weight:500;
-    color:var(--color-text-primary);
-    margin-bottom:2px;
+font-size: 22px;
+font-weight: 500;
+color: var(--text);
+margin-bottom: 2px;
 }
+
 #game-sub {
-    font-size:13px;
-    color:var(--color-text-secondary);
-    margin-bottom:12px;
+font-size: 13px;
+color: var(--muted);
+margin-bottom: 12px;
 }
+
 #canvas-wrap {
-    border-radius:var(--border-radius-lg);
-    border:0.5px solid var(--color-border-secondary);
-    overflow:hidden; background:#f8f8f8;
-    transform-origin:top left;
+border: 1px solid var(--border);
+overflow: hidden;
+background: var(--bg);
+transform-origin: top left;
+transition: border-color .2s;
 }
+
+#canvas-wrap:hover {
+border-color: var(--accent);
+}
+
 #gc {
-    display:block;
+display: block;
 }
+
+/* ── Statystyki ── */
 #stats {
-    display:flex;
-    gap:24px;
-    margin-top:12px;
-    align-items:center;
+display: flex;
+gap: 24px;
+margin-top: 12px;
+align-items: center;
 }
+
 #lives-wrap {
-    display:flex;
-    gap:6px;
-    align-items:center;
+display: flex;
+gap: 6px;
+align-items: center;
 }
+
 #lives-label {
-    font-size:12px;
-    color:var(--color-text-secondary);
-    font-weight:500;
+font-size: 11px;
+color: var(--accent2);
+letter-spacing: .18em;
+text-transform: uppercase;
 }
+
 .life-icon {
-    font-size:20px;
-    transition:all 0.2s;
+font-size: 20px;
+transition: all .2s;
 }
+
 .sep {
-    width:0.5px;
-    height:28px;
-    background:var(--color-border-tertiary);
+width: 1px;
+height: 28px;
+background: var(--border);
 }
+
 .stat-box {
-    text-align:center;
+text-align: center;
 }
+
 .stat-lbl {
-    font-size:11px;
-    color:var(--color-text-secondary);
-    font-weight:500;
-    letter-spacing:1px;
+font-size: 11px;
+color: var(--accent2);
+letter-spacing: .18em;
+text-transform: uppercase;
 }
+
 .stat-val {
-    font-size:20px;
-    font-weight:500;
-    color:var(--color-text-primary);
+font-size: 20px;
+font-weight: 500;
+color: #fff;
 }
+
 #jumpBtn {
-    margin-top:14px;
-    padding:10px 32px;
-    font-size:15px;
-    font-weight:500;
-    border-radius:var(--border-radius-md);
-    cursor:pointer;
+margin-top: 14px;
 }
+
 #hint {
-    font-size:12px;
-    color:var(--color-text-secondary);
-    margin-top:8px;
+font-size: 12px;
+color: var(--muted);
+margin-top: 8px;
 }
