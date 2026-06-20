@@ -169,8 +169,14 @@ class TableController(
         val engine = tableRepository.get(tableId)
             ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Table not found: $id")
 
-        // startHand is a suspend function — bridge to blocking context
-        runBlocking { engine.startHand() }
+        // startHand is a suspend function — bridge to blocking context.
+        // IllegalArgumentException means the engine rejected the request (e.g. hand already in progress
+        // or not enough players) — map to 409 Conflict rather than letting Spring emit a 500.
+        try {
+            runBlocking { engine.startHand() }
+        } catch (ex: IllegalArgumentException) {
+            throw ResponseStatusException(HttpStatus.CONFLICT, ex.message)
+        }
     }
 
     // ─────────────────────────────────────────────────────────────────────────

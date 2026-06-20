@@ -1,0 +1,399 @@
+/* ── Reset & base ────────────────────────────────────────────────────────── */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --green-dark:   #1a5c2a;
+  --green-felt:   #2d7a3e;
+  --green-light:  #3a9e50;
+  --gold:         #c9a84c;
+  --text-light:   #f0ece0;
+  --text-dim:     #a09070;
+  --card-bg:      #fdfaf2;
+  --card-border:  #c8b89a;
+  --red:          #c0392b;
+  --blue:         #2471a3;
+  --green-suit:   #1e8449;
+  --black:        #1a1a1a;
+  --seat-bg:      rgba(0,0,0,0.35);
+  --seat-active:  rgba(255,215,0,0.18);
+  --seat-border-active: #ffd700;
+  --btn-radius:   8px;
+  --gap:          12px;
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: var(--green-dark);
+  color: var(--text-light);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Join screen ─────────────────────────────────────────────────────────── */
+
+#join-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 100vh;
+}
+
+.join-card {
+  background: rgba(0,0,0,0.55);
+  border: 2px solid var(--gold);
+  border-radius: 16px;
+  padding: 48px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  align-items: center;
+  min-width: 300px;
+}
+
+.join-card h1 {
+  font-size: 2.4rem;
+  color: var(--gold);
+  letter-spacing: 4px;
+}
+
+#join-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+#join-form label {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+#join-form input {
+  padding: 10px 14px;
+  border-radius: var(--btn-radius);
+  border: 1px solid var(--gold);
+  background: rgba(255,255,255,0.07);
+  color: var(--text-light);
+  font-size: 1rem;
+  outline: none;
+}
+
+#join-form input:focus { border-color: #fff; }
+
+#join-form button {
+  margin-top: 8px;
+  padding: 12px;
+  background: var(--gold);
+  color: #1a1a1a;
+  font-weight: 700;
+  font-size: 1rem;
+  border: none;
+  border-radius: var(--btn-radius);
+  cursor: pointer;
+  transition: filter 0.15s;
+}
+
+#join-form button:hover { filter: brightness(1.1); }
+
+/* ── Game screen — 3×3 grid ──────────────────────────────────────────────── */
+
+#game-screen {
+  display: none; /* shown by JS */
+  width: min(98vw, 960px);
+  height: min(96vh, 680px);
+  grid-template-columns: 1fr 1.6fr 1fr;
+  grid-template-rows:    1fr 0.55fr 1fr;
+  gap: var(--gap);
+  padding: var(--gap);
+  background: var(--green-felt);
+  border-radius: 24px;
+  border: 4px solid var(--gold);
+  box-shadow: 0 0 60px rgba(0,0,0,0.6);
+}
+
+/* ── Seats ───────────────────────────────────────────────────────────────── */
+
+.seat {
+  background: var(--seat-bg);
+  border: 2px solid rgba(255,255,255,0.12);
+  border-radius: 14px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: border-color 0.25s, background 0.25s;
+  position: relative;
+}
+
+.seat.active-turn {
+  border-color: var(--seat-border-active);
+  background: var(--seat-active);
+  box-shadow: 0 0 14px rgba(255,215,0,0.4);
+}
+
+.seat.folded { opacity: 0.45; }
+
+.seat-opponent {
+  align-items: center;
+}
+
+.seat-me {
+  align-items: center;
+  justify-content: center;
+}
+
+.player-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-light);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  text-align: center;
+}
+
+.player-info {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  font-size: 0.8rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.player-coins { color: var(--gold); font-weight: 600; }
+.player-bet   { color: #7ec8e3; font-size: 0.75rem; }
+
+/* ── Card row ────────────────────────────────────────────────────────────── */
+
+.card-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  min-height: 58px;
+}
+
+/* ── Card ────────────────────────────────────────────────────────────────── */
+
+.card {
+  width: 42px;
+  height: 60px;
+  background: var(--card-bg);
+  border: 1.5px solid var(--card-border);
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  box-shadow: 1px 2px 4px rgba(0,0,0,0.3);
+  flex-shrink: 0;
+}
+
+.card-rank {
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.card-suit {
+  font-size: 1.05rem;
+  line-height: 1;
+}
+
+/* Suit colours */
+.card.red-heart   { color: var(--red);        }
+.card.blue-diamond{ color: var(--blue);       }
+.card.green-club  { color: var(--green-suit); }
+.card.black-spade { color: var(--black);      }
+
+/* Face-down card */
+.card.back {
+  background: linear-gradient(135deg, #1a3a6b 25%, #2255a4 75%);
+  border-color: #4477cc;
+  color: #fff;
+  font-size: 1.6rem;
+  cursor: default;
+}
+
+.placeholder {
+  color: var(--text-dim);
+  font-size: 1.4rem;
+}
+
+/* ── Board area ──────────────────────────────────────────────────────────── */
+
+.board-area {
+  background: rgba(0,0,0,0.25);
+  border-radius: 14px;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.board-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+}
+
+/* ── Info cells (row 1) ──────────────────────────────────────────────────── */
+
+.info-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px;
+}
+
+.info-cell.center { gap: 4px; }
+
+.phase-badge {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--gold);
+  background: rgba(0,0,0,0.4);
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1px solid var(--gold);
+  text-align: center;
+}
+
+.pot-label {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--gold);
+}
+
+.tocall-label {
+  font-size: 0.8rem;
+  color: #7ec8e3;
+}
+
+.status-label {
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+}
+
+/* ── Ranking (showdown) ──────────────────────────────────────────────────── */
+
+#ranking {
+  font-size: 0.78rem;
+  text-align: center;
+}
+
+#ranking h3 {
+  color: var(--gold);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 6px;
+}
+
+.rank-entry {
+  color: var(--text-light);
+  padding: 2px 0;
+  line-height: 1.4;
+}
+
+/* ── Action area (row 2, col 0) ──────────────────────────────────────────── */
+
+.action-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+#actions {
+  flex-direction: column;
+  gap: 8px;
+  align-items: stretch;
+  width: 100%;
+}
+
+/* ── Raise area (row 2, col 2) ───────────────────────────────────────────── */
+
+.raise-area {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#raise-controls {
+  flex-direction: column;
+  gap: 8px;
+  align-items: stretch;
+  width: 100%;
+  padding: 0 8px;
+}
+
+#raise-controls label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-dim);
+  text-align: center;
+}
+
+#raise-amount {
+  padding: 8px 10px;
+  border-radius: var(--btn-radius);
+  border: 1px solid rgba(255,255,255,0.25);
+  background: rgba(255,255,255,0.07);
+  color: var(--text-light);
+  font-size: 0.95rem;
+  width: 100%;
+  text-align: center;
+  outline: none;
+}
+
+#raise-amount:focus { border-color: var(--gold); }
+
+/* ── Buttons ─────────────────────────────────────────────────────────────── */
+
+.btn {
+  padding: 10px 14px;
+  border: none;
+  border-radius: var(--btn-radius);
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  transition: filter 0.15s, transform 0.1s;
+  width: 100%;
+}
+
+.btn:hover  { filter: brightness(1.12); }
+.btn:active { transform: scale(0.97); }
+
+.btn-fold  { background: #922b21; color: #fff; }
+.btn-check { background: #1e8449; color: #fff; }
+.btn-call  { background: #1a5276; color: #fff; }
+.btn-raise { background: #7d6608; color: #fff; }
+
+.btn-start {
+  background: var(--gold);
+  color: #1a1a1a;
+  font-size: 0.85rem;
+  padding: 10px 14px;
+}

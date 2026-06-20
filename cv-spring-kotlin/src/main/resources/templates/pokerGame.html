@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Poker</title>
+  <link rel="stylesheet" href="/css/pokerGame.css" />
+</head>
+<body>
+
+  <!-- ── Join screen ─────────────────────────────────────────────────────── -->
+  <div id="join-screen">
+    <div class="join-card">
+      <h1>♠ Poker</h1>
+      <form id="join-form">
+        <label for="player-name">Your name</label>
+        <input id="player-name" type="text" placeholder="Player" maxlength="20" autocomplete="off" />
+        <button type="submit">Join table</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ── Game screen — 3×3 grid ──────────────────────────────────────────── -->
+  <div id="game-screen">
+
+    <!-- Row 0 ─────────────────────────────────────────────────────────────── -->
+
+    <!-- [0,0] Opponent 0 -->
+    <div id="opponent-0" class="seat seat-opponent" data-seat="0">
+      <div class="player-name">—</div>
+      <div class="player-cards card-row"></div>
+      <div class="player-info">
+        <span class="player-coins"></span>
+        <span class="player-bet"></span>
+      </div>
+    </div>
+
+    <!-- [0,1] Community cards -->
+    <div id="board" class="board-area">
+      <div class="board-label">Community Cards</div>
+      <div id="board-cards" class="card-row">
+        <span class="placeholder">—</span>
+      </div>
+    </div>
+
+    <!-- [0,2] Opponent 1 -->
+    <div id="opponent-1" class="seat seat-opponent" data-seat="1">
+      <div class="player-name">—</div>
+      <div class="player-cards card-row"></div>
+      <div class="player-info">
+        <span class="player-coins"></span>
+        <span class="player-bet"></span>
+      </div>
+    </div>
+
+    <!-- Row 1 ─────────────────────────────────────────────────────────────── -->
+
+    <!-- [1,0] Status / phase -->
+    <div id="info-left" class="info-cell">
+      <div id="phase" class="phase-badge">—</div>
+    </div>
+
+    <!-- [1,1] Pot -->
+    <div id="info-center" class="info-cell center">
+      <div id="pot" class="pot-label">Pot: 0</div>
+      <div id="toCall" class="tocall-label"></div>
+      <div id="status" class="status-label">Connecting...</div>
+    </div>
+
+    <!-- [1,2] Ranking / showdown -->
+    <div id="info-right" class="info-cell">
+      <div id="ranking" style="display:none"></div>
+    </div>
+
+    <!-- Row 2 ─────────────────────────────────────────────────────────────── -->
+
+    <!-- [2,0] Action buttons -->
+    <div id="action-area" class="action-area">
+      <div id="actions" style="display:none">
+        <button id="btn-fold"  class="btn btn-fold">Fold</button>
+        <button id="btn-check" class="btn btn-check">Check</button>
+        <button id="btn-call"  class="btn btn-call"  style="display:none">Call</button>
+      </div>
+      <button id="btn-start" class="btn btn-start" style="display:none">
+        ▶ Next hand
+      </button>
+    </div>
+
+    <!-- [2,1] My seat -->
+    <div id="my-seat" class="seat seat-me">
+      <div class="player-info">
+        <span id="my-name" class="player-name">—</span>
+        <span id="my-coins" class="player-coins"></span>
+        <span id="my-bet"   class="player-bet"></span>
+      </div>
+      <div id="my-cards" class="card-row"></div>
+    </div>
+
+    <!-- [2,2] Raise controls -->
+    <div id="raise-area" class="raise-area">
+      <div id="raise-controls" style="display:none">
+        <label for="raise-amount">Raise</label>
+        <input id="raise-amount" type="number" min="1" step="10" value="20" />
+        <button id="btn-raise" class="btn btn-raise">Raise ↑</button>
+      </div>
+    </div>
+
+  </div><!-- /game-screen -->
+
+  <script src="/js/pokerGame.js"></script>
+</body>
+</html>

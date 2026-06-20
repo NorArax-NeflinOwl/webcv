@@ -10,5 +10,8 @@ class PageController {
     fun index(): String = "index"
 
     @GetMapping("/pandaGame", "/pandaGame.html")
-    fun game(): String = "pandaGame"
+    fun pandaGame(): String = "pandaGame"
+
+    @GetMapping("/pokerGame", "/pokerGame.html")
+    fun pokerGame(): String = "pokerGame"
 }
