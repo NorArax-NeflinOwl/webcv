@@ -14,35 +14,35 @@ async function checkHealth() {
         }
     } catch {
         link.classList.add('health-error');
-        link.title = 'Brak połączenia z aplikacją';
+        link.title = 'No connection to application';
     }
 }
 
 // ── Footer status dot ────────────────────────────────────
 /**
- * Ustawia kolor i klasę kropki w footerze na podstawie wartości
- * footerStatus z API: "GREEN" | "YELLOW" | "RED"
+ * Sets the footer dot colour and class based on the footerStatus
+ * value from the API: "GREEN" | "YELLOW" | "RED"
  */
 function applyFooterStatus(status) {
     const dot = document.querySelector('.footer .dot');
     if (!dot) return;
 
-    // Usuń poprzednie klasy statusu
+    // Remove previous status classes
     dot.classList.remove('dot--green', 'dot--yellow', 'dot--red');
 
     switch (status) {
         case 'GREEN':
             dot.classList.add('dot--green');
-            dot.title = 'Dostępny';
+            dot.title = 'Available';
             break;
         case 'RED':
             dot.classList.add('dot--red');
-            dot.title = 'Niedostępny';
+            dot.title = 'Unavailable';
             break;
         case 'YELLOW':
         default:
             dot.classList.add('dot--yellow');
-            dot.title = 'Częściowo dostępny';
+            dot.title = 'Partially available';
             break;
     }
 }
@@ -73,7 +73,7 @@ const LINK_LABELS = {
     GithubLink: 'GitHub',
     LinkedIn:   'LinkedIn',
     RocketJob:  'RocketJobs',
-    'E-mail':   '',  // pokazuje adres email jako label
+    'E-mail':   '',  // shows email address as label
 };
 
 // ── Render links from API ────────────────────────────────
@@ -81,7 +81,7 @@ function renderLinks(links) {
     const container = document.getElementById('links');
     if (!container) return;
 
-    // Zachowaj stałe przyciski — usuń tylko dynamiczne
+    // Keep static buttons — remove only dynamic ones
     const dynamic = container.querySelectorAll('.link-btn--dynamic');
     dynamic.forEach(el => el.remove());
 
@@ -157,7 +157,7 @@ async function loadProfile() {
         animateSkills();
 
     } catch (err) {
-        console.error('Błąd ładowania profilu:', err);
+        console.error('Profile loading error:', err);
     }
 }
 

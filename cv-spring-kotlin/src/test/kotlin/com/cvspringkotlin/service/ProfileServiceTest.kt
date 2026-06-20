@@ -33,8 +33,8 @@ class ProfileServiceTest {
         name         = "Jan Kowalski",
         eyebrow      = "backend developer",
         role         = "<span>Kotlin</span>",
-        bio          = "Bio testowe",
-        footer       = "dostępny",
+        bio          = "Test bio",
+        footer       = "available",
         footerStatus = FooterStatus.YELLOW,
         email        = "test@example.com",
         githubUrl    = "https://github.com/test",
@@ -63,12 +63,12 @@ class ProfileServiceTest {
 
     private val defaultExperience = Experience(
         profile      = defaultProfile,
-        company      = "Firma Sp. z o.o.",
+        company      = "Test Company Ltd.",
         position     = "Developer",
         contractType = "B2B",
         dateFrom     = LocalDate.of(2023, 1, 1),
         isCurrent    = true,
-        description  = "Opis"
+        description  = "Description"
     )
 
     @BeforeEach
@@ -79,31 +79,31 @@ class ProfileServiceTest {
         every { experienceRepository.findByProfileIdOrderByDateFromDesc(profileId) } returns listOf(defaultExperience)
     }
 
-    // ── Dane podstawowe ───────────────────────────────────
+    // ── Basic data ────────────────────────────────────────
 
     @Test
-    fun `getProfile zwraca poprawne dane podstawowe`() {
+    fun `getProfile returns correct basic data`() {
         val result = profileService.getProfile()
 
         assertEquals("Jan Kowalski — Backend Developer", result.title)
         assertEquals("backend developer", result.eyebrow)
         assertEquals("Jan Kowalski", result.name)
         assertEquals("<span>Kotlin</span>", result.role)
-        assertEquals("Bio testowe", result.bio)
-        assertEquals("dostępny", result.footer)
+        assertEquals("Test bio", result.bio)
+        assertEquals("available", result.footer)
     }
 
     // ── Footer status ─────────────────────────────────────
 
     @Test
-    fun `getProfile zwraca YELLOW footerStatus domyslnie`() {
+    fun `getProfile returns YELLOW footerStatus by default`() {
         val result = profileService.getProfile()
 
         assertEquals("YELLOW", result.footerStatus)
     }
 
     @Test
-    fun `getProfile zwraca GREEN footerStatus`() {
+    fun `getProfile returns GREEN footerStatus`() {
         every { profileRepository.findFirst() } returns defaultProfile.copy(footerStatus = FooterStatus.GREEN)
 
         val result = profileService.getProfile()
@@ -112,7 +112,7 @@ class ProfileServiceTest {
     }
 
     @Test
-    fun `getProfile zwraca RED footerStatus`() {
+    fun `getProfile returns RED footerStatus`() {
         every { profileRepository.findFirst() } returns defaultProfile.copy(footerStatus = FooterStatus.RED)
 
         val result = profileService.getProfile()
@@ -120,10 +120,10 @@ class ProfileServiceTest {
         assertEquals("RED", result.footerStatus)
     }
 
-    // ── Linki ─────────────────────────────────────────────
+    // ── Links ─────────────────────────────────────────────
 
     @Test
-    fun `getProfile zwraca poprawne linki`() {
+    fun `getProfile returns correct links`() {
         val result = profileService.getProfile()
 
         assertEquals("https://github.com/test", result.links["GithubLink"])
@@ -132,7 +132,7 @@ class ProfileServiceTest {
     }
 
     @Test
-    fun `getProfile pomija null i puste linki`() {
+    fun `getProfile skips null and empty links`() {
         every { profileRepository.findFirst() } returns defaultProfile.copy(githubUrl = null, linkedinUrl = "")
 
         val result = profileService.getProfile()
@@ -143,7 +143,7 @@ class ProfileServiceTest {
     }
 
     @Test
-    fun `getProfile zwraca pusty links gdy brak danych kontaktowych`() {
+    fun `getProfile returns empty links when no contact data`() {
         every { profileRepository.findFirst() } returns defaultProfile.copy(
             githubUrl = null, linkedinUrl = null, email = null
         )
@@ -153,10 +153,10 @@ class ProfileServiceTest {
         assertTrue(result.links.isEmpty())
     }
 
-    // ── Technologie i stack ───────────────────────────────
+    // ── Technologies and stack ────────────────────────────
 
     @Test
-    fun `getProfile zwraca poprawne technologie`() {
+    fun `getProfile returns correct technologies`() {
         val result = profileService.getProfile()
 
         assertEquals("primary language", result.technologies["Kotlin"])
@@ -164,16 +164,16 @@ class ProfileServiceTest {
     }
 
     @Test
-    fun `getProfile zwraca poprawny stack`() {
+    fun `getProfile returns correct stack`() {
         val result = profileService.getProfile()
 
         assertEquals(listOf("JVM 17", "Docker"), result.stacks)
     }
 
-    // ── Wartości null ─────────────────────────────────────
+    // ── Null values ───────────────────────────────────────
 
     @Test
-    fun `getProfile zwraca puste stringi gdy pola sa null`() {
+    fun `getProfile returns empty strings when fields are null`() {
         every { profileRepository.findFirst() } returns defaultProfile.copy(
             eyebrow = null, role = null, bio = null, footer = null
         )
@@ -186,15 +186,15 @@ class ProfileServiceTest {
         assertEquals("", result.footer)
     }
 
-    // ── Doświadczenie ─────────────────────────────────────
+    // ── Experience ────────────────────────────────────────
 
     @Test
-    fun `getProfile zwraca poprawne doswiadczenie`() {
+    fun `getProfile returns correct experience`() {
         val result = profileService.getProfile()
 
         assertEquals(1, result.experiences.size)
         val exp = result.experiences.first()
-        assertEquals("Firma Sp. z o.o.", exp.company)
+        assertEquals("Test Company Ltd.", exp.company)
         assertEquals("Developer", exp.position)
         assertEquals("B2B", exp.contractType)
         assertEquals("2023-01-01", exp.dateFrom)
@@ -203,7 +203,7 @@ class ProfileServiceTest {
     }
 
     @Test
-    fun `getProfile experience dateTo jest wypelnione gdy praca zakonczona`() {
+    fun `getProfile experience dateTo is set when job has ended`() {
         every { experienceRepository.findByProfileIdOrderByDateFromDesc(profileId) } returns listOf(
             defaultExperience.copy(isCurrent = false, dateTo = LocalDate.of(2024, 6, 30))
         )
@@ -214,41 +214,41 @@ class ProfileServiceTest {
         assertFalse(result.experiences.first().isCurrent)
     }
 
-    // ── Błędy ─────────────────────────────────────────────
+    // ── Errors ────────────────────────────────────────────
 
     @Test
-    fun `getProfile rzuca wyjatek gdy brak profilu w bazie`() {
+    fun `getProfile throws exception when profile not in database`() {
         every { profileRepository.findFirst() } returns null
 
         val ex = assertThrows<IllegalStateException> { profileService.getProfile() }
-        assertEquals("Brak profilu w bazie danych", ex.message)
+        assertEquals("Profile not found in database", ex.message)
     }
 
     @Test
-    fun `getProfile zwraca pusty technologies gdy brak skillow`() {
+    fun `getProfile returns empty technologies when no skills`() {
         every { profileSkillRepository.findByProfileId(profileId) } returns emptyList()
 
         assertTrue(profileService.getProfile().technologies.isEmpty())
     }
 
     @Test
-    fun `getProfile zwraca pusty stacks gdy brak stack items`() {
+    fun `getProfile returns empty stacks when no stack items`() {
         every { profileStackRepository.findByProfileId(profileId) } returns emptyList()
 
         assertTrue(profileService.getProfile().stacks.isEmpty())
     }
 
     @Test
-    fun `getProfile zwraca pusty experiences gdy brak doswiadczenia`() {
+    fun `getProfile returns empty experiences when none exist`() {
         every { experienceRepository.findByProfileIdOrderByDateFromDesc(profileId) } returns emptyList()
 
         assertTrue(profileService.getProfile().experiences.isEmpty())
     }
 
-    // ── Weryfikacja wywołań ───────────────────────────────
+    // ── Call verification ─────────────────────────────────
 
     @Test
-    fun `getProfile wywoluje wszystkie repozytoria dokladnie raz`() {
+    fun `getProfile calls all repositories exactly once`() {
         profileService.getProfile()
 
         verify(exactly = 1) { profileRepository.findFirst() }
@@ -258,7 +258,7 @@ class ProfileServiceTest {
     }
 
     @Test
-    fun `getProfile nie wywoluje pozostalych repozytoriow gdy brak profilu`() {
+    fun `getProfile does not call other repositories when profile is missing`() {
         every { profileRepository.findFirst() } returns null
 
         assertThrows<IllegalStateException> { profileService.getProfile() }

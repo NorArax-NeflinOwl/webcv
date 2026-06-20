@@ -18,7 +18,7 @@ class ProfileService(
     @Transactional(readOnly = true)
     fun getProfile(): ProfileDto {
         val profile = profileRepository.findFirst()
-            ?: error("Brak profilu w bazie danych")
+            ?: error("Profile not found in database")
 
         val id = profile.id!!
 
