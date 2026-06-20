@@ -85,6 +85,7 @@ function connectWS(tableId, token) {
 
   ws.onopen = async () => {
     setStatus('Connected');
+    window.addEventListener('beforeunload', onBeforeUnload);
     await startHand(tableId, token);
   };
 
@@ -95,10 +96,17 @@ function connectWS(tableId, token) {
     render(snap);
   };
 
-  ws.onclose = (e) => setStatus(`Disconnected (${e.code})`);
-  ws.onerror = ()  => setStatus('WebSocket error');
+  ws.onclose = (e) => {
+    setStatus(`Disconnected (${e.code})`);
+    window.removeEventListener('beforeunload', onBeforeUnload);
+  };
+  ws.onerror = () => setStatus('WebSocket error');
 
   return ws;
+}
+
+function onBeforeUnload(e) {
+  e.preventDefault();
 }
 
 function sendAction(type, amount = undefined) {
@@ -171,8 +179,15 @@ function render(snap) {
   }
 
   // Action buttons
-  el('actions').style.display       = canAct ? 'flex' : 'none';
+  el('actions').style.display        = canAct ? 'flex' : 'none';
   el('raise-controls').style.display = canAct ? 'flex' : 'none';
+
+  // Cap raise input to the player's available chips so the browser validates before sending
+  if (canAct && me) {
+    const raiseInput = el('raise-amount');
+    raiseInput.max = me.coins;
+    if (parseInt(raiseInput.value, 10) > me.coins) raiseInput.value = me.coins;
+  }
 
   const callBtn  = el('btn-call');
   const checkBtn = el('btn-check');
@@ -185,9 +200,18 @@ function render(snap) {
     checkBtn.style.display = '';
   }
 
-  // Start / next hand button
-  const showStart = snap.phase === 'Showdown' || snap.phase === 'WaitingForPlayers';
-  el('btn-start').style.display = showStart ? '' : 'none';
+  // "Next hand" button — only after a completed hand, never on the initial waiting state
+  // (the first hand is started automatically via ws.onopen)
+  el('btn-start').style.display = snap.phase === 'Showdown' ? '' : 'none';
+
+  // Game over detection: after showdown, if only 1 player has chips left the session is over
+  if (snap.phase === 'Showdown') {
+    const alive = snap.players.filter(p => p.coins > 0);
+    if (alive.length <= 1) {
+      const humanWon = alive.length === 1 && alive[0].id === myId;
+      showGameOver(humanWon, alive[0]?.coins ?? 0);
+    }
+  }
 
   // Ranking (showdown)
   const rankingEl = el('ranking');
@@ -248,6 +272,17 @@ async function onStartHand() {
   }
 }
 
+function showGameOver(humanWon, finalCoins) {
+  el('game-over-icon').textContent  = humanWon ? '🏆' : '💀';
+  el('game-over-title').textContent = humanWon ? 'You Win!' : 'Game Over';
+  el('game-over-msg').textContent   = humanWon
+    ? `You wiped out all opponents and finished with ${finalCoins} coins.`
+    : 'You ran out of coins. Better luck next time!';
+  window.removeEventListener('beforeunload', onBeforeUnload);
+  el('game-over').style.display = 'flex';
+  el('btn-new-game').focus();
+}
+
 // ── Util ─────────────────────────────────────────────────────────────────────
 
 const el = (id) => document.getElementById(id);
@@ -266,4 +301,44 @@ document.addEventListener('DOMContentLoaded', () => {
   el('btn-call').addEventListener('click',   () => sendAction('Call'));
   el('btn-raise').addEventListener('click',  onRaise);
   el('btn-start').addEventListener('click',  onStartHand);
+  el('btn-new-game').addEventListener('click', () => location.reload());
+
+  // Keyboard shortcuts (active only when it's the player's turn)
+  document.addEventListener('keydown', (e) => {
+    // Ignore when typing in an input field
+    if (e.target.tagName === 'INPUT') return;
+
+    const actionsVisible = el('actions').style.display !== 'none';
+
+    switch (e.key) {
+      case ' ':
+        e.preventDefault();
+        if (actionsVisible) {
+          el('btn-call').style.display !== 'none'
+            ? sendAction('Call')
+            : sendAction('Check');
+        } else if (el('btn-start').style.display !== 'none') {
+          onStartHand();
+        }
+        break;
+      case 'f':
+      case 'F':
+        if (!actionsVisible) return;
+        sendAction('Fold');
+        break;
+      case 'r':
+      case 'R':
+      case 'Enter':
+        if (!actionsVisible) return;
+        onRaise();
+        break;
+      case 'e':
+      case 'E':
+        if (!actionsVisible) return;
+        e.preventDefault();
+        el('raise-amount').focus();
+        el('raise-amount').select();
+        break;
+    }
+  });
 });

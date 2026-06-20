@@ -397,3 +397,60 @@ body {
   font-size: 0.85rem;
   padding: 10px 14px;
 }
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: none;
+  transform: none;
+}
+
+/* ── Game over overlay ───────────────────────────────────────────────────── */
+
+#game-over {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.game-over-card {
+  background: #1a2a1a;
+  border: 2px solid var(--gold);
+  border-radius: 20px;
+  padding: 48px 44px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  min-width: 280px;
+  text-align: center;
+  box-shadow: 0 0 60px rgba(0,0,0,0.8);
+}
+
+#game-over-icon {
+  font-size: 3.2rem;
+  line-height: 1;
+}
+
+#game-over-title {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--gold);
+  letter-spacing: 2px;
+}
+
+#game-over-msg {
+  font-size: 0.95rem;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+
+#btn-new-game {
+  margin-top: 8px;
+  min-width: 160px;
+}
