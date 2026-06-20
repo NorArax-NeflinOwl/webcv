@@ -329,8 +329,10 @@ document.addEventListener('DOMContentLoaded', () => {
       case 'r':
       case 'R':
       case 'Enter':
-        if (!actionsVisible) return;
-        onRaise();
+        if (actionsVisible) onRaise();
+        else if (el('btn-start').style.display !== 'none') {
+          onStartHand();
+        }
         break;
       case 'e':
       case 'E':
