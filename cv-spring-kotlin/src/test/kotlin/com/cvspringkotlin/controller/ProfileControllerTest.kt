@@ -45,8 +45,8 @@ class ProfileControllerTest {
         eyebrow      = "backend developer",
         name         = name,
         role         = "<span>Kotlin</span>",
-        bio          = "Bio testowe",
-        footer       = "dostępny",
+        bio          = "Test bio",
+        footer       = "available",
         footerStatus = footerStatus,
         links        = links,
         technologies = technologies,
@@ -62,7 +62,7 @@ class ProfileControllerTest {
     // ── HTTP status ───────────────────────────────────────
 
     @Test
-    fun `GET api profileinfo zwraca 200`() {
+    fun `GET api profileinfo returns 200`() {
         every { profileService.getProfile() } returns buildProfileDto()
 
         mockMvc.get("/api/profileinfo")
@@ -72,10 +72,10 @@ class ProfileControllerTest {
             }
     }
 
-    // ── Struktura JSON ────────────────────────────────────
+    // ── JSON structure ────────────────────────────────────
 
     @Test
-    fun `GET api profileinfo zwraca poprawne pola w JSON`() {
+    fun `GET api profileinfo returns correct fields in JSON`() {
         every { profileService.getProfile() } returns buildProfileDto()
 
         mockMvc.get("/api/profileinfo")
@@ -84,15 +84,15 @@ class ProfileControllerTest {
                 jsonPath("$.eyebrow") { value("backend developer") }
                 jsonPath("$.title")   { value("Jan Kowalski — Backend Developer") }
                 jsonPath("$.role")    { value("<span>Kotlin</span>") }
-                jsonPath("$.bio")     { value("Bio testowe") }
-                jsonPath("$.footer")  { value("dostępny") }
+                jsonPath("$.bio")     { value("Test bio") }
+                jsonPath("$.footer")  { value("available") }
             }
     }
 
     // ── Footer status ─────────────────────────────────────
 
     @Test
-    fun `GET api profileinfo zwraca footerStatus YELLOW domyslnie`() {
+    fun `GET api profileinfo returns footerStatus YELLOW by default`() {
         every { profileService.getProfile() } returns buildProfileDto(footerStatus = "YELLOW")
 
         mockMvc.get("/api/profileinfo")
@@ -102,7 +102,7 @@ class ProfileControllerTest {
     }
 
     @Test
-    fun `GET api profileinfo zwraca footerStatus GREEN`() {
+    fun `GET api profileinfo returns footerStatus GREEN`() {
         every { profileService.getProfile() } returns buildProfileDto(footerStatus = "GREEN")
 
         mockMvc.get("/api/profileinfo")
@@ -112,7 +112,7 @@ class ProfileControllerTest {
     }
 
     @Test
-    fun `GET api profileinfo zwraca footerStatus RED`() {
+    fun `GET api profileinfo returns footerStatus RED`() {
         every { profileService.getProfile() } returns buildProfileDto(footerStatus = "RED")
 
         mockMvc.get("/api/profileinfo")
@@ -121,10 +121,10 @@ class ProfileControllerTest {
             }
     }
 
-    // ── Linki ─────────────────────────────────────────────
+    // ── Links ─────────────────────────────────────────────
 
     @Test
-    fun `GET api profileinfo zwraca linki`() {
+    fun `GET api profileinfo returns links`() {
         every { profileService.getProfile() } returns buildProfileDto()
 
         mockMvc.get("/api/profileinfo")
@@ -135,7 +135,7 @@ class ProfileControllerTest {
     }
 
     @Test
-    fun `GET api profileinfo zwraca technologie`() {
+    fun `GET api profileinfo returns technologies`() {
         every { profileService.getProfile() } returns buildProfileDto()
 
         mockMvc.get("/api/profileinfo")
@@ -145,7 +145,7 @@ class ProfileControllerTest {
     }
 
     @Test
-    fun `GET api profileinfo zwraca stacks jako tablice`() {
+    fun `GET api profileinfo returns stacks as array`() {
         every { profileService.getProfile() } returns buildProfileDto()
 
         mockMvc.get("/api/profileinfo")
@@ -157,22 +157,22 @@ class ProfileControllerTest {
     }
 
     @Test
-    fun `GET api profileinfo zwraca experiences jako tablice`() {
+    fun `GET api profileinfo returns experiences as array`() {
         val exp = ExperienceDto(
-            company      = "Firma Sp. z o.o.",
+            company      = "Test Company Ltd.",
             position     = "Developer",
             contractType = "B2B",
             dateFrom     = "2023-01-01",
             dateTo       = null,
             isCurrent    = true,
-            description  = "Opis"
+            description  = "Description"
         )
         every { profileService.getProfile() } returns buildProfileDto(experiences = listOf(exp))
 
         mockMvc.get("/api/profileinfo")
             .andExpect {
                 jsonPath("$.experiences")                 { isArray() }
-                jsonPath("$.experiences[0].company")      { value("Firma Sp. z o.o.") }
+                jsonPath("$.experiences[0].company")      { value("Test Company Ltd.") }
                 jsonPath("$.experiences[0].position")     { value("Developer") }
                 jsonPath("$.experiences[0].contractType") { value("B2B") }
                 jsonPath("$.experiences[0].isCurrent")    { value(true) }
@@ -180,7 +180,7 @@ class ProfileControllerTest {
     }
 
     @Test
-    fun `GET api profileinfo zwraca pusta liste experiences gdy brak`() {
+    fun `GET api profileinfo returns empty experiences list when none exist`() {
         every { profileService.getProfile() } returns buildProfileDto(experiences = emptyList())
 
         mockMvc.get("/api/profileinfo")
@@ -190,10 +190,10 @@ class ProfileControllerTest {
             }
     }
 
-    // ── Wywołania serwisu ─────────────────────────────────
+    // ── Service calls ─────────────────────────────────────
 
     @Test
-    fun `GET api profileinfo wywoluje serwis dokladnie raz`() {
+    fun `GET api profileinfo calls service exactly once`() {
         every { profileService.getProfile() } returns buildProfileDto()
 
         mockMvc.get("/api/profileinfo").andExpect { status { isOk() } }

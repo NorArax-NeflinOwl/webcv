@@ -27,27 +27,27 @@ class PandaGameController(private val pandaGameService: PandaGamePlayerScoreServ
         ResponseEntity.ok(pandaGameService.topScores())
 
 
-    // ── Obsługa błędów ────────────────────────────────────
+    // ── Error handling ────────────────────────────────────
 
-    /** Niepoprawne dane wejściowe (np. ujemny wynik, zbyt długi nick). */
+    /** Invalid input data (e.g. negative score, nick too long). */
     @ExceptionHandler(IllegalArgumentException::class)
     fun handleInvalidInput(ex: IllegalArgumentException): ResponseEntity<ErrorResponse> {
-        log.warn("Nieprawidłowe dane wyniku PandaGame: {}", ex.message)
-        return ResponseEntity.badRequest().body(ErrorResponse(ex.message ?: "Nieprawidłowe dane"))
+        log.warn("Invalid PandaGame score data: {}", ex.message)
+        return ResponseEntity.badRequest().body(ErrorResponse(ex.message ?: "Invalid data"))
     }
 
-    /** Brakujące lub niepoprawnie sformatowane JSON w żądaniu. */
+    /** Missing or malformed JSON in request. */
     @ExceptionHandler(HttpMessageNotReadableException::class)
     fun handleMalformedJson(ex: HttpMessageNotReadableException): ResponseEntity<ErrorResponse> {
-        log.warn("Niepoprawny JSON w żądaniu PandaGame: {}", ex.message)
-        return ResponseEntity.badRequest().body(ErrorResponse("Niepoprawny format danych żądania"))
+        log.warn("Malformed JSON in PandaGame request: {}", ex.message)
+        return ResponseEntity.badRequest().body(ErrorResponse("Invalid request data format"))
     }
 
-    /** Wszystkie inne, nieprzewidziane błędy. */
+    /** All other, unexpected errors. */
     @ExceptionHandler(Exception::class)
     fun handleUnexpected(ex: Exception): ResponseEntity<ErrorResponse> {
-        log.error("Nieoczekiwany błąd PandaGame", ex)
+        log.error("Unexpected PandaGame error", ex)
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body(ErrorResponse("Wewnętrzny błąd serwera"))
+            .body(ErrorResponse("Internal server error"))
     }
 }

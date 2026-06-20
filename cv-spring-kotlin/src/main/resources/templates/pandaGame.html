@@ -8,45 +8,45 @@
 <body>
   <div id="game-wrap">
     <div id="side-controls">
-      <span id="scale-label">ROZMIAR</span>
+      <span id="scale-label">SIZE</span>
       <input type="range" id="scaleSlider" min="60" max="150" value="100" step="5">
       <span id="scale-val">100%</span>
     </div>
     <div id="game-main">
       <div id="game-title">Panda Runner</div>
-      <div id="game-sub">Skacz przez bambusy — nie skacz na czarownicę!</div>
+      <div id="game-sub">Jump over bamboos — don't jump at the witch!</div>
       <div id="canvas-wrap">
         <canvas id="gc" width="884" height="300"></canvas>
       </div>
       <div id="stats">
         <div id="lives-wrap">
-          <span id="lives-label">ŻYCIA</span>
+          <span id="lives-label">LIVES</span>
           <span id="lv1" class="life-icon">🐼</span>
           <span id="lv2" class="life-icon">🐼</span>
           <span id="lv3" class="life-icon">🐼</span>
         </div>
         <div class="sep"></div>
         <div class="stat-box">
-          <div class="stat-lbl">WYNIK</div>
+          <div class="stat-lbl">SCORE</div>
           <div id="sc" class="stat-val">0</div>
         </div>
         <div class="stat-box">
-          <div class="stat-lbl">REKORD</div>
+          <div class="stat-lbl">BEST</div>
           <div id="hi" class="stat-val">0</div>
         </div>
       </div>
       <a class="pgbutton" id="jumpBtn">
-        <span id="jumpBtnLabel">Skocz</span>
+        <span id="jumpBtnLabel">Jump</span>
       </a>
-      <div id="hint">Kliknij przycisk lub użyj Spacji</div>
+      <div id="hint">Click button or press Space</div>
       <div id="save-score-wrap">
         <label id="nick-label" for="nickInput">Nick:</label>
-        <input type="text" id="nickInput" maxlength="20" placeholder="Twój nick">
-        <button class="pgbutton" id="saveScoreBtn">Zapisz wynik</button>
+        <input type="text" id="nickInput" maxlength="20" placeholder="Your nick">
+        <button class="pgbutton" id="saveScoreBtn">Save score</button>
         <div id="save-confirm"></div>
       </div>
       <a class="pgbutton" href="/api/pandagame/scores">
-        🐼 Wyniki
+        🐼 Scores
       </a>
     </div>
   </div>

@@ -15,21 +15,21 @@
   const W      = 884;
   const H      = 300;
   const GROUND = H - 36;
-  // Czarownica leci na tej wysokości (środek ciała); panda na ziemi jest bezpieczna,
-  // panda przy szczycie skoku koliduje — trzeba NIE skakać gdy jedzie czarownica.
+  // The witch flies at this height (body centre); panda on the ground is safe,
+  // panda at jump peak collides — you must NOT jump when the witch is coming.
   const FLY_Y  = 120;
 
-  // ── Paleta kolorów canvasu ────────────────────────────────────────────────────
-  // Scena
+  // ── Canvas colour palette ─────────────────────────────────────────────────────
+  // Scene
   const C_SKY          = '#94c1e8';
   const C_CLOUD        = 'rgba(255,255,255,0.72)';
   const C_GROUND       = '#c8e6c9';
   const C_GROUND_LINE  = '#81c784';
-  // Bambus
+  // Bamboo
   const C_BAMBOO_STEM  = '#558b2f';
   const C_BAMBOO_JOINT = '#33691e';
   const C_BAMBOO_LEAF  = '#7cb342';
-  // Panda
+  // Panda colours
   const C_P_WHITE = '#f0f0f0';
   const C_P_BLACK = '#111';
   const C_P_DARK  = '#222';
@@ -37,14 +37,14 @@
   const C_P_BELLY = '#ddd';
   const C_P_EYE   = '#fff';
   const C_P_BLUSH = 'rgba(150,150,150,0.28)';
-  // Nakładka (overlay) i ekran dead
+  // Overlay and dead screen
   const C_OV_BG    = 'rgba(240,247,238,0.82)';
   const C_OV_TITLE = '#2e7d32';
   const C_OV_SUB   = '#66bb6a';
   const C_OV_DEAD  = '#81c784';
-  // Wspólne
+  // Common
   const C_NONE = 'transparent';
-  // Czarownica
+  // Witch colours
   const C_W_BROOM        = '#7B4F2E';
   const C_W_BRISTLE_A    = '#D4A017';
   const C_W_BRISTLE_B    = '#B88C10';
@@ -59,7 +59,7 @@
   const C_W_HAT          = '#160030';
   const C_W_GOLD         = '#FFD700';
 
-  // ── Skalowanie płótna ────────────────────────────────────────────────────────
+  // ── Canvas scaling ───────────────────────────────────────────────────────────
   slider.addEventListener('input', function () {
     const s = parseInt(this.value) / 100;
     scaleVal.textContent = this.value + '%';
@@ -69,7 +69,7 @@
     canvas.style.transformOrigin = 'top left';
   });
 
-  // ── Stan gry ─────────────────────────────────────────────────────────────────
+  // ── Game state ───────────────────────────────────────────────────────────────
   // states: idle | running | dying | dead
   let state   = 'idle';
   let score   = 0;
@@ -78,25 +78,25 @@
   let frame   = 0;
   let speed   = 5;
 
-  // Nietykalność po uderzeniu
+  // Invincibility after a hit
   let invincible = false;
   let invTimer   = 0;
   const INV_DUR  = 110;
 
-  // Animacja obrotu po uderzeniu (gdy zostały życia)
+  // Spin animation after a hit (when lives remain)
   let spinning    = false;
   let spinAngle   = 0;
   let spinFrames  = 0;
   const SPIN_TOTAL = 50;
 
-  // Animacja śmierci: obrót + wylot w górę i upadek
+  // Death animation: spin + fly up and fall
   let deathAngle = 0;
   let deathFrame = 0;
   let deathY     = 0;
   let deathVY    = 0;
   const DEATH_SPIN_TOTAL = 70;
 
-  // Licznik animacji jedzenia na ekranie "dead" (nieskończona)
+  // Eating animation frame counter on the "dead" screen (infinite)
   let deadFrame = 0;
 
   const panda = { x: 80, y: GROUND, vy: 0, onGround: true, width: 44, height: 50 };
@@ -106,12 +106,12 @@
   let obsInterval  = 90;
 
   let witchTimer    = 0;
-  let witchInterval = 300; // pierwsze pojawienie się czarownicy
+  let witchInterval = 300; // first witch appearance
 
   let clouds  = [{ x: 100, y: 22, r: 22 }, { x: 310, y: 35, r: 16 }, { x: 520, y: 18, r: 20 }];
   let groundX = 0;
 
-  // ── Logika gry ───────────────────────────────────────────────────────────────
+  // ── Game logic ───────────────────────────────────────────────────────────────
   function jump() {
     if (state === 'idle' || state === 'dead') { startGame(); return; }
     if (state === 'dying') return;
@@ -127,11 +127,11 @@
   });
 
   saveBtn.addEventListener('click', function () {
-    const nick = nickInput.value.trim() || 'Anonim';
+    const nick = nickInput.value.trim() || 'Anonymous';
 
     saveBtn.disabled    = true;
     saveBtn.style.opacity = '0.5';
-    saveConfirm.textContent = 'Zapisywanie...';
+    saveConfirm.textContent = 'Saving...';
 
     fetch('/api/pandagame/scores', {
       method: 'POST',
@@ -147,18 +147,18 @@
                 })
         )
         .then(data => {
-          saveConfirm.textContent = `Zapisano: ${data.nick} — ${data.score} pkt`;
+          saveConfirm.textContent = `Saved: ${data.nick} — ${data.score} pts`;
         })
         .catch(err => {
-          console.error('Błąd zapisu wyniku:', err);
-          saveConfirm.textContent = 'Nie udało się zapisać wyniku: ' + err.message;
+          console.error('Score save error:', err);
+          saveConfirm.textContent = 'Failed to save score: ' + err.message;
           saveBtn.disabled      = false;
           saveBtn.style.opacity = '1';
         });
   });
 
   function startGame() {
-    // stan gry
+    // game state
     state     = 'running';
     score     = 0;
     lives     = 3;
@@ -166,28 +166,28 @@
     frame     = 0;
     deadFrame = 0;
 
-    // nietykalność
+    // invincibility
     invincible = false;
     invTimer   = 0;
 
-    // obrót po uderzeniu
+    // hit spin
     spinning   = false;
     spinAngle  = 0;
     spinFrames = 0;
 
-    // animacja śmierci
+    // death animation
     deathAngle = 0;
     deathFrame = 0;
     deathY     = GROUND;
     deathVY    = 0;
 
-    // panel zapisu — ukryj przy nowej grze
+    // save panel — hide on new game
     saveWrap.style.display  = 'none';
     saveConfirm.textContent = '';
     saveBtn.disabled        = false;
     saveBtn.style.opacity   = '1';
 
-    // świat
+    // world
     obstacles    = [];
     obsTimer     = 0;
     obsInterval  = 90;
@@ -200,8 +200,8 @@
     panda.onGround = true;
 
     updateUI();
-    btnLabel.textContent = 'Skocz';
-    hintEl.textContent   = 'Przycisk lub Spacja = skok';
+    btnLabel.textContent = 'Jump';
+    hintEl.textContent   = 'Button or Space = jump';
   }
 
   function updateUI() {
@@ -217,21 +217,21 @@
   function spawnBamboo() {
     const h = 28 + Math.random() * 38;
     const w = 13 + Math.random() * 9;
-    // 38% szansa na podwójny bambus
+    // 38% chance of double bamboo
     const n = Math.random() < 0.38 ? 2 : 1;
     for (let i = 0; i < n; i++)
       obstacles.push({ type: 'bamboo', x: W + i * (w + 10), y: GROUND - h + 8, w, h });
   }
 
   function spawnWitch() {
-    // o.x = poziomy środek czarownicy; o.y = FLY_Y = środek ciała w pionie
+    // o.x = witch horizontal centre; o.y = FLY_Y = body vertical centre
     obstacles.push({ type: 'witch', x: W + 55, y: FLY_Y, anim: 0 });
   }
 
-  // Zwraca false gdy obstacle innego typu jest zbyt blisko prawej krawędzi —
-  // gracz nie zdążyłby zareagować na oba naraz.
+  // Returns false when an obstacle of a different type is too close to the right edge —
+  // the player wouldn't have time to react to both at once.
   function canSpawn(type) {
-    const SAFE = 260; // minimalna przerwa (px) między różnymi typami przeszkód
+    const SAFE = 260; // minimum gap (px) between different obstacle types
     for (const o of obstacles) {
       if (o.type !== type && o.x > W - SAFE) return false;
     }
@@ -240,12 +240,12 @@
 
   function checkHit() {
     if (invincible) return false;
-    // hitbox pandy zmniejszony dla większego „wybaczenia"
+    // panda hitbox shrunk for more "forgiveness"
     const px = panda.x + 10, py = panda.y - panda.height + 12;
     const pw = panda.width - 18, ph = panda.height - 18;
     for (const o of obstacles) {
       if (o.type === 'witch') {
-        // hitbox obejmuje ciało + dolną część kapelusza
+        // hitbox covers body + lower part of hat
         if (px < o.x + 18 && px + pw > o.x - 18 && py < o.y + 10 && py + ph > o.y - 22)
           return true;
       } else {
@@ -266,7 +266,7 @@
       if (deathFrame >= DEATH_SPIN_TOTAL) {
         state = 'dead';
         btnLabel.textContent   = 'Start';
-        hintEl.textContent     = 'Kliknij Start lub Spacja aby zagrać ponownie';
+        hintEl.textContent     = 'Click Start or Space to play again';
         saveWrap.style.display = 'flex';
         nickInput.focus();
       }
@@ -276,7 +276,7 @@
     if (state === 'dead')    { deadFrame++; return; }
     if (state !== 'running') return;
 
-    // fizyka
+    // physics
     frame++;
     score++;
     speed = 5 + Math.floor(score / 100) * 0.4;
@@ -289,7 +289,7 @@
       panda.onGround = true;
     }
 
-    // przeszkody
+    // obstacles
     obsTimer++;
     if (obsTimer >= obsInterval && canSpawn('bamboo')) {
       spawnBamboo();
@@ -302,7 +302,7 @@
     }
     obstacles = obstacles.filter(o => o.type === 'witch' ? o.x > -65 : o.x + o.w > -10);
 
-    // czarownica — pojawia się po score > 150
+    // witch — appears after score > 150
     if (score > 150) {
       witchTimer++;
       if (witchTimer >= witchInterval && canSpawn('witch')) {
@@ -312,24 +312,24 @@
       }
     }
 
-    // chmury i ziemia
+    // clouds and ground
     for (const c of clouds) {
       c.x -= speed * 0.28;
       if (c.x + c.r < 0) { c.x = W + c.r; c.y = 15 + Math.random() * 45; }
     }
     groundX = (groundX - speed * 0.6 + W) % W;
 
-    // animacja obrotu po uderzeniu
+    // hit spin animation
     if (spinning) {
       spinFrames++;
       spinAngle = (spinFrames / SPIN_TOTAL) * Math.PI * 2;
       if (spinFrames >= SPIN_TOTAL) { spinning = false; spinAngle = 0; spinFrames = 0; }
     }
 
-    // nietykalność
+    // invincibility
     if (invincible) { invTimer--; if (invTimer <= 0) invincible = false; }
 
-    // kolizja
+    // collision
     if (checkHit()) {
       lives--;
       if (score > hiScore) hiScore = score;
@@ -354,9 +354,9 @@
     if (frame % 4 === 0) updateUI();
   }
 
-  // ── Helpery rysowania ────────────────────────────────────────────────────────
+  // ── Drawing helpers ──────────────────────────────────────────────────────────
 
-  // Wypełniona elipsa z obrysem
+  // Filled ellipse with outline
   function fillEllipse(x, y, rx, ry, rot, fill) {
     ctx.fillStyle = fill;
     ctx.beginPath();
@@ -365,7 +365,7 @@
     ctx.stroke();
   }
 
-  // Wypełnione koło z obrysem
+  // Filled circle with outline
   function fillArc(x, y, r, fill) {
     ctx.fillStyle = fill;
     ctx.beginPath();
@@ -374,13 +374,13 @@
     ctx.stroke();
   }
 
-  // Ustawia kolor i grubość obrysu na czarny
+  // Sets stroke colour and width to black
   function setOutline(w) {
     ctx.strokeStyle = C_P_BLACK;
     ctx.lineWidth   = w;
   }
 
-  // Obraca kontekst wokół punktu (cx, cy), rysuje fn(), przywraca transform
+  // Rotates context around point (cx, cy), draws fn(), restores transform
   function drawRotated(cx, cy, angle, fn) {
     ctx.save();
     ctx.translate(cx, cy);
@@ -390,7 +390,7 @@
     ctx.restore();
   }
 
-  // Półprzeźroczysta nakładka + dwulinijkowy tekst na środku płótna
+  // Semi-transparent overlay + two-line text centred on canvas
   function drawOverlay(line1, line2) {
     ctx.fillStyle = C_OV_BG;
     ctx.fillRect(0, 0, W, H);
@@ -403,7 +403,7 @@
     ctx.fillText(line2, W / 2, H / 2 + 16);
   }
 
-  // ── Rysowanie sceny ──────────────────────────────────────────────────────────
+  // ── Scene drawing ────────────────────────────────────────────────────────────
 
   function drawCloud(c) {
     ctx.fillStyle = C_CLOUD;
@@ -415,7 +415,7 @@
   }
 
   function drawGround() {
-    const lineY = GROUND + 8; // y linii ziemi (używane 4×)
+    const lineY = GROUND + 8; // y of ground line (used 4×)
     ctx.fillStyle = C_GROUND;
     ctx.fillRect(0, lineY, W, H - GROUND);
 
@@ -426,7 +426,7 @@
     ctx.lineTo(W, lineY);
     ctx.stroke();
 
-    // animowane "trawki" przesuwające się z prędkością terenu
+    // animated "grass tufts" scrolling at terrain speed
     ctx.fillStyle = C_GROUND;
     for (let i = 0; i < 8; i++) {
       const gx = (groundX + i * (W / 8)) % W;
@@ -441,7 +441,7 @@
     ctx.fillStyle = C_BAMBOO_STEM;
     ctx.fillRect(o.x + o.w * 0.3, o.y, o.w * 0.4, o.h);
 
-    // węzły
+    // nodes
     ctx.fillStyle = C_BAMBOO_JOINT;
     const segs = Math.floor(o.h / 13);
     for (let i = 0; i <= segs; i++)
@@ -454,17 +454,17 @@
     ctx.beginPath(); ctx.ellipse(o.x + o.w * 0.5,     o.y - 11,  9, 4,   0,   0, Math.PI * 2); ctx.fill();
   }
 
-  // ── Rysowanie czarownicy ─────────────────────────────────────────────────────
-  // wx, wy = poziomy i pionowy środek ciała; anim = licznik klatek animacji
+  // ── Witch drawing ────────────────────────────────────────────────────────────
+  // wx, wy = horizontal and vertical body centre; anim = animation frame counter
   function drawWitch(wx, wy, anim) {
-    const bob = Math.sin(anim * 0.12) * 2.5; // delikatne unoszenie się
+    const bob = Math.sin(anim * 0.12) * 2.5; // gentle floating
     const y   = wy + bob;
 
-    // Pozycje używane wielokrotnie wewnątrz funkcji
-    const headCX   = wx - 1;  // środek x głowy = środek x ronda kapelusza
-    const hatBaseY = y - 20;  // podstawa stożka i ronda kapelusza (3×)
-    const broomY   = y + 7;   // y podstawy włosia i y iskier (3×)
-    const bindX    = wx + 32; // x opaski miotły (2×)
+    // Positions reused throughout the function
+    const headCX   = wx - 1;  // head x centre = hat brim x centre
+    const hatBaseY = y - 20;  // base of cone and hat brim (3×)
+    const broomY   = y + 7;   // y of bristle base and sparks (3×)
+    const bindX    = wx + 32; // x of broom binding (2×)
 
     const SPARK_COLS = [
       'rgba(180,0,255,', 'rgba(255,140,0,',
@@ -473,7 +473,7 @@
 
     ctx.save();
 
-    // --- Miotła ---
+    // --- Broom ---
     ctx.lineCap     = 'round';
     ctx.strokeStyle = C_W_BROOM;
     ctx.lineWidth   = 3.5;
@@ -482,7 +482,7 @@
     ctx.lineTo(wx + 36, y + 5);
     ctx.stroke();
 
-    // Włosie miotły — wachlarz po prawej stronie (strona wyjazdu)
+    // Broom bristles — fan on the right side (exit side)
     for (let i = -5; i <= 5; i++) {
       ctx.strokeStyle = i % 2 === 0 ? C_W_BRISTLE_A : C_W_BRISTLE_B;
       ctx.lineWidth   = 1.5;
@@ -491,7 +491,7 @@
       ctx.lineTo(wx + 50, broomY + i * 3);
       ctx.stroke();
     }
-    // Opaska trzymająca włosie
+    // Binding holding the bristles
     ctx.strokeStyle = C_W_BRISTLE_BAND;
     ctx.lineWidth   = 3;
     ctx.beginPath();
@@ -499,7 +499,7 @@
     ctx.lineTo(bindX, y + 12);
     ctx.stroke();
 
-    // --- Szata / ciało ---
+    // --- Robe / body ---
     setOutline(1.2);
     ctx.fillStyle = C_W_ROBE;
     ctx.beginPath();
@@ -507,7 +507,7 @@
     ctx.fill();
     ctx.stroke();
 
-    // Peleryna (łopocze w locie — z lewej strony, za plecami)
+    // Cape (fluttering in flight — on the left side, behind the back)
     const flap = Math.sin(anim * 0.18) * 7;
     ctx.fillStyle = C_W_CAPE;
     ctx.beginPath();
@@ -518,7 +518,7 @@
     ctx.fill();
     ctx.stroke();
 
-    // --- Głowa (skierowana w lewo) ---
+    // --- Head (facing left) ---
     ctx.fillStyle   = C_W_SKIN;
     ctx.strokeStyle = C_W_SKIN_LINE;
     ctx.lineWidth   = 1.2;
@@ -527,7 +527,7 @@
     ctx.fill();
     ctx.stroke();
 
-    // Nos (szpiczasty, typowy dla wiedźmy, w lewo)
+    // Nose (pointed, typical witch nose, facing left)
     ctx.fillStyle   = C_W_NOSE;
     ctx.strokeStyle = C_W_SKIN_LINE;
     ctx.lineWidth   = 1;
@@ -539,23 +539,23 @@
     ctx.fill();
     ctx.stroke();
 
-    // Oko (zielona poświata)
+    // Eye (green glow)
     ctx.strokeStyle = C_NONE;
     ctx.fillStyle   = C_W_EYE;
     ctx.beginPath(); ctx.arc(wx - 9, y - 9, 3.5, 0, Math.PI * 2); ctx.fill();
-    // Źrenica
+    // Pupil
     ctx.fillStyle = C_W_PUPIL;
     ctx.beginPath(); ctx.arc(wx - 10, y - 9, 1.8, 0, Math.PI * 2); ctx.fill();
-    // Mrugnięcie co jakiś czas
+    // Occasional blink
     if (Math.sin(anim * 0.06) > 0.92) {
       ctx.fillStyle = C_W_SKIN;
       ctx.fillRect(wx - 14, y - 11, 9, 5);
     }
 
-    // --- Kapelusz ---
+    // --- Hat ---
     setOutline(1.5);
     ctx.fillStyle = C_W_HAT;
-    // Stożek kapelusza (lekko pochylony w lewo)
+    // Hat cone (slightly tilted left)
     ctx.beginPath();
     ctx.moveTo(wx - 15, hatBaseY);
     ctx.lineTo(wx - 2,  y - 50);
@@ -563,19 +563,19 @@
     ctx.closePath();
     ctx.fill();
     ctx.stroke();
-    // Rondo
+    // Brim
     ctx.beginPath();
     ctx.ellipse(headCX, hatBaseY, 17, 5, 0, 0, Math.PI * 2);
     ctx.fill();
     ctx.stroke();
-    // Złota sprzączka
+    // Gold buckle
     ctx.strokeStyle = C_NONE;
     ctx.fillStyle   = C_W_GOLD;
     ctx.fillRect(wx - 6, y - 29, 9, 6);
     ctx.fillStyle = C_W_HAT;
     ctx.fillRect(wx - 4, y - 28, 5, 4);
 
-    // --- Magiczne iskry za miotłą ---
+    // --- Magic sparks behind the broom ---
     for (let i = 0; i < 4; i++) {
       const sp = (anim + i * 11) % 44;
       if (sp < 30) {
@@ -591,93 +591,93 @@
     ctx.restore();
   }
 
-  // ── Rysowanie pandy ──────────────────────────────────────────────────────────
+  // ── Panda drawing ────────────────────────────────────────────────────────────
 
-  // Panda biegnąca / skacząca. px, py = lewy górny róg (py = panda.y - panda.h)
+  // Running / jumping panda. px, py = top-left corner (py = panda.y - panda.h)
   function drawPandaRunning(px, py) {
     const leg = Math.sin(frame * 0.28) * 6;
     setOutline(1.5);
 
-    // nogi (huśtanie synchro z frame)
+    // legs (swinging in sync with frame)
     fillEllipse(px + 11, py + 46 + (panda.onGround ?  leg : 0), 8, 7,  0.2, C_P_BLACK);
     fillEllipse(px + 31, py + 46 + (panda.onGround ? -leg : 0), 8, 7, -0.2, C_P_BLACK);
 
-    // tułów
+    // torso
     fillEllipse(px + 22, py + 32, 18, 21, 0, C_P_WHITE);
 
-    // ramiona
+    // arms
     fillEllipse(px + 5,  py + 28 + (panda.onGround ?  leg * 0.3 : -4), 6, 10,  0.5, C_P_BLACK);
     fillEllipse(px + 39, py + 28 + (panda.onGround ? -leg * 0.3 : -4), 6, 10, -0.5, C_P_BLACK);
 
-    // głowa
+    // head
     fillArc(px + 22, py + 15, 16, C_P_WHITE);
 
-    // uszy
+    // ears
     fillArc(px + 9,  py + 4, 6,   C_P_BLACK);
     fillArc(px + 35, py + 4, 6,   C_P_BLACK);
     setOutline(1);
     fillArc(px + 9,  py + 4, 3.5, C_P_EAR);
     fillArc(px + 35, py + 4, 3.5, C_P_EAR);
 
-    // łaty oczu
+    // eye patches
     setOutline(1.5);
     fillEllipse(px + 14, py + 14, 5.5, 4.5, -0.3, C_P_DARK);
     fillEllipse(px + 30, py + 14, 5.5, 4.5,  0.3, C_P_DARK);
 
-    // białka oczu
+    // eye whites
     setOutline(1);
     fillArc(px + 14, py + 14, 2.5, C_P_EYE);
     fillArc(px + 30, py + 14, 2.5, C_P_EYE);
 
-    // źrenice (bez obrysu)
+    // pupils (no outline)
     ctx.strokeStyle = C_NONE;
     fillArc(px + 14.5, py + 14, 1.2, C_P_BLACK);
     fillArc(px + 30.5, py + 14, 1.2, C_P_BLACK);
 
-    // nos i uśmiech
+    // nose and smile
     setOutline(1.5);
     fillEllipse(px + 22, py + 20, 3, 2, 0, C_P_DARK);
     ctx.strokeStyle = C_P_DARK; ctx.lineWidth = 1.5;
     ctx.beginPath(); ctx.arc(px + 22, py + 21, 3.5, 0.1, Math.PI - 0.1); ctx.stroke();
   }
 
-  // Panda jedząca bambus (ekran game-over). cx, cy = lewy górny róg
+  // Panda eating bamboo (game-over screen). cx, cy = top-left corner
   function drawPandaEating(cx, cy, animFrame) {
-    const sSin   = Math.sin(animFrame * 0.18); // wspólny sinus dla chew, bshift i eyeOpen (3×)
+    const sSin   = Math.sin(animFrame * 0.18); // shared sine for chew, bshift and eyeOpen (3×)
     const chew   = sSin * 1.5;
     const bob    = Math.sin(animFrame * 0.09) * 1.2;
-    const bshift = sSin * 0.8; // przesunięcie bambusa w łapach
+    const bshift = sSin * 0.8; // bamboo shift in paws
 
     setOutline(1.5);
 
-    // nogi
+    // legs
     fillEllipse(cx + 10, cy + 50 + bob, 11, 7,  0.6, C_P_BLACK);
     fillEllipse(cx + 36, cy + 50 + bob, 11, 7, -0.6, C_P_BLACK);
 
-    // tułów z brzuchem
+    // torso with belly
     fillEllipse(cx + 22, cy + 36 + bob, 18, 20, 0, C_P_WHITE);
     fillEllipse(cx + 22, cy + 39 + bob, 10, 12, 0, C_P_BELLY);
 
-    // ramiona (kołyszą się z ciałem)
+    // arms (swaying with body)
     fillEllipse(cx + 7,  cy + 28 + bob, 6, 11,  0.9, C_P_BLACK);
     fillEllipse(cx + 37, cy + 26 + bob, 6, 11, -0.9, C_P_BLACK);
 
-    // głowa
+    // head
     fillArc(cx + 22, cy + 15 + bob, 16, C_P_WHITE);
 
-    // uszy
+    // ears
     fillArc(cx + 9,  cy + 3 + bob, 6,   C_P_BLACK);
     fillArc(cx + 35, cy + 3 + bob, 6,   C_P_BLACK);
     setOutline(1);
     fillArc(cx + 9,  cy + 3 + bob, 3.5, C_P_EAR);
     fillArc(cx + 35, cy + 3 + bob, 3.5, C_P_EAR);
 
-    // łaty oczu
+    // eye patches
     setOutline(1.5);
     fillEllipse(cx + 14, cy + 13 + bob, 5.5, 4.5, -0.3, C_P_DARK);
     fillEllipse(cx + 30, cy + 13 + bob, 5.5, 4.5,  0.3, C_P_DARK);
 
-    // oczy otwierają się i zamykają w rytm żucia
+    // eyes open and close in rhythm with chewing
     const eyeOpen = sSin > 0;
     setOutline(1);
     if (eyeOpen) {
@@ -687,27 +687,27 @@
       fillArc(cx + 14.5, cy + 13 + bob, 1.2, C_P_BLACK);
       fillArc(cx + 30.5, cy + 13 + bob, 1.2, C_P_BLACK);
     } else {
-      // oczy przymrużone ^^
+      // squinted eyes ^^
       ctx.strokeStyle = C_P_EYE; ctx.lineWidth = 2;
       ctx.beginPath(); ctx.arc(cx + 14, cy + 13 + bob, 2.5, Math.PI, 0); ctx.stroke();
       ctx.beginPath(); ctx.arc(cx + 30, cy + 13 + bob, 2.5, Math.PI, 0); ctx.stroke();
     }
 
-    // nos
+    // nose
     setOutline(1.5);
     fillEllipse(cx + 22, cy + 19 + bob, 3, 2, 0, C_P_DARK);
 
-    // animowany pysk (ruch żucia)
+    // animated muzzle (chewing motion)
     ctx.strokeStyle = C_P_DARK; ctx.lineWidth = 1.8;
     ctx.beginPath(); ctx.arc(cx + 22, cy + 21 + bob + chew, 4, 0, Math.PI); ctx.stroke();
 
-    // rumieniec
+    // blush
     ctx.strokeStyle = C_NONE;
     ctx.fillStyle   = C_P_BLUSH;
     ctx.beginPath(); ctx.ellipse(cx + 10, cy + 18 + bob, 5, 3, 0, 0, Math.PI * 2); ctx.fill();
     ctx.beginPath(); ctx.ellipse(cx + 34, cy + 18 + bob, 5, 3, 0, 0, Math.PI * 2); ctx.fill();
 
-    // bambus w łapach (lekko się kołysze)
+    // bamboo in paws (gently swaying)
     ctx.save();
     ctx.translate(cx + 22, cy + 27);
     ctx.rotate(Math.PI / 2);
@@ -718,7 +718,7 @@
     for (let i = 0; i < 3; i++) ctx.fillRect(-5 + bshift, -19 + i * 13, 10, 3);
     ctx.restore();
 
-    // okruszki bambusa
+    // bamboo crumbs
     setOutline(1.5);
     const p = animFrame % 40;
     if (p < 20) {
@@ -728,23 +728,23 @@
     }
   }
 
-  // ── Główna pętla renderowania ─────────────────────────────────────────────────
+  // ── Main render loop ──────────────────────────────────────────────────────────
   function draw() {
-    // niebo
+    // sky
     ctx.clearRect(0, 0, W, H);
     ctx.fillStyle = C_SKY;
     ctx.fillRect(0, 0, W, H);
 
     for (const c of clouds) drawCloud(c);
 
-    // czarownice — warstwa nieba (przed ziemią, za chmurami)
+    // witches — sky layer (in front of ground, behind clouds)
     for (const o of obstacles) {
       if (o.type === 'witch') drawWitch(o.x, o.y, o.anim);
     }
 
     drawGround();
 
-    // bambusy — warstwa ziemi
+    // bamboos — ground layer
     for (const o of obstacles) {
       if (o.type === 'bamboo') drawBamboo(o);
     }
@@ -757,7 +757,7 @@
       if (spinning) {
         drawRotated(pandaCX, pandaCY, spinAngle, () => drawPandaRunning(panda.x, pandaTop));
       } else if (!(invincible && Math.floor(invTimer / 5) % 2 === 0)) {
-        // miganie gdy nietykalny
+        // flash when invincible
         drawPandaRunning(panda.x, pandaTop);
       }
 
@@ -767,12 +767,12 @@
     } else if (state === 'idle') {
       drawPandaRunning(panda.x, pandaTop);
       drawOverlay(
-        'Kliknij przycisk poniżej aby zacząć',
-        'Skok = Spacja / przycisk   |   Czarownica leci wysoko — NIE skacz!'
+        'Click button below to start',
+        'Jump = Space / button   |   Witch flies high — DON\'T jump!'
       );
 
     } else if (state === 'dead') {
-      // panda jest rysowana dwa razy: raz pod nakładką, raz nad nią
+      // panda drawn twice: once under the overlay, once above it
       const EX = W / 2 - 22, EY = H / 2 - 58;
       drawPandaEating(EX, EY, deadFrame);
       ctx.fillStyle = C_OV_BG;
@@ -781,9 +781,9 @@
 
       ctx.textAlign = 'center';
       ctx.fillStyle = C_OV_TITLE; ctx.font = '500 17px sans-serif';
-      ctx.fillText('Koniec gry!  Wynik: ' + score, W / 2, H / 2 + 36);
+      ctx.fillText('Game over!  Score: ' + score, W / 2, H / 2 + 36);
       ctx.fillStyle = C_OV_DEAD;  ctx.font = '400 12px sans-serif';
-      ctx.fillText('Kliknij Start aby zagrać ponownie', W / 2, H / 2 + 56);
+      ctx.fillText('Click Start to play again', W / 2, H / 2 + 56);
     }
   }
 

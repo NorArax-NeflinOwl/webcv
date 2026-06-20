@@ -19,7 +19,7 @@ class PandaGamePlayerScoreService(private val pandaScoreRepository: PandaGamePla
     companion object {
         const val MAX_NICK_LENGTH = 64
         const val MAX_SCORE       = 1_000_000
-        const val DEFAULT_NICK    = "Anonim"
+        const val DEFAULT_NICK    = "Anonymous"
     }
 
     @Transactional

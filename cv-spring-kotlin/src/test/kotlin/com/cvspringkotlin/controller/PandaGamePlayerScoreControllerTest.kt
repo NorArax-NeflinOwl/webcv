@@ -35,46 +35,46 @@ class PandaGamePlayerScoreControllerTest {
         clearMocks(pandaGameService)
     }
 
-    // ── POST /api/pandagame/scores — sukces ───────────────
+    // ── POST /api/pandagame/scores — success ──────────────
 
     @Test
-    fun `POST scores zwraca 201 i zapisany wynik`() {
+    fun `POST scores returns 201 and saved score`() {
         every { pandaGameService.saveScore(any()) } returns
-                PandaGamePlayerScoreResponse(nick = "Gracz1", score = 123, playedAt = "2026-06-14T10:00:00")
+                PandaGamePlayerScoreResponse(nick = "Player1", score = 123, playedAt = "2026-06-14T10:00:00")
 
         mockMvc.post("/api/pandagame/scores") {
             contentType = MediaType.APPLICATION_JSON
-            content = """{"nick":"Gracz1","score":123}"""
+            content = """{"nick":"Player1","score":123}"""
         }.andExpect {
             status { isCreated() }
             content { contentType(MediaType.APPLICATION_JSON) }
-            jsonPath("$.nick")  { value("Gracz1") }
+            jsonPath("$.nick")  { value("Player1") }
             jsonPath("$.score") { value(123) }
         }
 
         verify(exactly = 1) { pandaGameService.saveScore(any()) }
     }
 
-    // ── POST /api/pandagame/scores — błędy walidacji ──────
+    // ── POST /api/pandagame/scores — validation errors ────
 
     @Test
-    fun `POST scores zwraca 400 gdy serwis odrzuca dane`() {
-        every { pandaGameService.saveScore(any()) } throws IllegalArgumentException("Wynik nie może być ujemny")
+    fun `POST scores returns 400 when service rejects data`() {
+        every { pandaGameService.saveScore(any()) } throws IllegalArgumentException("Score cannot be negative")
 
         mockMvc.post("/api/pandagame/scores") {
             contentType = MediaType.APPLICATION_JSON
-            content = """{"nick":"Gracz1","score":-5}"""
+            content = """{"nick":"Player1","score":-5}"""
         }.andExpect {
             status { isBadRequest() }
-            jsonPath("$.error") { value("Wynik nie może być ujemny") }
+            jsonPath("$.error") { value("Score cannot be negative") }
         }
     }
 
     @Test
-    fun `POST scores zwraca 400 gdy JSON jest niepoprawny`() {
+    fun `POST scores returns 400 when JSON is malformed`() {
         mockMvc.post("/api/pandagame/scores") {
             contentType = MediaType.APPLICATION_JSON
-            content = """{"nick": "Gracz1", "score": }"""
+            content = """{"nick": "Player1", "score": }"""
         }.andExpect {
             status { isBadRequest() }
             jsonPath("$.error") { exists() }
@@ -84,39 +84,39 @@ class PandaGamePlayerScoreControllerTest {
     }
 
     @Test
-    fun `POST scores zwraca 500 gdy serwis zglasza nieoczekiwany blad`() {
+    fun `POST scores returns 500 when service throws unexpected error`() {
         every { pandaGameService.saveScore(any()) } throws RuntimeException("DB down")
 
         mockMvc.post("/api/pandagame/scores") {
             contentType = MediaType.APPLICATION_JSON
-            content = """{"nick":"Gracz1","score":10}"""
+            content = """{"nick":"Player1","score":10}"""
         }.andExpect {
             status { isInternalServerError() }
-            jsonPath("$.error") { value("Wewnętrzny błąd serwera") }
+            jsonPath("$.error") { value("Internal server error") }
         }
     }
 
     // ── GET /api/pandagame/scores ─────────────────────────
 
     @Test
-    fun `GET scores zwraca 200 i liste wynikow`() {
+    fun `GET scores returns 200 and list of scores`() {
         every { pandaGameService.topScores() } returns listOf(
-            PandaGamePlayerScoreResponse(nick = "Gracz1", score = 200, playedAt = "2026-06-14T10:00:00"),
-            PandaGamePlayerScoreResponse(nick = "Gracz2", score = 100, playedAt = "2026-06-14T09:00:00")
+            PandaGamePlayerScoreResponse(nick = "Player1", score = 200, playedAt = "2026-06-14T10:00:00"),
+            PandaGamePlayerScoreResponse(nick = "Player2", score = 100, playedAt = "2026-06-14T09:00:00")
         )
 
         mockMvc.get("/api/pandagame/scores")
             .andExpect {
                 status { isOk() }
                 jsonPath("$") { isArray() }
-                jsonPath("$[0].nick")  { value("Gracz1") }
+                jsonPath("$[0].nick")  { value("Player1") }
                 jsonPath("$[0].score") { value(200) }
-                jsonPath("$[1].nick")  { value("Gracz2") }
+                jsonPath("$[1].nick")  { value("Player2") }
             }
     }
 
     @Test
-    fun `GET scores zwraca pusta tablice gdy brak wynikow`() {
+    fun `GET scores returns empty array when no scores exist`() {
         every { pandaGameService.topScores() } returns emptyList()
 
         mockMvc.get("/api/pandagame/scores")
