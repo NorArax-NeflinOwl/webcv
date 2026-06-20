@@ -139,7 +139,7 @@ class GameEngine(
      * @throws IllegalStateException if it is not this player's turn, or the action is invalid.
      */
     suspend fun applyAction(action: PlayerAction) = mutex.withLock {
-        require(gameState !is GameState.WaitingForPlayers && gameState !is GameState.Showdown) {
+        check(gameState !is GameState.WaitingForPlayers && gameState !is GameState.Showdown) {
             "No active betting round"
         }
         applyActionInternal(action)
@@ -182,7 +182,7 @@ class GameEngine(
         // Validate turn order
         val currentTurn = actionQueue.firstOrNull()
             ?: error("No player is waiting to act")
-        require(action.playerId == currentTurn) {
+        check(action.playerId == currentTurn) {
             "Not player ${action.playerId.value}'s turn (current turn: ${currentTurn.value})"
         }
 
@@ -208,7 +208,7 @@ class GameEngine(
 
             is PlayerAction.Check -> {
                 val owed = toCall(action.playerId)
-                require(owed == 0) {
+                check(owed == 0) {
                     "Cannot check — player must call $owed chips or fold"
                 }
                 log.debug("[{}] {} CHECK | phase={}", tableId.value, player.name, gameState::class.simpleName)

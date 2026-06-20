@@ -221,7 +221,7 @@ class ProfileServiceTest {
         every { profileRepository.findFirst() } returns null
 
         val ex = assertThrows<IllegalStateException> { profileService.getProfile() }
-        assertEquals("Brak profilu w bazie danych", ex.message)
+        assertEquals("Profile not found in database", ex.message)
     }
 
     @Test
