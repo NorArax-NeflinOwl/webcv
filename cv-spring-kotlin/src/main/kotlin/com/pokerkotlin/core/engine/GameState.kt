@@ -1,5 +1,6 @@
 package com.pokerkotlin.core.engine
 
+import com.pokerkotlin.core.evaluation.PlayerResult
 import com.pokerkotlin.core.model.Card
 
 sealed interface GameState {

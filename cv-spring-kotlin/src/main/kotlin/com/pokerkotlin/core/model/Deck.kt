@@ -22,5 +22,8 @@ class Deck private constructor(private val cards: MutableList<Card>) {
             }
             return Deck(all)
         }
+
+        /** Creates a [Deck] from a specific ordered list of cards — intended for tests only. */
+        fun of(vararg cards: Card): Deck = Deck(cards.toMutableList())
     }
 }
