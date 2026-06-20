@@ -1,5 +1,11 @@
 package com.pokerkotlin.server.dto
 
+// ── REST: GET /tables ─────────────────────────────────────────────────────────
+
+data class TableListResponse(val tables: List<TableInfoDto>, val count: Int)
+
+data class TableInfoDto(val tableId: String)
+
 // ── REST: POST /tables ────────────────────────────────────────────────────────
 
 data class CreateTableRequest(val blindAmount: Int = 10)

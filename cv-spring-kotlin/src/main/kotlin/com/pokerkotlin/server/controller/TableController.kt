@@ -9,6 +9,8 @@ import com.pokerkotlin.server.dto.CreateTableRequest
 import com.pokerkotlin.server.dto.CreateTableResponse
 import com.pokerkotlin.server.dto.JoinTableRequest
 import com.pokerkotlin.server.dto.JoinTableResponse
+import com.pokerkotlin.server.dto.TableInfoDto
+import com.pokerkotlin.server.dto.TableListResponse
 import com.pokerkotlin.server.dto.TableSnapshotDto
 import com.pokerkotlin.server.dto.toDto
 import com.pokerkotlin.server.repository.TableRepository
@@ -48,6 +50,27 @@ class TableController(
 ) {
 
     private val secureRandom = SecureRandom()
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // GET /tables — list all active tables
+    // ─────────────────────────────────────────────────────────────────────────
+
+    /**
+     * Returns a list of all currently active table IDs.
+     *
+     * Example response:
+     * ```json
+     * { "tables": [{"tableId": "…"}, {"tableId": "…"}], "count": 2 }
+     * ```
+     */
+    @GetMapping
+    fun listTables(): TableListResponse {
+        val ids = tableRepository.allTableIds()
+        return TableListResponse(
+            tables = ids.map { TableInfoDto(it.value) },
+            count  = ids.size,
+        )
+    }
 
     // ─────────────────────────────────────────────────────────────────────────
     // POST /tables — create a new table (with 2 bots pre-seated)
