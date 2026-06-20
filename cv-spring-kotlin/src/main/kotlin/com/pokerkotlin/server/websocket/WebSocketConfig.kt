@@ -8,16 +8,6 @@ import org.springframework.web.socket.config.annotation.EnableWebSocket
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 
-/**
- * Registers the [PokerWebSocketHandler] at `/tables/*/ws`.
- *
- * The wildcard `*` captures the table ID, which the handler extracts from
- * `session.uri.path` — Spring's raw WebSocket support does not bind
- * path-variables automatically (unlike STOMP endpoints).
- *
- * `setAllowedOrigins("*")` is intentionally permissive for local development.
- * In production, restrict this to the front-end origin (e.g. `https://your.domain`).
- */
 @Configuration
 @EnableWebSocket
 class WebSocketConfig(

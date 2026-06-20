@@ -9,19 +9,19 @@ import org.junit.jupiter.api.Test
 
 class HandEvaluatorTest {
 
-    private fun c(rank: Rank, suit: Suit) = Card(rank, suit)
-    private fun h(vararg cards: Card)     = Hand(cards.toList())
+    private fun card(rank: Rank, suit: Suit) = Card(rank, suit)
+    private fun hand(vararg cards: Card)     = Hand(cards.toList())
 
     // ── All 10 hand categories ───────────────────────────────
 
     @Test
     fun `high card — no matching pattern`() {
-        val hand = h(
-            c(Rank.TWO,   Suit.RED_HEART),
-            c(Rank.FOUR,  Suit.BLACK_SPADE),
-            c(Rank.SIX,   Suit.GREEN_CLUB),
-            c(Rank.EIGHT, Suit.BLUE_DIAMOND),
-            c(Rank.TEN,   Suit.RED_HEART),
+        val hand = hand(
+            card(Rank.TWO,   Suit.RED_HEART),
+            card(Rank.FOUR,  Suit.BLACK_SPADE),
+            card(Rank.SIX,   Suit.GREEN_CLUB),
+            card(Rank.EIGHT, Suit.BLUE_DIAMOND),
+            card(Rank.TEN,   Suit.RED_HEART),
         )
         val rank = HandEvaluator.evaluate(hand)
         assertEquals(HandCategory.HIGH_CARD, rank.category)
@@ -30,12 +30,12 @@ class HandEvaluatorTest {
 
     @Test
     fun `one pair`() {
-        val hand = h(
-            c(Rank.ACE,   Suit.RED_HEART),
-            c(Rank.ACE,   Suit.BLACK_SPADE),
-            c(Rank.KING,  Suit.GREEN_CLUB),
-            c(Rank.QUEEN, Suit.BLUE_DIAMOND),
-            c(Rank.JACK,  Suit.RED_HEART),
+        val hand = hand(
+            card(Rank.ACE,   Suit.RED_HEART),
+            card(Rank.ACE,   Suit.BLACK_SPADE),
+            card(Rank.KING,  Suit.GREEN_CLUB),
+            card(Rank.QUEEN, Suit.BLUE_DIAMOND),
+            card(Rank.JACK,  Suit.RED_HEART),
         )
         val rank = HandEvaluator.evaluate(hand)
         assertEquals(HandCategory.ONE_PAIR, rank.category)
@@ -44,12 +44,12 @@ class HandEvaluatorTest {
 
     @Test
     fun `two pair`() {
-        val hand = h(
-            c(Rank.ACE,   Suit.RED_HEART),
-            c(Rank.ACE,   Suit.BLACK_SPADE),
-            c(Rank.KING,  Suit.GREEN_CLUB),
-            c(Rank.KING,  Suit.BLUE_DIAMOND),
-            c(Rank.QUEEN, Suit.RED_HEART),
+        val hand = hand(
+            card(Rank.ACE,   Suit.RED_HEART),
+            card(Rank.ACE,   Suit.BLACK_SPADE),
+            card(Rank.KING,  Suit.GREEN_CLUB),
+            card(Rank.KING,  Suit.BLUE_DIAMOND),
+            card(Rank.QUEEN, Suit.RED_HEART),
         )
         val rank = HandEvaluator.evaluate(hand)
         assertEquals(HandCategory.TWO_PAIR, rank.category)
@@ -58,12 +58,12 @@ class HandEvaluatorTest {
 
     @Test
     fun `three of a kind`() {
-        val hand = h(
-            c(Rank.ACE,   Suit.RED_HEART),
-            c(Rank.ACE,   Suit.BLACK_SPADE),
-            c(Rank.ACE,   Suit.GREEN_CLUB),
-            c(Rank.KING,  Suit.BLUE_DIAMOND),
-            c(Rank.QUEEN, Suit.RED_HEART),
+        val hand = hand(
+            card(Rank.ACE,   Suit.RED_HEART),
+            card(Rank.ACE,   Suit.BLACK_SPADE),
+            card(Rank.ACE,   Suit.GREEN_CLUB),
+            card(Rank.KING,  Suit.BLUE_DIAMOND),
+            card(Rank.QUEEN, Suit.RED_HEART),
         )
         val rank = HandEvaluator.evaluate(hand)
         assertEquals(HandCategory.THREE_OF_A_KIND, rank.category)
@@ -72,12 +72,12 @@ class HandEvaluatorTest {
 
     @Test
     fun `straight 10-J-Q-K-A`() {
-        val hand = h(
-            c(Rank.TEN,   Suit.RED_HEART),
-            c(Rank.JACK,  Suit.BLACK_SPADE),
-            c(Rank.QUEEN, Suit.GREEN_CLUB),
-            c(Rank.KING,  Suit.BLUE_DIAMOND),
-            c(Rank.ACE,   Suit.RED_HEART),
+        val hand = hand(
+            card(Rank.TEN,   Suit.RED_HEART),
+            card(Rank.JACK,  Suit.BLACK_SPADE),
+            card(Rank.QUEEN, Suit.GREEN_CLUB),
+            card(Rank.KING,  Suit.BLUE_DIAMOND),
+            card(Rank.ACE,   Suit.RED_HEART),
         )
         val rank = HandEvaluator.evaluate(hand)
         assertEquals(HandCategory.STRAIGHT, rank.category)
@@ -86,12 +86,12 @@ class HandEvaluatorTest {
 
     @Test
     fun `wheel straight A-2-3-4-5 — top card is 5 not ace`() {
-        val hand = h(
-            c(Rank.ACE,   Suit.RED_HEART),
-            c(Rank.TWO,   Suit.BLACK_SPADE),
-            c(Rank.THREE, Suit.GREEN_CLUB),
-            c(Rank.FOUR,  Suit.BLUE_DIAMOND),
-            c(Rank.FIVE,  Suit.RED_HEART),
+        val hand = hand(
+            card(Rank.ACE,   Suit.RED_HEART),
+            card(Rank.TWO,   Suit.BLACK_SPADE),
+            card(Rank.THREE, Suit.GREEN_CLUB),
+            card(Rank.FOUR,  Suit.BLUE_DIAMOND),
+            card(Rank.FIVE,  Suit.RED_HEART),
         )
         val rank = HandEvaluator.evaluate(hand)
         assertEquals(HandCategory.STRAIGHT, rank.category)
@@ -100,12 +100,12 @@ class HandEvaluatorTest {
 
     @Test
     fun `flush`() {
-        val hand = h(
-            c(Rank.TWO,   Suit.RED_HEART),
-            c(Rank.FIVE,  Suit.RED_HEART),
-            c(Rank.SEVEN, Suit.RED_HEART),
-            c(Rank.NINE,  Suit.RED_HEART),
-            c(Rank.JACK,  Suit.RED_HEART),
+        val hand = hand(
+            card(Rank.TWO,   Suit.RED_HEART),
+            card(Rank.FIVE,  Suit.RED_HEART),
+            card(Rank.SEVEN, Suit.RED_HEART),
+            card(Rank.NINE,  Suit.RED_HEART),
+            card(Rank.JACK,  Suit.RED_HEART),
         )
         val rank = HandEvaluator.evaluate(hand)
         assertEquals(HandCategory.FLUSH, rank.category)
@@ -114,12 +114,12 @@ class HandEvaluatorTest {
 
     @Test
     fun `full house`() {
-        val hand = h(
-            c(Rank.ACE,  Suit.RED_HEART),
-            c(Rank.ACE,  Suit.BLACK_SPADE),
-            c(Rank.ACE,  Suit.GREEN_CLUB),
-            c(Rank.KING, Suit.BLUE_DIAMOND),
-            c(Rank.KING, Suit.RED_HEART),
+        val hand = hand(
+            card(Rank.ACE,  Suit.RED_HEART),
+            card(Rank.ACE,  Suit.BLACK_SPADE),
+            card(Rank.ACE,  Suit.GREEN_CLUB),
+            card(Rank.KING, Suit.BLUE_DIAMOND),
+            card(Rank.KING, Suit.RED_HEART),
         )
         val rank = HandEvaluator.evaluate(hand)
         assertEquals(HandCategory.FULL_HOUSE, rank.category)
@@ -128,12 +128,12 @@ class HandEvaluatorTest {
 
     @Test
     fun `four of a kind`() {
-        val hand = h(
-            c(Rank.ACE,  Suit.RED_HEART),
-            c(Rank.ACE,  Suit.BLACK_SPADE),
-            c(Rank.ACE,  Suit.GREEN_CLUB),
-            c(Rank.ACE,  Suit.BLUE_DIAMOND),
-            c(Rank.KING, Suit.RED_HEART),
+        val hand = hand(
+            card(Rank.ACE,  Suit.RED_HEART),
+            card(Rank.ACE,  Suit.BLACK_SPADE),
+            card(Rank.ACE,  Suit.GREEN_CLUB),
+            card(Rank.ACE,  Suit.BLUE_DIAMOND),
+            card(Rank.KING, Suit.RED_HEART),
         )
         val rank = HandEvaluator.evaluate(hand)
         assertEquals(HandCategory.FOUR_OF_A_KIND, rank.category)
@@ -142,12 +142,12 @@ class HandEvaluatorTest {
 
     @Test
     fun `straight flush`() {
-        val hand = h(
-            c(Rank.FIVE,  Suit.RED_HEART),
-            c(Rank.SIX,   Suit.RED_HEART),
-            c(Rank.SEVEN, Suit.RED_HEART),
-            c(Rank.EIGHT, Suit.RED_HEART),
-            c(Rank.NINE,  Suit.RED_HEART),
+        val hand = hand(
+            card(Rank.FIVE,  Suit.RED_HEART),
+            card(Rank.SIX,   Suit.RED_HEART),
+            card(Rank.SEVEN, Suit.RED_HEART),
+            card(Rank.EIGHT, Suit.RED_HEART),
+            card(Rank.NINE,  Suit.RED_HEART),
         )
         val rank = HandEvaluator.evaluate(hand)
         assertEquals(HandCategory.STRAIGHT_FLUSH, rank.category)
@@ -156,12 +156,12 @@ class HandEvaluatorTest {
 
     @Test
     fun `royal flush`() {
-        val hand = h(
-            c(Rank.TEN,   Suit.RED_HEART),
-            c(Rank.JACK,  Suit.RED_HEART),
-            c(Rank.QUEEN, Suit.RED_HEART),
-            c(Rank.KING,  Suit.RED_HEART),
-            c(Rank.ACE,   Suit.RED_HEART),
+        val hand = hand(
+            card(Rank.TEN,   Suit.RED_HEART),
+            card(Rank.JACK,  Suit.RED_HEART),
+            card(Rank.QUEEN, Suit.RED_HEART),
+            card(Rank.KING,  Suit.RED_HEART),
+            card(Rank.ACE,   Suit.RED_HEART),
         )
         val rank = HandEvaluator.evaluate(hand)
         assertEquals(HandCategory.ROYAL_FLUSH, rank.category)
@@ -172,14 +172,14 @@ class HandEvaluatorTest {
     @Test
     fun `7 cards — picks the best 5-card combination`() {
         // Royal Flush hidden among 7 cards (+ 2 irrelevant cards)
-        val hand = h(
-            c(Rank.TEN,   Suit.RED_HEART),
-            c(Rank.JACK,  Suit.RED_HEART),
-            c(Rank.QUEEN, Suit.RED_HEART),
-            c(Rank.KING,  Suit.RED_HEART),
-            c(Rank.ACE,   Suit.RED_HEART),
-            c(Rank.TWO,   Suit.BLACK_SPADE),
-            c(Rank.THREE, Suit.GREEN_CLUB),
+        val hand = hand(
+            card(Rank.TEN,   Suit.RED_HEART),
+            card(Rank.JACK,  Suit.RED_HEART),
+            card(Rank.QUEEN, Suit.RED_HEART),
+            card(Rank.KING,  Suit.RED_HEART),
+            card(Rank.ACE,   Suit.RED_HEART),
+            card(Rank.TWO,   Suit.BLACK_SPADE),
+            card(Rank.THREE, Suit.GREEN_CLUB),
         )
         val rank = HandEvaluator.evaluate(hand)
         assertEquals(HandCategory.ROYAL_FLUSH, rank.category)
@@ -187,14 +187,14 @@ class HandEvaluatorTest {
 
     @Test
     fun `7 cards — ignores weaker combos, selects full house over pair`() {
-        val hand = h(
-            c(Rank.KING,  Suit.RED_HEART),
-            c(Rank.KING,  Suit.BLACK_SPADE),
-            c(Rank.KING,  Suit.GREEN_CLUB),
-            c(Rank.QUEEN, Suit.BLUE_DIAMOND),
-            c(Rank.QUEEN, Suit.RED_HEART),
-            c(Rank.TWO,   Suit.GREEN_CLUB),
-            c(Rank.THREE, Suit.BLUE_DIAMOND),
+        val hand = hand(
+            card(Rank.KING,  Suit.RED_HEART),
+            card(Rank.KING,  Suit.BLACK_SPADE),
+            card(Rank.KING,  Suit.GREEN_CLUB),
+            card(Rank.QUEEN, Suit.BLUE_DIAMOND),
+            card(Rank.QUEEN, Suit.RED_HEART),
+            card(Rank.TWO,   Suit.GREEN_CLUB),
+            card(Rank.THREE, Suit.BLUE_DIAMOND),
         )
         val rank = HandEvaluator.evaluate(hand)
         assertEquals(HandCategory.FULL_HOUSE, rank.category)
@@ -205,57 +205,57 @@ class HandEvaluatorTest {
 
     @Test
     fun `kicker decides between equal pairs of aces`() {
-        val highKicker = h(
-            c(Rank.ACE,   Suit.RED_HEART),
-            c(Rank.ACE,   Suit.BLACK_SPADE),
-            c(Rank.KING,  Suit.GREEN_CLUB),
-            c(Rank.QUEEN, Suit.BLUE_DIAMOND),
-            c(Rank.JACK,  Suit.RED_HEART),
+        val highKicker = hand(
+            card(Rank.ACE,   Suit.RED_HEART),
+            card(Rank.ACE,   Suit.BLACK_SPADE),
+            card(Rank.KING,  Suit.GREEN_CLUB),
+            card(Rank.QUEEN, Suit.BLUE_DIAMOND),
+            card(Rank.JACK,  Suit.RED_HEART),
         )
-        val lowKicker = h(
-            c(Rank.ACE,   Suit.GREEN_CLUB),
-            c(Rank.ACE,   Suit.BLUE_DIAMOND),
-            c(Rank.NINE,  Suit.RED_HEART),
-            c(Rank.EIGHT, Suit.BLACK_SPADE),
-            c(Rank.SEVEN, Suit.GREEN_CLUB),
+        val lowKicker = hand(
+            card(Rank.ACE,   Suit.GREEN_CLUB),
+            card(Rank.ACE,   Suit.BLUE_DIAMOND),
+            card(Rank.NINE,  Suit.RED_HEART),
+            card(Rank.EIGHT, Suit.BLACK_SPADE),
+            card(Rank.SEVEN, Suit.GREEN_CLUB),
         )
         assertTrue(HandEvaluator.evaluate(highKicker) > HandEvaluator.evaluate(lowKicker))
     }
 
     @Test
     fun `two flushes — higher kicker wins`() {
-        val strongFlush = h(
-            c(Rank.ACE,   Suit.GREEN_CLUB),
-            c(Rank.KING,  Suit.GREEN_CLUB),
-            c(Rank.QUEEN, Suit.GREEN_CLUB),
-            c(Rank.JACK,  Suit.GREEN_CLUB),
-            c(Rank.NINE,  Suit.GREEN_CLUB),
+        val strongFlush = hand(
+            card(Rank.ACE,   Suit.GREEN_CLUB),
+            card(Rank.KING,  Suit.GREEN_CLUB),
+            card(Rank.QUEEN, Suit.GREEN_CLUB),
+            card(Rank.JACK,  Suit.GREEN_CLUB),
+            card(Rank.NINE,  Suit.GREEN_CLUB),
         )
-        val weakFlush = h(
-            c(Rank.ACE,   Suit.BLUE_DIAMOND),
-            c(Rank.KING,  Suit.BLUE_DIAMOND),
-            c(Rank.QUEEN, Suit.BLUE_DIAMOND),
-            c(Rank.JACK,  Suit.BLUE_DIAMOND),
-            c(Rank.EIGHT, Suit.BLUE_DIAMOND),
+        val weakFlush = hand(
+            card(Rank.ACE,   Suit.BLUE_DIAMOND),
+            card(Rank.KING,  Suit.BLUE_DIAMOND),
+            card(Rank.QUEEN, Suit.BLUE_DIAMOND),
+            card(Rank.JACK,  Suit.BLUE_DIAMOND),
+            card(Rank.EIGHT, Suit.BLUE_DIAMOND),
         )
         assertTrue(HandEvaluator.evaluate(strongFlush) > HandEvaluator.evaluate(weakFlush))
     }
 
     @Test
     fun `identical hands compare as equal`() {
-        val a = h(
-            c(Rank.ACE,  Suit.RED_HEART),
-            c(Rank.ACE,  Suit.BLACK_SPADE),
-            c(Rank.ACE,  Suit.GREEN_CLUB),
-            c(Rank.ACE,  Suit.BLUE_DIAMOND),
-            c(Rank.KING, Suit.RED_HEART),
+        val a = hand(
+            card(Rank.ACE,  Suit.RED_HEART),
+            card(Rank.ACE,  Suit.BLACK_SPADE),
+            card(Rank.ACE,  Suit.GREEN_CLUB),
+            card(Rank.ACE,  Suit.BLUE_DIAMOND),
+            card(Rank.KING, Suit.RED_HEART),
         )
-        val b = h(
-            c(Rank.ACE,  Suit.RED_HEART),
-            c(Rank.ACE,  Suit.BLACK_SPADE),
-            c(Rank.ACE,  Suit.GREEN_CLUB),
-            c(Rank.ACE,  Suit.BLUE_DIAMOND),
-            c(Rank.KING, Suit.RED_HEART),
+        val b = hand(
+            card(Rank.ACE,  Suit.RED_HEART),
+            card(Rank.ACE,  Suit.BLACK_SPADE),
+            card(Rank.ACE,  Suit.GREEN_CLUB),
+            card(Rank.ACE,  Suit.BLUE_DIAMOND),
+            card(Rank.KING, Suit.RED_HEART),
         )
         assertEquals(0, HandEvaluator.evaluate(a).compareTo(HandEvaluator.evaluate(b)))
     }
@@ -264,17 +264,17 @@ class HandEvaluatorTest {
 
     @Test
     fun `error when too few cards — 2`() {
-        val hand = h(c(Rank.ACE, Suit.RED_HEART), c(Rank.KING, Suit.BLACK_SPADE))
+        val hand = hand(card(Rank.ACE, Suit.RED_HEART), card(Rank.KING, Suit.BLACK_SPADE))
         assertThrows(IllegalArgumentException::class.java) { HandEvaluator.evaluate(hand) }
     }
 
     @Test
     fun `error when too many cards — 8`() {
-        val hand = h(
-            c(Rank.ACE,   Suit.RED_HEART),    c(Rank.KING,  Suit.BLACK_SPADE),
-            c(Rank.QUEEN, Suit.GREEN_CLUB),   c(Rank.JACK,  Suit.BLUE_DIAMOND),
-            c(Rank.TEN,   Suit.RED_HEART),    c(Rank.NINE,  Suit.BLACK_SPADE),
-            c(Rank.EIGHT, Suit.GREEN_CLUB),   c(Rank.SEVEN, Suit.BLUE_DIAMOND),
+        val hand = hand(
+            card(Rank.ACE,   Suit.RED_HEART),    card(Rank.KING,  Suit.BLACK_SPADE),
+            card(Rank.QUEEN, Suit.GREEN_CLUB),   card(Rank.JACK,  Suit.BLUE_DIAMOND),
+            card(Rank.TEN,   Suit.RED_HEART),    card(Rank.NINE,  Suit.BLACK_SPADE),
+            card(Rank.EIGHT, Suit.GREEN_CLUB),   card(Rank.SEVEN, Suit.BLUE_DIAMOND),
         )
         assertThrows(IllegalArgumentException::class.java) { HandEvaluator.evaluate(hand) }
     }

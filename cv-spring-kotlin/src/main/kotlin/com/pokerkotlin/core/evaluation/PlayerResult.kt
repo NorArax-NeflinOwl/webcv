@@ -7,7 +7,7 @@ import com.pokerkotlin.core.model.PlayerId
  * The outcome of evaluating a player's hand at showdown.
  *
  * [handValue] holds the full evaluation hand (hole cards + board) so that
- * [compareTo] can delegate to [Hand.compareTo] → [HandEvaluator].
+ * [compareTo] can delegate to [Hand.compareTo] -> [HandEvaluator].
  * Sorted descending — the strongest hand ranks first.
  */
 data class PlayerResult(
