@@ -6,7 +6,9 @@
         </encoder>
     </appender>
 
+    <logger name="com.cvspringkotlin.service.PandaGamePlayerScoreService" level="DEBUG"/>
     <logger name="com.pokerkotlin.core.engine.GameEngine" level="DEBUG"/>
+    <logger name="com.pokerkotlin.core.evaluation.HandEvaluator" level="DEBUG"/>
 
     <root level="INFO">
         <appender-ref ref="STDOUT"/>
