@@ -79,16 +79,16 @@ i dwóch botów (RandomBot). Frontend w czystym HTML + CSS + JavaScript.
 **Technologie:**
 - Kotlin + Kotlinx Coroutines (silnik gry: rozdania, zakłady, ocena rąk)
 - Spring WebSocket (`TextWebSocketHandler`) — push stanu stołu po każdej akcji
-- REST API (`/tables`, `/tables/{id}/join`, `/tables/{id}/start`)
+- REST API (`/api/pokertable`, `/api/pokertable/{id}/join`, `/api/pokertable/{id}/start`)
 - HTML5 / CSS3 / JavaScript (vanilla) — frontend z widokiem stołu i kartami
 - JUnit 5 + MockK (testy silnika, oceny rąk, integracyjne)
 
 **Protokół:**
 ```
-POST /tables                    → { tableId }           (tworzy stół z 2 botami)
-POST /tables/{id}/join          → { sessionToken, playerId }
-POST /tables/{id}/start?token=… → 204
-WS   /tables/{id}/ws?token=…   ← TableSnapshotDto (push po każdej zmianie stanu)
+POST /api/pokertable                    → { tableId }           (tworzy stół z 2 botami)
+POST /api/pokertable/{id}/join          → { sessionToken, playerId }
+POST /api/pokertable/{id}/start?token=… → 204
+WS   /api/pokertable/{id}/ws?token=…   ← TableSnapshotDto (push po każdej zmianie stanu)
                                 → { type: "Fold"|"Check"|"Call"|"Raise", amount? }
 ```
 
@@ -120,10 +120,10 @@ Aplikacja dostępna pod adresem: `http://localhost:8080`
 | `http://localhost:8080/api/profileinfo` | Dane profilu (JSON) |
 | `http://localhost:8080/api/hello` | Hello World |
 | `http://localhost:8080/api/pandagame/scores` | Wyniki Panda Game (GET — wszystkie wyniki, POST — zapis wyniku) |
-| `http://localhost:8080/tables` | Lista stołów pokerowych (GET) / Nowy stół (POST) |
-| `http://localhost:8080/tables/{id}/join` | Dołącz do stołu (POST) |
-| `http://localhost:8080/tables/{id}/start` | Rozpocznij rozdanie (POST) |
-| `ws://localhost:8080/tables/{id}/ws` | WebSocket — stan gry w czasie rzeczywistym |
+| `http://localhost:8080/api/pokertable` | Lista stołów pokerowych (GET) / Nowy stół (POST) |
+| `http://localhost:8080/api/pokertable/{id}/join` | Dołącz do stołu (POST) |
+| `http://localhost:8080/api/pokertable/{id}/start` | Rozpocznij rozdanie (POST) |
+| `ws://localhost:8080/api/pokertable/{id}/ws` | WebSocket — stan gry w czasie rzeczywistym |
 | `http://localhost:8080/actuator/health` | Status aplikacji |
 
 ---
