@@ -6,6 +6,7 @@
 ![Spring Boot](https://img.shields.io/badge/Spring_Boot-6DB33F?style=flat&logo=springboot&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=flat&logo=postgresql&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat&logo=docker&logoColor=white)
+![WebSocket](https://img.shields.io/badge/WebSocket-010101?style=flat&logo=socketdotio&logoColor=white)
 
 ---
 
@@ -60,6 +61,33 @@ jako tablica wyników.
 
 ---
 
+### 03 — Poker Game
+> Status: ✅ Gotowy
+
+Multiplayer Texas Hold'em Poker w czasie rzeczywistym. Silnik gry napisany w Kotlinie
+z Coroutines, komunikacja przez WebSocket (Spring WebSocket). Przy stole siada gracz
+i dwóch botów (RandomBot). Frontend w czystym HTML + CSS + JavaScript.
+
+📁 Katalog: `/cv-spring-kotlin/src/main/kotlin/com/pokerkotlin`
+
+**Technologie:**
+- Kotlin + Kotlinx Coroutines (silnik gry: rozdania, zakłady, ocena rąk)
+- Spring WebSocket (`TextWebSocketHandler`) — push stanu stołu po każdej akcji
+- REST API (`/tables`, `/tables/{id}/join`, `/tables/{id}/start`)
+- HTML5 / CSS3 / JavaScript (vanilla) — frontend z widokiem stołu i kartami
+- JUnit 5 + MockK (testy silnika, oceny rąk, integracyjne)
+
+**Protokół:**
+```
+POST /tables                    → { tableId }           (tworzy stół z 2 botami)
+POST /tables/{id}/join          → { sessionToken, playerId }
+POST /tables/{id}/start?token=… → 204
+WS   /tables/{id}/ws?token=…   ← TableSnapshotDto (push po każdej zmianie stanu)
+                                → { type: "Fold"|"Check"|"Call"|"Raise", amount? }
+```
+
+---
+
 ## Uruchomienie
 
 **Wymagania:** Docker
@@ -79,9 +107,14 @@ Aplikacja dostępna pod adresem: `http://localhost:8080`
 |---|---|
 | `http://localhost:8080/` | Strona CV |
 | `http://localhost:8080/panda-game/` | Minigierka Panda |
+| `http://localhost:8080/poker-game/` | Poker Game |
 | `http://localhost:8080/api/profileinfo` | Dane profilu (JSON) |
 | `http://localhost:8080/api/hello` | Hello World |
 | `http://localhost:8080/api/pandagame/scores` | Wyniki Panda Game (GET — wszystkie wyniki, POST — zapis wyniku) |
+| `http://localhost:8080/tables` | Lista stołów pokerowych (GET) / Nowy stół (POST) |
+| `http://localhost:8080/tables/{id}/join` | Dołącz do stołu (POST) |
+| `http://localhost:8080/tables/{id}/start` | Rozpocznij rozdanie (POST) |
+| `ws://localhost:8080/tables/{id}/ws` | WebSocket — stan gry w czasie rzeczywistym |
 | `http://localhost:8080/actuator/health` | Status aplikacji |
 
 ---
@@ -111,6 +144,8 @@ Testy jednostkowe (`ProfileServiceTest`, `PandaGameServiceTest`) i kontrolerów
 (`ProfileControllerTest`, `PandaGameControllerTest`) używają MockK.
 Testy repozytoriów (`RepositoryTest`, `PandaScoreRepositoryTest`) używają bazy H2 in-memory —
 nie wymagają PostgreSQL.
+Testy pokera (`GameEngineTest`, `HandEvaluatorTest`, `HandRankTest`) weryfikują silnik gry
+i ocenę rąk. Test integracyjny (`PokerGameIntegrationTest`) sprawdza pełny przebieg rozdania.
 
 ---
 
@@ -121,6 +156,11 @@ nie wymagają PostgreSQL.
 - [x] Projekt 01 — REST API + testy jednostkowe
 - [x] Projekt 02 — Panda Game
 - [x] Projekt 02 — Tablica wyników (PostgreSQL + REST API)
+- [ ] Projekt 02 — Tablica wyników (Wizualizacja)
+- [x] Projekt 03 — Poker Game (silnik Texas Hold'em + WebSocket)
+- [x] Projekt 03 — Boty (RandomBot) + testy silnika i integracyjne
+- [ ] Projekt 03 — Nowe poziomy trudności Botów
+- [ ] Projekt 03 — Multiplayer
 - [ ] Wdrożenie na hosting
 
 ---
