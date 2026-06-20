@@ -1,170 +1,171 @@
 # 🌐 WebCV
 
-> Portfolio & CV w formie aplikacji webowej — zbiór projektów demonstrujących różne technologie.
+> Portfolio & CV as a web application — a collection of projects showcasing different technologies.
 
 ![Kotlin](https://img.shields.io/badge/Kotlin-7F52FF?style=flat&logo=kotlin&logoColor=white)
 ![Spring Boot](https://img.shields.io/badge/Spring_Boot-6DB33F?style=flat&logo=springboot&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=flat&logo=postgresql&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat&logo=docker&logoColor=white)
 ![WebSocket](https://img.shields.io/badge/WebSocket-010101?style=flat&logo=socketdotio&logoColor=white)
+![Coroutines](https://img.shields.io/badge/Coroutines-7F52FF?style=flat&logo=kotlin&logoColor=white)
+![Flyway](https://img.shields.io/badge/Flyway-CC0200?style=flat&logo=flyway&logoColor=white)
+![Gradle](https://img.shields.io/badge/Gradle-02303A?style=flat&logo=gradle&logoColor=white)
+![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=flat&logo=html5&logoColor=white)
 
 ---
 
-## O projekcie
+## About
 
-Repozytorium zawiera serię mini-projektów budujących interaktywne CV w formie strony
-internetowej. Każdy projekt skupia się na innym zestawie technologii — od backendu,
-przez konteneryzację, po frontend. Docelowo aplikacja zostanie wdrożona na zewnętrznym
-serwerze i udostępniona publicznie jako prezentacja umiejętności.
+A series of mini-projects building an interactive CV as a web application. Each project focuses on a different technology stack — from backend and containerisation to real-time communication and frontend. The application will eventually be deployed on a public server as a skills showcase.
 
 ---
 
-## Projekty
+## Projects
 
-### 01 — Strona CV: Kotlin + Spring Boot + PostgreSQL + Docker
-> Status: ✅ Gotowy
+### 01 — CV Page: Kotlin + Spring Boot + PostgreSQL + Docker
+> Status: ✅ Done
 
-Serwer WWW serwujący stronę CV. Backend napisany w Kotlinie z frameworkiem Spring Boot,
-dane przechowywane w PostgreSQL z migracjami Flyway, skonteneryzowany przy pomocy Dockera.
+A web server serving the CV page. Backend written in Kotlin with Spring Boot, data stored in PostgreSQL with Flyway migrations, containerised with Docker.
 
-📁 Katalog: `/cv-spring-kotlin`
+📁 Directory: `/cv-spring-kotlin`
 
-**Technologie:**
+**Technologies:**
 - Kotlin + Spring Boot (Spring MVC, Spring Data JPA, Spring Actuator)
-- PostgreSQL + Flyway (migracje) + Hibernate + HikariCP
+- PostgreSQL + Flyway (migrations) + Hibernate + HikariCP
 - Docker + Docker Compose
 - Gradle (build tool)
-- JUnit 5 + MockK + H2 (testy jednostkowe i integracyjne)
-- HTML / CSS / JavaScript (frontend — strona CV)
+- JUnit 5 + MockK + H2 (unit & integration tests)
+- HTML / CSS / JavaScript (frontend — CV page)
 - REST API (`/api/profileinfo`, `/api/hello`, `/actuator/health`)
 
 ---
 
 ### 02 — Panda Game
-> Status: ✅ Gotowy
+> Status: 🚧 In progress
 
-Podstrona z minigierką w stylu Dino z Google Chrome — panda skacząca przez przeszkody.
-Gra napisana w czystym HTML + CSS + JavaScript, serwowana przez ten sam serwer Spring Boot.
-Wyniki graczy zapisywane są w bazie PostgreSQL (tabela `panda_game_player_score`) i prezentowane
-jako tablica wyników.
+A mini-game in the style of the Google Chrome Dino — a panda jumping over obstacles.
+Built with plain HTML + CSS + JavaScript, served by the same Spring Boot server.
+Player scores are saved to PostgreSQL (`panda_game_player_score`) and displayed as a leaderboard.
 
-📁 Katalog: `/cv-spring-kotlin/src/main/resources/static/panda-game`
+📁 Directory: `/cv-spring-kotlin/src/main/resources/templates/pandaGame.html`
+📁 Directory: `/cv-spring-kotlin/src/main/resources/static/css/pandaGameStyle.css`
+📁 Directory: `/cv-spring-kotlin/src/main/resources/static/js/pandaGame.js`
 
-**Technologie:**
+**Technologies:**
 - HTML5 Canvas
-- CSS3 + animacje
+- CSS3 + animations
 - JavaScript (vanilla)
-- Spring MVC + Spring Data JPA (zapis i odczyt wyników)
-- PostgreSQL + Flyway (migracja `V1`)
-- JUnit 5 + MockK + H2 (testy serwisu, kontrolera i repozytorium)
+- Spring MVC + Spring Data JPA (saving & reading scores)
+- PostgreSQL + Flyway (migration `V1`)
+- JUnit 5 + MockK + H2 (service, controller & repository tests)
 - REST API (`/api/pandagame/scores`)
 
 ---
 
 ### 03 — Poker Game
-> Status: ✅ Gotowy
+> Status: 🚧 In progress
 
-Multiplayer Texas Hold'em Poker w czasie rzeczywistym. Silnik gry napisany w Kotlinie
-z Coroutines, komunikacja przez WebSocket (Spring WebSocket). Przy stole siada gracz
-i dwóch botów (RandomBot). Frontend w czystym HTML + CSS + JavaScript.
+Real-time multiplayer Texas Hold'em Poker. The game engine is written in Kotlin with Coroutines;
+communication runs over WebSocket (Spring WebSocket). One human player sits at the table alongside
+two bots (RandomBot). Frontend in plain HTML + CSS + JavaScript.
 
-📁 Katalog: `/cv-spring-kotlin/src/main/kotlin/com/pokerkotlin`
+📁 Directory: `/cv-spring-kotlin/src/main/kotlin/com/pokerkotlin`
 
-**Technologie:**
-- Kotlin + Kotlinx Coroutines (silnik gry: rozdania, zakłady, ocena rąk)
-- Spring WebSocket (`TextWebSocketHandler`) — push stanu stołu po każdej akcji
+**Technologies:**
+- Kotlin + Kotlinx Coroutines (game engine: dealing, betting, hand evaluation)
+- Spring WebSocket (`TextWebSocketHandler`) — table state pushed after every action
 - REST API (`/tables`, `/tables/{id}/join`, `/tables/{id}/start`)
-- HTML5 / CSS3 / JavaScript (vanilla) — frontend z widokiem stołu i kartami
-- JUnit 5 + MockK (testy silnika, oceny rąk, integracyjne)
+- HTML5 / CSS3 / JavaScript (vanilla) — table view with card rendering
+- JUnit 5 + MockK (engine tests, hand evaluation tests, integration tests)
 
-**Protokół:**
+**Protocol:**
 ```
-POST /tables                    → { tableId }           (tworzy stół z 2 botami)
+POST /tables                    → { tableId }           (creates a table with 2 bots)
 POST /tables/{id}/join          → { sessionToken, playerId }
 POST /tables/{id}/start?token=… → 204
-WS   /tables/{id}/ws?token=…   ← TableSnapshotDto (push po każdej zmianie stanu)
+WS   /tables/{id}/ws?token=…   ← TableSnapshotDto (pushed on every state change)
                                 → { type: "Fold"|"Check"|"Call"|"Raise", amount? }
 ```
 
 ---
 
-## Uruchomienie
+## Running the app
 
-**Wymagania:** Docker
+**Requirements:** Docker
 
 ```bash
-# Klonowanie repozytorium
+# Clone the repository
 git clone https://github.com/NorArax-NeflinOwl/webcv.git
 cd webcv/cv-spring-kotlin
 
-# Uruchomienie całego stacku (aplikacja + baza danych)
-docker compose up --build
+# Start the full stack (app + database)
+docker compose up --build -d
+
+# Tear everything down and remove images
+docker compose down -v --rmi all
 ```
 
-Aplikacja dostępna pod adresem: `http://localhost:8080`
+Application available at: `http://localhost:8080`
 
-| Endpoint | Opis |
+| Endpoint | Description |
 |---|---|
-| `http://localhost:8080/` | Strona CV |
-| `http://localhost:8080/panda-game/` | Minigierka Panda |
+| `http://localhost:8080/` | CV page |
+| `http://localhost:8080/panda-game/` | Panda mini-game |
 | `http://localhost:8080/poker-game/` | Poker Game |
-| `http://localhost:8080/api/profileinfo` | Dane profilu (JSON) |
+| `http://localhost:8080/api/profileinfo` | Profile data (JSON) |
 | `http://localhost:8080/api/hello` | Hello World |
-| `http://localhost:8080/api/pandagame/scores` | Wyniki Panda Game (GET — wszystkie wyniki, POST — zapis wyniku) |
-| `http://localhost:8080/tables` | Lista stołów pokerowych (GET) / Nowy stół (POST) |
-| `http://localhost:8080/tables/{id}/join` | Dołącz do stołu (POST) |
-| `http://localhost:8080/tables/{id}/start` | Rozpocznij rozdanie (POST) |
-| `ws://localhost:8080/tables/{id}/ws` | WebSocket — stan gry w czasie rzeczywistym |
-| `http://localhost:8080/actuator/health` | Status aplikacji |
+| `http://localhost:8080/api/pandagame/scores` | Panda Game scores (GET — all scores, POST — save score) |
+| `http://localhost:8080/tables` | List poker tables (GET) / Create table (POST) |
+| `http://localhost:8080/tables/{id}/join` | Join a table (POST) |
+| `http://localhost:8080/tables/{id}/start` | Start a hand (POST) |
+| `ws://localhost:8080/tables/{id}/ws` | WebSocket — real-time game state |
+| `http://localhost:8080/actuator/health` | Application health |
 
 ---
 
-## Uruchomienie lokalne (bez Dockera)
+## Running locally (without Docker)
 
-**Wymagania:** JDK 17+, PostgreSQL 16
+**Requirements:** JDK 17+, PostgreSQL 16
 
 ```bash
-# Uruchom PostgreSQL lokalnie lub przez Docker
+# Start PostgreSQL via Docker
 docker compose up db -d
 
-# Uruchom aplikację
+# Run the application
 ./gradlew bootRun
-
-#albo wszystko razem
-docker compose up --build -d
 ```
 
-## Testy
+## Tests
 
 ```bash
 ./gradlew test
 ```
 
-Testy jednostkowe (`ProfileServiceTest`, `PandaGameServiceTest`) i kontrolerów
-(`ProfileControllerTest`, `PandaGameControllerTest`) używają MockK.
-Testy repozytoriów (`RepositoryTest`, `PandaScoreRepositoryTest`) używają bazy H2 in-memory —
-nie wymagają PostgreSQL.
-Testy pokera (`GameEngineTest`, `HandEvaluatorTest`, `HandRankTest`) weryfikują silnik gry
-i ocenę rąk. Test integracyjny (`PokerGameIntegrationTest`) sprawdza pełny przebieg rozdania.
+Unit tests (`ProfileServiceTest`, `PandaGameServiceTest`) and controller tests
+(`ProfileControllerTest`, `PandaGameControllerTest`) use MockK.
+Repository tests (`RepositoryTest`, `PandaScoreRepositoryTest`) use an H2 in-memory database —
+no PostgreSQL required.
+Poker tests (`GameEngineTest`, `HandEvaluatorTest`, `HandRankTest`) cover the game engine
+and hand evaluation. The integration test (`PokerGameIntegrationTest`) verifies a complete hand flow.
 
 ---
 
 ## Roadmap
 
-- [x] Projekt 01 — Kotlin + Spring Boot + Docker
-- [x] Projekt 01 — Integracja PostgreSQL + Flyway
-- [x] Projekt 01 — REST API + testy jednostkowe
-- [x] Projekt 02 — Panda Game
-- [x] Projekt 02 — Tablica wyników (PostgreSQL + REST API)
-- [ ] Projekt 02 — Tablica wyników (Wizualizacja)
-- [x] Projekt 03 — Poker Game (silnik Texas Hold'em + WebSocket)
-- [x] Projekt 03 — Boty (RandomBot) + testy silnika i integracyjne
-- [ ] Projekt 03 — Nowe poziomy trudności Botów
-- [ ] Projekt 03 — Multiplayer
-- [ ] Wdrożenie na hosting
+- [x] Project 01 — Kotlin + Spring Boot + Docker
+- [x] Project 01 — PostgreSQL + Flyway integration
+- [x] Project 01 — REST API + unit tests
+- [x] Project 02 — Panda Game
+- [x] Project 02 — Leaderboard (PostgreSQL + REST API)
+- [ ] Project 02 — Leaderboard visualisation
+- [x] Project 03 — Poker Game (Texas Hold'em engine + WebSocket)
+- [x] Project 03 — Bots (RandomBot) + engine & integration tests
+- [ ] Project 03 — Advanced bot difficulty levels
+- [ ] Project 03 — Multiplayer
+- [ ] Deploy to hosting
 
 ---
 
-## Licencja
+## License
 
 [MIT](LICENSE)

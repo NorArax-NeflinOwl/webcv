@@ -33,17 +33,17 @@ import java.util.UUID
  * REST API for managing poker tables.
  *
  * Flow:
- *  1. Client calls POST /tables            → gets tableId
- *  2. Client calls POST /tables/{id}/join  → gets sessionToken + playerId
- *  3. Client calls POST /tables/{id}/start → starts the first hand
- *  4. Client connects to WS /tables/{id}/ws?token=…  (see PokerWebSocketHandler)
+ *  1. Client calls POST /api/pokertable            → gets tableId
+ *  2. Client calls POST /api/pokertable/{id}/join  → gets sessionToken + playerId
+ *  3. Client calls POST /api/pokertable/{id}/start → starts the first hand
+ *  4. Client connects to WS /api/pokertable/{id}/ws?token=…  (see PokerWebSocketHandler)
  *
  * The `sessionToken` is a bearer credential that authorises the WebSocket connection
  * and all subsequent actions. It is intentionally kept separate from HTTP session
  * cookies so that the same token works for both the REST and WS layers.
  */
 @RestController
-@RequestMapping("/tables")
+@RequestMapping("/api/pokertable")
 class TableController(
     private val tableRepository: TableRepository,
     private val sessionRegistry: SessionRegistry,
@@ -52,7 +52,7 @@ class TableController(
     private val secureRandom = SecureRandom()
 
     // ─────────────────────────────────────────────────────────────────────────
-    // GET /tables — list all active tables
+    // GET /api/pokertable — list all active tables
     // ─────────────────────────────────────────────────────────────────────────
 
     /**
@@ -73,7 +73,7 @@ class TableController(
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // POST /tables — create a new table (with 2 bots pre-seated)
+    // POST /api/pokertable — create a new table (with 2 bots pre-seated)
     // ─────────────────────────────────────────────────────────────────────────
 
     /**
@@ -108,7 +108,7 @@ class TableController(
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // POST /tables/{id}/join — add a human player and issue a session token
+    // POST /api/pokertable/{id}/join — add a human player and issue a session token
     // ─────────────────────────────────────────────────────────────────────────
 
     /**
@@ -147,7 +147,7 @@ class TableController(
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // POST /tables/{id}/start — start the first (or next) hand
+    // POST /api/pokertable/{id}/start — start the first (or next) hand
     // ─────────────────────────────────────────────────────────────────────────
 
     /**
@@ -180,7 +180,7 @@ class TableController(
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // GET /tables/{id}/snapshot — REST snapshot (polling fallback)
+    // GET /api/pokertable/{id}/snapshot — REST snapshot (polling fallback)
     // ─────────────────────────────────────────────────────────────────────────
 
     /**

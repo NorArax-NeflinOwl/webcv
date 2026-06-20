@@ -2,10 +2,10 @@
  * pokerGame.js — Poker front-end
  *
  * Protocol summary:
- *   POST /tables                     → { tableId }
- *   POST /tables/{id}/join           → { sessionToken, playerId }
- *   POST /tables/{id}/start?token=…  → 204
- *   WS   /tables/{id}/ws?token=…     ← TableSnapshotDto push
+ *   POST /api/pokertable                     → { tableId }
+ *   POST /api/pokertable/{id}/join           → { sessionToken, playerId }
+ *   POST /api/pokertable/{id}/start?token=…  → 204
+ *   WS   /api/pokertable/{id}/ws?token=…     ← TableSnapshotDto push
  *                                    → { type: "Fold"|"Check"|"Call"|"Raise", amount? }
  */
 
@@ -73,15 +73,15 @@ async function apiPost(path, body = null) {
   return text ? JSON.parse(text) : null;
 }
 
-const createTable = ()             => apiPost('/tables', { blindAmount: 10 });
-const joinTable   = (id, name)     => apiPost(`/tables/${id}/join`, { playerName: name, coins: 1000 });
-const startHand   = (id, token)    => apiPost(`/tables/${id}/start?token=${token}`);
+const createTable = ()             => apiPost('/api/pokertable', { blindAmount: 10 });
+const joinTable   = (id, name)     => apiPost(`/api/pokertable/${id}/join`, { playerName: name, coins: 1000 });
+const startHand   = (id, token)    => apiPost(`/api/pokertable/${id}/start?token=${token}`);
 
 // ── WebSocket ────────────────────────────────────────────────────────────────
 
 function connectWS(tableId, token) {
   const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
-  const ws = new WebSocket(`${proto}//${location.host}/tables/${tableId}/ws?token=${token}`);
+  const ws = new WebSocket(`${proto}//${location.host}/api/pokertable/${tableId}/ws?token=${token}`);
 
   ws.onopen = async () => {
     setStatus('Connected');

@@ -25,13 +25,13 @@ import org.springframework.web.socket.handler.TextWebSocketHandler
 import java.util.concurrent.ConcurrentHashMap
 
 /**
- * WebSocket handler for `/tables/{id}/ws?token=<sessionToken>`.
+ * WebSocket handler for `/api/pokertable/{id}/ws?token=<sessionToken>`.
  *
  * ## Protocol
  *
  * ### Handshake / authorisation
  * The client connects with a `token` query-parameter issued by
- * `POST /tables/{id}/join`. The handler validates the token against
+ * `POST /api/pokertable/{id}/join`. The handler validates the token against
  * [SessionRegistry] and rejects the connection with 4001 POLICY_VIOLATION
  * if it is invalid or belongs to a different table.
  *
@@ -212,9 +212,9 @@ class PokerWebSocketHandler(
         return playerSession to tableId
     }
 
-    /** Extracts the `{id}` segment from a path like `/tables/{id}/ws`. */
+    /** Extracts the `{id}` segment from a path like `/api/pokertable/{id}/ws`. */
     private fun extractTableId(path: String): TableId? {
-        // path == "/tables/<id>/ws"
+        // path == "/api/pokertable/<id>/ws"
         val parts = path.trimEnd('/').split("/")
         // parts: ["", "tables", "<id>", "ws"]
         val id = parts.getOrNull(parts.size - 2) ?: return null

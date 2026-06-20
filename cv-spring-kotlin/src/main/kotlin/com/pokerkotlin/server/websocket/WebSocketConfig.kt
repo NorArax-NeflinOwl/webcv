@@ -18,7 +18,7 @@ class WebSocketConfig(
 
     override fun registerWebSocketHandlers(registry: WebSocketHandlerRegistry) {
         registry
-            .addHandler(pokerWebSocketHandler(), "/tables/*/ws")
+            .addHandler(pokerWebSocketHandler(), "/api/pokertable/*/ws")
             .setAllowedOrigins("*")
     }
 
