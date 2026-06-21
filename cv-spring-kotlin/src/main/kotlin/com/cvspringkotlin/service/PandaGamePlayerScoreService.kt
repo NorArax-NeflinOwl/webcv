@@ -14,12 +14,12 @@ import java.time.ZoneId
 class PandaGamePlayerScoreService(private val pandaScoreRepository: PandaGamePlayerScoreRepository) {
 
     private val log = LoggerFactory.getLogger(javaClass)
-    private val POLISH_TIMEZONE = ZoneId.of("Europe/Warsaw")
 
     companion object {
         const val MAX_NICK_LENGTH = 64
         const val MAX_SCORE       = 1_000_000
         const val DEFAULT_NICK    = "Anonymous"
+        val POLISH_TIMEZONE: ZoneId = ZoneId.of("Europe/Warsaw")
     }
 
     @Transactional
@@ -27,22 +27,20 @@ class PandaGamePlayerScoreService(private val pandaScoreRepository: PandaGamePla
         val nick = request.nick.trim().ifBlank { DEFAULT_NICK }
 
         require(nick.length <= MAX_NICK_LENGTH) {
-            "Nick cannot be longer then $MAX_NICK_LENGTH chars"
+            "Nick cannot be longer than $MAX_NICK_LENGTH characters"
         }
         require(request.score >= 0) {
-            "Score cnnot be negative"
+            "Score cannot be negative"
         }
         require(request.score <= MAX_SCORE) {
-            "Score is higher then maximum value ($MAX_SCORE)"
+            "Score cannot exceed $MAX_SCORE"
         }
 
         val saved = pandaScoreRepository.save(
             PandaGamePlayerScore(nick = nick, score = request.score, playedAt = LocalDateTime.now(POLISH_TIMEZONE))
         )
 
-        if(log.isDebugEnabled) {
-            log.debug("Saved Panda score for nick=$nick, score=${request.score}")
-        }
+        log.debug("Saved Panda score for nick={}, score={}", nick, request.score)
 
         return saved.toDto()
     }
