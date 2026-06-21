@@ -15,6 +15,49 @@ padding: 0;
 --muted:   #6b6b7a;
 --mono:    'DM Mono', monospace;
 --display: 'Syne', sans-serif;
+
+/* ── Canvas colour palette ── */
+/* Scene */
+--canvas-sky:         #94c1e8;
+--canvas-cloud:       rgba(255,255,255,0.72);
+--canvas-ground:      #c8e6c9;
+--canvas-ground-line: #81c784;
+/* Bamboo */
+--canvas-bamboo-stem:  #558b2f;
+--canvas-bamboo-joint: #33691e;
+--canvas-bamboo-leaf:  #7cb342;
+/* Panda */
+--canvas-panda-white: #f0f0f0;
+--canvas-panda-black: #111;
+--canvas-panda-dark:  #222;
+--canvas-panda-ear:   #ee77d3;
+--canvas-panda-belly: #ddd;
+--canvas-panda-eye:   #fff;
+--canvas-panda-blush: rgba(150,150,150,0.28);
+/* Overlay */
+--canvas-overlay-bg:    rgba(240,247,238,0.82);
+--canvas-overlay-title: #2e7d32;
+--canvas-overlay-sub:   #66bb6a;
+--canvas-overlay-dead:  #81c784;
+/* Witch */
+--canvas-witch-broom:        #7B4F2E;
+--canvas-witch-bristle-a:    #D4A017;
+--canvas-witch-bristle-b:    #B88C10;
+--canvas-witch-bristle-band: #5C3D00;
+--canvas-witch-robe:         #3B0764;
+--canvas-witch-cape:         #2A0050;
+--canvas-witch-skin:         #F0C080;
+--canvas-witch-skin-line:    #A07030;
+--canvas-witch-nose:         #C89060;
+--canvas-witch-eye:          #33DD33;
+--canvas-witch-pupil:        #001100;
+--canvas-witch-hat:          #160030;
+--canvas-witch-gold:         #FFD700;
+/* Witch magic sparks (full colour; alpha applied via canvas globalAlpha) */
+--canvas-witch-spark-0: #b400ff;
+--canvas-witch-spark-1: #ff8c00;
+--canvas-witch-spark-2: #00c8ff;
+--canvas-witch-spark-3: #ffff32;
 }
 
 body {
@@ -149,6 +192,7 @@ border-color: var(--accent);
 
 #gc {
 display: block;
+transform-origin: top left;
 }
 
 /* ── Statystyki ── */
@@ -175,6 +219,11 @@ text-transform: uppercase;
 .life-icon {
 font-size: 20px;
 transition: all .2s;
+}
+
+.life-icon.is-lost {
+opacity: 0.2;
+transform: scale(0.7);
 }
 
 .sep {
@@ -220,6 +269,10 @@ flex-wrap: wrap;
 justify-content: center;
 }
 
+#save-score-wrap.is-visible {
+display: flex;
+}
+
 #nick-label {
 font-size: 11px;
 color: var(--accent2);
@@ -246,6 +299,10 @@ border-color: var(--accent);
 
 #saveScoreBtn {
 border-radius: 4px;
+}
+
+#saveScoreBtn.is-saving {
+opacity: 0.5;
 }
 
 #save-confirm {

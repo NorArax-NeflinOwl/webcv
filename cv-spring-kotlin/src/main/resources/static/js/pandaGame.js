@@ -19,45 +19,53 @@
   // panda at jump peak collides — you must NOT jump when the witch is coming.
   const FLY_Y  = 120;
 
-  // ── Canvas colour palette ─────────────────────────────────────────────────────
+  // ── Canvas colour palette (defined in pandaGameStyle.css) ────────────────────
+  const css = getComputedStyle(document.documentElement);
   // Scene
-  const C_SKY          = '#94c1e8';
-  const C_CLOUD        = 'rgba(255,255,255,0.72)';
-  const C_GROUND       = '#c8e6c9';
-  const C_GROUND_LINE  = '#81c784';
+  const C_SKY          = css.getPropertyValue('--canvas-sky').trim();
+  const C_CLOUD        = css.getPropertyValue('--canvas-cloud').trim();
+  const C_GROUND       = css.getPropertyValue('--canvas-ground').trim();
+  const C_GROUND_LINE  = css.getPropertyValue('--canvas-ground-line').trim();
   // Bamboo
-  const C_BAMBOO_STEM  = '#558b2f';
-  const C_BAMBOO_JOINT = '#33691e';
-  const C_BAMBOO_LEAF  = '#7cb342';
-  // Panda colours
-  const C_P_WHITE = '#f0f0f0';
-  const C_P_BLACK = '#111';
-  const C_P_DARK  = '#222';
-  const C_P_EAR   = '#ee77d3';
-  const C_P_BELLY = '#ddd';
-  const C_P_EYE   = '#fff';
-  const C_P_BLUSH = 'rgba(150,150,150,0.28)';
+  const C_BAMBOO_STEM  = css.getPropertyValue('--canvas-bamboo-stem').trim();
+  const C_BAMBOO_JOINT = css.getPropertyValue('--canvas-bamboo-joint').trim();
+  const C_BAMBOO_LEAF  = css.getPropertyValue('--canvas-bamboo-leaf').trim();
+  // Panda
+  const C_P_WHITE = css.getPropertyValue('--canvas-panda-white').trim();
+  const C_P_BLACK = css.getPropertyValue('--canvas-panda-black').trim();
+  const C_P_DARK  = css.getPropertyValue('--canvas-panda-dark').trim();
+  const C_P_EAR   = css.getPropertyValue('--canvas-panda-ear').trim();
+  const C_P_BELLY = css.getPropertyValue('--canvas-panda-belly').trim();
+  const C_P_EYE   = css.getPropertyValue('--canvas-panda-eye').trim();
+  const C_P_BLUSH = css.getPropertyValue('--canvas-panda-blush').trim();
   // Overlay and dead screen
-  const C_OV_BG    = 'rgba(240,247,238,0.82)';
-  const C_OV_TITLE = '#2e7d32';
-  const C_OV_SUB   = '#66bb6a';
-  const C_OV_DEAD  = '#81c784';
+  const C_OV_BG    = css.getPropertyValue('--canvas-overlay-bg').trim();
+  const C_OV_TITLE = css.getPropertyValue('--canvas-overlay-title').trim();
+  const C_OV_SUB   = css.getPropertyValue('--canvas-overlay-sub').trim();
+  const C_OV_DEAD  = css.getPropertyValue('--canvas-overlay-dead').trim();
   // Common
   const C_NONE = 'transparent';
-  // Witch colours
-  const C_W_BROOM        = '#7B4F2E';
-  const C_W_BRISTLE_A    = '#D4A017';
-  const C_W_BRISTLE_B    = '#B88C10';
-  const C_W_BRISTLE_BAND = '#5C3D00';
-  const C_W_ROBE         = '#3B0764';
-  const C_W_CAPE         = '#2A0050';
-  const C_W_SKIN         = '#F0C080';
-  const C_W_SKIN_LINE    = '#A07030';
-  const C_W_NOSE         = '#C89060';
-  const C_W_EYE          = '#33DD33';
-  const C_W_PUPIL        = '#001100';
-  const C_W_HAT          = '#160030';
-  const C_W_GOLD         = '#FFD700';
+  // Witch
+  const C_W_BROOM        = css.getPropertyValue('--canvas-witch-broom').trim();
+  const C_W_BRISTLE_A    = css.getPropertyValue('--canvas-witch-bristle-a').trim();
+  const C_W_BRISTLE_B    = css.getPropertyValue('--canvas-witch-bristle-b').trim();
+  const C_W_BRISTLE_BAND = css.getPropertyValue('--canvas-witch-bristle-band').trim();
+  const C_W_ROBE         = css.getPropertyValue('--canvas-witch-robe').trim();
+  const C_W_CAPE         = css.getPropertyValue('--canvas-witch-cape').trim();
+  const C_W_SKIN         = css.getPropertyValue('--canvas-witch-skin').trim();
+  const C_W_SKIN_LINE    = css.getPropertyValue('--canvas-witch-skin-line').trim();
+  const C_W_NOSE         = css.getPropertyValue('--canvas-witch-nose').trim();
+  const C_W_EYE          = css.getPropertyValue('--canvas-witch-eye').trim();
+  const C_W_PUPIL        = css.getPropertyValue('--canvas-witch-pupil').trim();
+  const C_W_HAT          = css.getPropertyValue('--canvas-witch-hat').trim();
+  const C_W_GOLD         = css.getPropertyValue('--canvas-witch-gold').trim();
+  // Witch magic sparks (alpha applied via canvas globalAlpha)
+  const C_W_SPARKS = [
+    css.getPropertyValue('--canvas-witch-spark-0').trim(),
+    css.getPropertyValue('--canvas-witch-spark-1').trim(),
+    css.getPropertyValue('--canvas-witch-spark-2').trim(),
+    css.getPropertyValue('--canvas-witch-spark-3').trim(),
+  ];
 
   // ── Canvas scaling ───────────────────────────────────────────────────────────
   slider.addEventListener('input', function () {
@@ -65,8 +73,7 @@
     scaleVal.textContent = this.value + '%';
     wrap.style.width  = (W * s) + 'px';
     wrap.style.height = (H * s) + 'px';
-    canvas.style.transform       = `scale(${s})`;
-    canvas.style.transformOrigin = 'top left';
+    canvas.style.transform = `scale(${s})`;
   });
 
   // ── Game state ───────────────────────────────────────────────────────────────
@@ -129,8 +136,8 @@
   saveBtn.addEventListener('click', function () {
     const nick = nickInput.value.trim() || 'Anonymous';
 
-    saveBtn.disabled    = true;
-    saveBtn.style.opacity = '0.5';
+    saveBtn.disabled = true;
+    saveBtn.classList.add('is-saving');
     saveConfirm.textContent = 'Saving...';
 
     fetch('/api/pandagame/scores', {
@@ -152,8 +159,8 @@
         .catch(err => {
           console.error('Score save error:', err);
           saveConfirm.textContent = 'Failed to save score: ' + err.message;
-          saveBtn.disabled      = false;
-          saveBtn.style.opacity = '1';
+          saveBtn.disabled = false;
+          saveBtn.classList.remove('is-saving');
         });
   });
 
@@ -182,10 +189,10 @@
     deathVY    = 0;
 
     // save panel — hide on new game
-    saveWrap.style.display  = 'none';
+    saveWrap.classList.remove('is-visible');
     saveConfirm.textContent = '';
     saveBtn.disabled        = false;
-    saveBtn.style.opacity   = '1';
+    saveBtn.classList.remove('is-saving');
 
     // world
     obstacles    = [];
@@ -208,9 +215,7 @@
     document.getElementById('sc').textContent = score;
     document.getElementById('hi').textContent = hiScore;
     for (let i = 1; i <= 3; i++) {
-      const el = document.getElementById('lv' + i);
-      el.style.opacity   = i <= lives ? '1' : '0.2';
-      el.style.transform = i <= lives ? 'scale(1)' : 'scale(0.7)';
+      document.getElementById('lv' + i).classList.toggle('is-lost', i > lives);
     }
   }
 
@@ -265,9 +270,9 @@
       if (deathY >= GROUND) deathY = GROUND;
       if (deathFrame >= DEATH_SPIN_TOTAL) {
         state = 'dead';
-        btnLabel.textContent   = 'Start';
-        hintEl.textContent     = 'Click Start or Space to play again';
-        saveWrap.style.display = 'flex';
+        btnLabel.textContent = 'Start';
+        hintEl.textContent   = 'Click Start or Space to play again';
+        saveWrap.classList.add('is-visible');
         nickInput.focus();
       }
       return;
@@ -466,11 +471,6 @@
     const broomY   = y + 7;   // y of bristle base and sparks (3×)
     const bindX    = wx + 32; // x of broom binding (2×)
 
-    const SPARK_COLS = [
-      'rgba(180,0,255,', 'rgba(255,140,0,',
-      'rgba(0,200,255,', 'rgba(255,255,50,'
-    ];
-
     ctx.save();
 
     // --- Broom ---
@@ -582,8 +582,9 @@
         const alpha = (30 - sp) / 30;
         const sx    = wx - 20 - sp * 0.9;
         const sy    = broomY + Math.sin(sp * 0.32 + i * 1.8) * 8;
-        ctx.fillStyle = SPARK_COLS[i] + alpha + ')';
-        const sr = Math.max(0, 3 - sp * 0.07);
+        const sr    = Math.max(0, 3 - sp * 0.07);
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle   = C_W_SPARKS[i];
         ctx.beginPath(); ctx.arc(sx, sy, sr, 0, Math.PI * 2); ctx.fill();
       }
     }
