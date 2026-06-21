@@ -28,6 +28,7 @@
 
   // ── Canvas colour palette (values defined in pandaGameStyle.css) ────────────
   const css  = getComputedStyle(document.documentElement);
+
   const prop = name => css.getPropertyValue(name).trim();
   const colors = {
     // Scene
@@ -76,15 +77,6 @@
       prop('--canvas-witch-spark-3'),
     ],
   };
-
-  // ── Canvas scaling ───────────────────────────────────────────────────────────
-  elements.slider.addEventListener('input', function () {
-    const s = parseInt(this.value) / 100;
-    elements.scaleValue.textContent = this.value + '%';
-    elements.wrap.style.width       = (W * s) + 'px';
-    elements.wrap.style.height      = (H * s) + 'px';
-    elements.canvas.style.transform = `scale(${s})`;
-  });
 
   // ── Invincibility / spin constants ───────────────────────────────────────────
   const INV_DUR          = 110; // frames of invincibility after a hit
@@ -139,20 +131,16 @@
     groundX: 0,
   };
 
-  // ── Game logic ───────────────────────────────────────────────────────────────
-  function jump() {
-    if (game.state === 'idle' || game.state === 'dead') { startGame(); return; }
-    if (game.state === 'dying') return;
-    if (panda.onGround && !panda.spinning) {
-      panda.velocityY = -13.5;
-      panda.onGround = false;
-    }
-  }
+  // ── Canvas scaling ───────────────────────────────────────────────────────────
+  elements.slider.addEventListener('input', function () {
+    const s = parseInt(this.value) / 100;
+    elements.scaleValue.textContent = this.value + '%';
+    elements.wrap.style.width       = (W * s) + 'px';
+    elements.wrap.style.height      = (H * s) + 'px';
+    elements.canvas.style.transform = `scale(${s})`;
+  });
 
   elements.jumpButton.addEventListener('click', jump);
-  document.addEventListener('keydown', e => {
-    if (e.code === 'Space') { e.preventDefault(); jump(); }
-  });
 
   elements.saveButton.addEventListener('click', function () {
     const nick = elements.elements.nickInput.value.trim() || 'Anonymous';
@@ -184,6 +172,20 @@
           elements.saveButton.classList.remove('is-saving');
         });
   });
+
+  document.addEventListener('keydown', e => {
+    if (e.code === 'Space') { e.preventDefault(); jump(); }
+  });
+
+  // ── Game logic ───────────────────────────────────────────────────────────────
+  function jump() {
+    if (game.state === 'idle' || game.state === 'dead') { startGame(); return; }
+    if (game.state === 'dying') return;
+    if (panda.onGround && !panda.spinning) {
+      panda.velocityY = -13.5;
+      panda.onGround = false;
+    }
+  }
 
   function startGame() {
     Object.assign(game, {
