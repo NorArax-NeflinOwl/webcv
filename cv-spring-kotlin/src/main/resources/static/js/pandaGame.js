@@ -1,5 +1,12 @@
 (function () {
-    const SPEED_BEGIN = 15;
+    // Speed parameters per level: speedBegin = initial speed, speedIncrement = added per 100 score points.
+    const LEVELS = [
+        { speedBegin:  5, speedIncrement: 0.4 },
+        { speedBegin: 10, speedIncrement: 0.6 },
+        { speedBegin: 15, speedIncrement: 0.8 },
+    ];
+    let selectedLevel = LEVELS[0];
+
     const WIDTH  = 900;
     const HEIGTH = 300;
     const GROUND = HEIGTH - 36;
@@ -31,6 +38,7 @@
         scoreDisplay:     document.getElementById('sc'),
         highScoreDisplay: document.getElementById('hi'),
         lifeIcons:        [1, 2, 3].map(i => document.getElementById('lv' + i)),
+        levelButtons:     document.querySelectorAll('.level-btn'),
     };
 
     const ctx = elements.canvas.getContext('2d');
@@ -100,7 +108,7 @@
         hiScore:  0,
         lives:    3,
         frame:    0,
-        speed:    SPEED_BEGIN,
+        speed:    selectedLevel.speedBegin,
         deadFrame: 0, // eating animation counter on the dead screen
     };
 
@@ -149,6 +157,14 @@
     elements.jumpButton.addEventListener('click', jump);
     elements.saveButton.addEventListener('click', saveHandle);
     document.addEventListener('keydown', spaceHandle);
+
+    elements.levelButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            elements.levelButtons.forEach(b => b.classList.remove('is-active'));
+            btn.classList.add('is-active');
+            selectedLevel = LEVELS[parseInt(btn.dataset.level, 10) - 1];
+        });
+    });
 
     // ── Game logic ───────────────────────────────────────────────────────────────
     function slide(){
@@ -212,7 +228,7 @@
 
     function startGame() {
         Object.assign(game, {
-            state: states.RUNNING, score: 0, lives: 3, speed: SPEED_BEGIN, frame: 0, deadFrame: 0,
+            state: states.RUNNING, score: 0, lives: 3, speed: selectedLevel.speedBegin, frame: 0, deadFrame: 0,
         });
 
         Object.assign(panda, {
@@ -317,7 +333,7 @@
         // physics
         game.frame++;
         game.score++;
-        game.speed = SPEED_BEGIN + Math.floor(game.score / 100) * 0.4;
+        game.speed = selectedLevel.speedBegin + Math.floor(game.score / 100) * selectedLevel.speedIncrement;
 
         panda.velocityY += 0.65;
         panda.y  += panda.velocityY;

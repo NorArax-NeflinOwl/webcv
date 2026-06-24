@@ -1,313 +1,345 @@
 *, *::before, *::after {
-box-sizing: border-box;
-margin: 0;
-padding: 0;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
 /* ── Motyw (zgodny z indexStyle.css) ── */
 :root {
---bg:      #0a0a0f;
---surface: #12121a;
---border:  #1e1e2e;
---accent:  #7fdbca;
---accent2: #f97316;
---text:    #e2e2e8;
---muted:   #6b6b7a;
---mono:    'DM Mono', monospace;
---display: 'Syne', sans-serif;
+    --bg:      #0a0a0f;
+    --surface: #12121a;
+    --border:  #1e1e2e;
+    --accent:  #7fdbca;
+    --accent2: #f97316;
+    --text:    #e2e2e8;
+    --muted:   #6b6b7a;
+    --mono:    'DM Mono', monospace;
+    --display: 'Syne', sans-serif;
 
-/* ── Canvas colour palette ── */
-/* Scene */
---canvas-sky:         #94c1e8;
---canvas-cloud:       rgba(255,255,255,0.72);
---canvas-ground:      #c8e6c9;
---canvas-ground-line: #81c784;
-/* Bamboo */
---canvas-bamboo-stem:  #558b2f;
---canvas-bamboo-joint: #33691e;
---canvas-bamboo-leaf:  #7cb342;
-/* Panda */
---canvas-panda-white: #f0f0f0;
---canvas-panda-black: #111;
---canvas-panda-dark:  #222;
---canvas-panda-ear:   #ee77d3;
---canvas-panda-eye:   #fff;
---canvas-panda-blush: rgba(150,150,150,0.28);
-/* Overlay */
---canvas-overlay-bg:    rgba(240,247,238,0.82);
---canvas-overlay-title: #2e7d32;
---canvas-overlay-sub:   #66bb6a;
---canvas-overlay-dead:  #81c784;
-/* Witch */
---canvas-witch-broom:        #7B4F2E;
---canvas-witch-bristle-a:    #D4A017;
---canvas-witch-bristle-b:    #B88C10;
---canvas-witch-bristle-band: #5C3D00;
---canvas-witch-robe:         #3B0764;
---canvas-witch-cape:         #2A0050;
---canvas-witch-skin:         #F0C080;
---canvas-witch-skin-line:    #A07030;
---canvas-witch-nose:         #C89060;
---canvas-witch-eye:          #33DD33;
---canvas-witch-pupil:        #001100;
---canvas-witch-hat:          #160030;
---canvas-witch-gold:         #FFD700;
-/* Witch magic sparks (full colour; alpha applied via canvas globalAlpha) */
---canvas-witch-spark-0: #b400ff;
---canvas-witch-spark-1: #ff8c00;
---canvas-witch-spark-2: #00c8ff;
---canvas-witch-spark-3: #ffff32;
+    /* ── Canvas colour palette ── */
+    /* Scene */
+    --canvas-sky:         #94c1e8;
+    --canvas-cloud:       rgba(255,255,255,0.72);
+    --canvas-ground:      #c8e6c9;
+    --canvas-ground-line: #81c784;
+    /* Bamboo */
+    --canvas-bamboo-stem:  #558b2f;
+    --canvas-bamboo-joint: #33691e;
+    --canvas-bamboo-leaf:  #7cb342;
+    /* Panda */
+    --canvas-panda-white: #f0f0f0;
+    --canvas-panda-black: #111;
+    --canvas-panda-dark:  #222;
+    --canvas-panda-ear:   #ee77d3;
+    --canvas-panda-eye:   #fff;
+    --canvas-panda-blush: rgba(150,150,150,0.28);
+    /* Overlay */
+    --canvas-overlay-bg:    rgba(240,247,238,0.82);
+    --canvas-overlay-title: #2e7d32;
+    --canvas-overlay-sub:   #66bb6a;
+    --canvas-overlay-dead:  #81c784;
+    /* Witch */
+    --canvas-witch-broom:        #7B4F2E;
+    --canvas-witch-bristle-a:    #D4A017;
+    --canvas-witch-bristle-b:    #B88C10;
+    --canvas-witch-bristle-band: #5C3D00;
+    --canvas-witch-robe:         #3B0764;
+    --canvas-witch-cape:         #2A0050;
+    --canvas-witch-skin:         #F0C080;
+    --canvas-witch-skin-line:    #A07030;
+    --canvas-witch-nose:         #C89060;
+    --canvas-witch-eye:          #33DD33;
+    --canvas-witch-pupil:        #001100;
+    --canvas-witch-hat:          #160030;
+    --canvas-witch-gold:         #FFD700;
+    /* Witch magic sparks (full colour; alpha applied via canvas globalAlpha) */
+    --canvas-witch-spark-0: #b400ff;
+    --canvas-witch-spark-1: #ff8c00;
+    --canvas-witch-spark-2: #00c8ff;
+    --canvas-witch-spark-3: #ffff32;
 }
 
 body {
-background: var(--bg);
-color: var(--text);
-font-family: var(--mono);
-min-height: 100vh;
-overflow-x: hidden;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--mono);
+    min-height: 100vh;
+    overflow-x: hidden;
 }
 
 /* Siatka tła */
 body::before {
-content: '';
-position: fixed;
-inset: 0;
-background-image:
-    linear-gradient(var(--border) 1px, transparent 1px),
-    linear-gradient(90deg, var(--border) 1px, transparent 1px);
-background-size: 48px 48px;
-opacity: .4;
-pointer-events: none;
-z-index: 0;
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+            linear-gradient(var(--border) 1px, transparent 1px),
+            linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 48px 48px;
+    opacity: .4;
+    pointer-events: none;
+    z-index: 0;
 }
 
 /* ── Przycisk skoku ── */
 .pgbutton {
-display: inline-flex;
-align-items: center;
-gap: 8px;
-padding: 9px 18px;
-border: 1px solid var(--border);
-border-radius: 999px;
-font-family: var(--mono);
-font-size: 13px;
-color: var(--text);
-text-decoration: none;
-background: var(--surface);
-transition: border-color .2s, color .2s, background .2s;
-cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 18px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--text);
+    text-decoration: none;
+    background: var(--surface);
+    transition: border-color .2s, color .2s, background .2s;
+    cursor: pointer;
 }
 
 .pgbutton:hover {
-border-color: var(--accent);
-color: var(--accent);
-background: rgba(127, 219, 202, .05);
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(127, 219, 202, .05);
 }
 
 .pgbutton svg {
-width: 16px;
-height: 16px;
-stroke: currentColor;
-fill: none;
-stroke-width: 1.8;
-stroke-linecap: round;
-stroke-linejoin: round;
-flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    flex-shrink: 0;
 }
 
 /* ── Layout gry ── */
 #game-wrap {
-display: flex;
-gap: 16px;
-align-items: flex-start;
-padding: 1rem 0;
-user-select: none;
-position: relative;
-z-index: 1;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    padding: 1rem 0;
+    user-select: none;
+    position: relative;
+    z-index: 1;
 }
 
 #side-controls {
-display: flex;
-flex-direction: column;
-align-items: center;
-gap: 8px;
-padding-top: 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding-top: 4px;
 }
 
 #scale-label {
-font-size: 11px;
-color: var(--muted);
-letter-spacing: .18em;
-text-transform: uppercase;
-writing-mode: vertical-rl;
-transform: rotate(180deg);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
 }
 
 #scaleSlider {
-writing-mode: vertical-lr;
-direction: rtl;
-width: 24px;
-height: 160px;
-cursor: pointer;
-accent-color: var(--accent);
+    writing-mode: vertical-lr;
+    direction: rtl;
+    width: 24px;
+    height: 160px;
+    cursor: pointer;
+    accent-color: var(--accent);
 }
 
 #scale-val {
-font-size: 12px;
-color: var(--muted);
+    font-size: 12px;
+    color: var(--muted);
 }
 
 #game-main {
-display: flex;
-flex-direction: column;
-align-items: center;
-flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
 }
 
 #game-title {
-font-size: 22px;
-font-weight: 500;
-color: var(--text);
-margin-bottom: 2px;
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 2px;
 }
 
 #game-sub {
-font-size: 13px;
-color: var(--muted);
-margin-bottom: 12px;
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 12px;
 }
 
 #canvas-wrap {
-border: 1px solid var(--border);
-overflow: hidden;
-background: var(--bg);
-transform-origin: top left;
-transition: border-color .2s;
+    border: 1px solid var(--border);
+    overflow: hidden;
+    background: var(--bg);
+    transform-origin: top left;
+    transition: border-color .2s;
 }
 
 #canvas-wrap:hover {
-border-color: var(--accent);
+    border-color: var(--accent);
 }
 
 #gc {
-display: block;
-transform-origin: top left;
+    display: block;
+    transform-origin: top left;
 }
 
 /* ── Statystyki ── */
 #stats {
-display: flex;
-gap: 24px;
-margin-top: 12px;
-align-items: center;
+    display: flex;
+    gap: 24px;
+    margin-top: 12px;
+    align-items: center;
 }
 
 #lives-wrap {
-display: flex;
-gap: 6px;
-align-items: center;
+    display: flex;
+    gap: 6px;
+    align-items: center;
 }
 
 #lives-label {
-font-size: 11px;
-color: var(--accent2);
-letter-spacing: .18em;
-text-transform: uppercase;
+    font-size: 11px;
+    color: var(--accent2);
+    letter-spacing: .18em;
+    text-transform: uppercase;
 }
 
 .life-icon {
-font-size: 20px;
-transition: all .2s;
+    font-size: 20px;
+    transition: all .2s;
 }
 
 .life-icon.is-lost {
-opacity: 0.2;
-transform: scale(0.7);
+    opacity: 0.2;
+    transform: scale(0.7);
 }
 
 .sep {
-width: 1px;
-height: 28px;
-background: var(--border);
+    width: 1px;
+    height: 28px;
+    background: var(--border);
 }
 
 .stat-box {
-text-align: center;
+    text-align: center;
 }
 
 .stat-lbl {
-font-size: 11px;
-color: var(--accent2);
-letter-spacing: .18em;
-text-transform: uppercase;
+    font-size: 11px;
+    color: var(--accent2);
+    letter-spacing: .18em;
+    text-transform: uppercase;
 }
 
 .stat-val {
-font-size: 20px;
-font-weight: 500;
-color: #fff;
+    font-size: 20px;
+    font-weight: 500;
+    color: #fff;
 }
 
 #jumpBtn {
-margin-top: 14px;
+    margin-top: 14px;
 }
 
 #hint {
-font-size: 12px;
-color: var(--muted);
-margin-top: 8px;
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 8px;
+}
+
+/* ── Wybór poziomu ── */
+#level {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-top: 12px;
+}
+
+.level-btn {
+    padding: 6px 16px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+    background: var(--surface);
+    cursor: pointer;
+    transition: border-color .2s, color .2s, background .2s;
+}
+
+.level-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(127, 219, 202, .05);
+}
+
+.level-btn.is-active {
+    border-color: #4caf50;
+    color: #4caf50;
+    background: rgba(76, 175, 80, .1);
 }
 
 /* ── Zapis wyniku ── */
 #save-score-wrap {
-display: none;
-align-items: center;
-gap: 10px;
-margin-top: 10px;
-flex-wrap: wrap;
-justify-content: center;
+    display: none;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
 }
 
 #save-score-wrap.is-visible {
-display: flex;
+    display: flex;
 }
 
 #nick-label {
-font-size: 11px;
-color: var(--accent2);
-letter-spacing: .18em;
-text-transform: uppercase;
+    font-size: 11px;
+    color: var(--accent2);
+    letter-spacing: .18em;
+    text-transform: uppercase;
 }
 
 #nickInput {
-background: var(--surface);
-border: 1px solid var(--border);
-border-radius: 4px;
-color: var(--text);
-font-family: var(--mono);
-font-size: 13px;
-padding: 7px 12px;
-outline: none;
-transition: border-color .2s;
-width: 150px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 13px;
+    padding: 7px 12px;
+    outline: none;
+    transition: border-color .2s;
+    width: 150px;
 }
 
 #nickInput:focus {
-border-color: var(--accent);
+    border-color: var(--accent);
 }
 
 #saveScoreBtn {
-border-radius: 4px;
+    border-radius: 4px;
 }
 
 #saveScoreBtn.is-saving {
-opacity: 0.5;
+    opacity: 0.5;
 }
 
 #save-confirm {
-font-size: 12px;
-color: var(--accent);
-width: 100%;
-text-align: center;
-min-height: 16px;
+    font-size: 12px;
+    color: var(--accent);
+    width: 100%;
+    text-align: center;
+    min-height: 16px;
 }
