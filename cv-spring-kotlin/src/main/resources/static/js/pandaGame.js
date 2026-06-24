@@ -1,6 +1,6 @@
 (function () {
-
-  const WIDTH  = 884;
+  const SPEED_BEGIN = 5;
+  const WIDTH  = 900;
   const HEIGTH = 300;
   const GROUND = HEIGTH - 36;
   // The witch flies at this height (body centre); panda on the ground is safe,
@@ -98,7 +98,7 @@
     hiScore:  0,
     lives:    3,
     frame:    0,
-    speed:    5,
+    speed:    SPEED_BEGIN,
     deadFrame: 0, // eating animation counter on the dead screen
   };
 
@@ -210,7 +210,7 @@
 
   function startGame() {
     Object.assign(game, {
-      state: states.RUNNING, score: 0, lives: 3, speed: 5, frame: 0, deadFrame: 0,
+      state: states.RUNNING, score: 0, lives: 3, speed: SPEED_BEGIN, frame: 0, deadFrame: 0,
     });
 
     Object.assign(panda, {
@@ -311,7 +311,7 @@
     // physics
     game.frame++;
     game.score++;
-    game.speed = 5 + Math.floor(game.score / 100) * 0.4;
+    game.speed = SPEED_BEGIN + Math.floor(game.score / 100) * 0.4;
 
     panda.velocityY += 0.65;
     panda.y  += panda.velocityY;
@@ -334,8 +334,8 @@
     }
     spawner.obstacles = spawner.obstacles.filter(o => o.type === 'witch' ? o.x > -65 : o.x + o.w > -10);
 
-    // witch — appears after game.score > 150
-    if (game.score > 150) {
+    // witch — appears after game.score > 1000
+    if (game.score > 1000) {
       spawner.witchTimer++;
       if (spawner.witchTimer >= spawner.witchInterval && canSpawn('witch')) {
         spawnWitch();
@@ -808,6 +808,7 @@
       ctx.fillStyle = colors.overlayDead;  ctx.font = '400 12px sans-serif';
       ctx.fillText('Click Start to play again', WIDTH / 2, HEIGTH / 2 + 56);
     }
+    ctx.fillText(`${game.speed.toFixed(1)} km/h`, 35, 20);
   }
 
   function loop() {
