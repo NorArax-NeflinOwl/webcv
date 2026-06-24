@@ -1,4 +1,17 @@
 (function () {
+
+  const WIDTH  = 884;
+  const HEIGTH = 300;
+  const GROUND = HEIGTH - 36;
+  // The witch flies at this height (body centre); panda on the ground is safe,
+  // panda at jump peak collides — you must NOT jump when the witch is coming.
+  const WITCH_HEIGTH_SPAWN  = 120;
+
+  // ── Invincibility / spin constants ───────────────────────────────────────────
+  const INV_DUR          = 110; // frames of invincibility after a hit
+  const SPIN_TOTAL       = 50;  // frames of hit-spin animation
+  const DEATH_SPIN_TOTAL = 70;  // frames of death-spin animation
+
   // ── DOM elements ─────────────────────────────────────────────────────────────
   // All DOM references centralised here; ctx is a rendering context, not an element.
   const elements = {
@@ -17,18 +30,11 @@
     highScoreDisplay: document.getElementById('hi'),
     lifeIcons:        [1, 2, 3].map(i => document.getElementById('lv' + i)),
   };
-  const ctx = elements.canvas.getContext('2d');
 
-  const W      = 884;
-  const H      = 300;
-  const GROUND = H - 36;
-  // The witch flies at this height (body centre); panda on the ground is safe,
-  // panda at jump peak collides — you must NOT jump when the witch is coming.
-  const FLY_Y  = 120;
+  const ctx = elements.canvas.getContext('2d');
 
   // ── Canvas colour palette (values defined in pandaGameStyle.css) ────────────
   const css  = getComputedStyle(document.documentElement);
-
   const prop = name => css.getPropertyValue(name).trim();
   const colors = {
     // Scene
@@ -77,15 +83,17 @@
     ],
   };
 
-  // ── Invincibility / spin constants ───────────────────────────────────────────
-  const INV_DUR          = 110; // frames of invincibility after a hit
-  const SPIN_TOTAL       = 50;  // frames of hit-spin animation
-  const DEATH_SPIN_TOTAL = 70;  // frames of death-spin animation
 
   // ── Game game.state ───────────────────────────────────────────────────────────────
-  // states: idle | running | dying | dead
+  const states = {
+    IDLE:     'idle',
+    RUNNING:  'running',
+    DYING:    'dying',
+    DEAD:     'dead'
+  }
+
   const game = {
-    state:    'idle',
+    state:    states.IDLE,
     score:    0,
     hiScore:  0,
     lives:    3,
@@ -97,14 +105,19 @@
   // Panda entity: position, physics, and transient combat game.state.
   // All fields that change together on hit/death/reset are kept here.
   const panda = {
-    x: 80, y: GROUND, velocityY: 0, onGround: true, width: 44, height: 50,
+    x:                  80, 
+    y:                  GROUND, 
+    velocityY:          0, 
+    onGround:           true, 
+    width:              44, 
+    height:             50,
     // invincibility window after a hit
     invincible:         false,
     invincibilityTimer: 0,
     // hit-spin animation
-    spinning:   false,
-    spinAngle:  0,
-    spinFrames: 0,
+    spinning:           false,
+    spinAngle:          0,
+    spinFrames:         0,
   };
 
   // Death animation: panda spins and arcs off screen when all game.lives are lost.
@@ -130,18 +143,34 @@
     groundX: 0,
   };
 
-  // ── Canvas scaling ───────────────────────────────────────────────────────────
-  elements.slider.addEventListener('input', function () {
+  elements.slider.addEventListener('input', slide);
+  elements.jumpButton.addEventListener('click', jump);
+  elements.saveButton.addEventListener('click', saveHandle);
+  document.addEventListener('keydown', spaceHandle);
+
+  // ── Game logic ───────────────────────────────────────────────────────────────
+  function slide(){
     const s = parseInt(this.value) / 100;
     elements.scaleValue.textContent = this.value + '%';
-    elements.wrap.style.width       = (W * s) + 'px';
-    elements.wrap.style.height      = (H * s) + 'px';
+    elements.wrap.style.width       = (WIDTH * s) + 'px';
+    elements.wrap.style.height      = (HEIGTH * s) + 'px';
     elements.canvas.style.transform = `scale(${s})`;
-  });
+  }
 
-  elements.jumpButton.addEventListener('click', jump);
+  function jump() {
+    if (game.state === states.IDLE || game.state === states.DEAD) { 
+      startGame(); 
+      return; 
+    }
+    if (game.state === states.DYING) return;
 
-  elements.saveButton.addEventListener('click', function () {
+    if (panda.onGround && !panda.spinning) {
+      panda.velocityY = -13.5;
+      panda.onGround = false;
+    }
+  }
+
+  function saveHandle() {
     const nick = elements.elements.nickInput.value.trim() || 'Anonymous';
 
     elements.saveButton.disabled = true;
@@ -153,42 +182,35 @@
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ nick, score: game.score })
     })
-        .then(res =>
-            res.json()
-                .catch(() => ({}))
-                .then(data => {
-                  if (!res.ok) throw new Error(data.error || ('HTTP ' + res.status));
-                  return data;
-                })
-        )
+    .then(res =>
+      res.json()
+        .catch(() => ({}))
         .then(data => {
-          elements.saveConfirm.textContent = `Saved: ${data.nick} — ${data.score} pts`;
+          if (!res.ok) 
+            throw new Error(data.error || ('HTTP ' + res.status));
+          return data;
         })
-        .catch(err => {
-          console.error('Score save error:', err);
-          elements.saveConfirm.textContent = 'Failed to save score: ' + err.message;
-          elements.saveButton.disabled = false;
-          elements.saveButton.classList.remove('is-saving');
-        });
-  });
+    )
+    .then(data => {
+      elements.saveConfirm.textContent = `Saved: ${data.nick} — ${data.score} pts`;
+    })
+    .catch(err => {
+      console.error('Score save error:', err);
+      elements.saveConfirm.textContent = 'Failed to save score: ' + err.message;
+      elements.saveButton.disabled = false;
+      elements.saveButton.classList.remove('is-saving');
+    });
+  }
 
-  document.addEventListener('keydown', e => {
-    if (e.code === 'Space') { e.preventDefault(); jump(); }
-  });
-
-  // ── Game logic ───────────────────────────────────────────────────────────────
-  function jump() {
-    if (game.state === 'idle' || game.state === 'dead') { startGame(); return; }
-    if (game.state === 'dying') return;
-    if (panda.onGround && !panda.spinning) {
-      panda.velocityY = -13.5;
-      panda.onGround = false;
-    }
+  function spaceHandle(e) {
+    if (e.code === 'Space') { 
+      e.preventDefault(); 
+      jump(); }
   }
 
   function startGame() {
     Object.assign(game, {
-      state: 'running', score: 0, lives: 3, speed: 5, frame: 0, deadFrame: 0,
+      state: states.RUNNING, score: 0, lives: 3, speed: 5, frame: 0, deadFrame: 0,
     });
 
     Object.assign(panda, {
@@ -230,12 +252,12 @@
     // 38% chance of double bamboo
     const n = Math.random() < 0.38 ? 2 : 1;
     for (let i = 0; i < n; i++)
-      spawner.obstacles.push({ type: 'bamboo', x: W + i * (w + 10), y: GROUND - h + 8, w, h });
+      spawner.obstacles.push({ type: 'bamboo', x: WIDTH + i * (w + 10), y: GROUND - h + 8, w, h });
   }
 
   function spawnWitch() {
     // o.x = witch horizontal centre; o.y = FLY_Y = body vertical centre
-    spawner.obstacles.push({ type: 'witch', x: W + 55, y: FLY_Y, anim: 0 });
+    spawner.obstacles.push({ type: 'witch', x: WIDTH + 55, y: WITCH_HEIGTH_SPAWN, anim: 0 });
   }
 
   // Returns false when an obstacle of a different type is too close to the right edge —
@@ -243,7 +265,7 @@
   function canSpawn(type) {
     const SAFE = 260; // minimum gap (px) between different obstacle types
     for (const o of spawner.obstacles) {
-      if (o.type !== type && o.x > W - SAFE) return false;
+      if (o.type !== type && o.x > WIDTH - SAFE) return false;
     }
     return true;
   }
@@ -267,14 +289,14 @@
   }
 
   function update() {
-    if (game.state === 'dying') {
+    if (game.state === states.DYING) {
       death.frame++;
       death.angle = (death.frame / DEATH_SPIN_TOTAL) * Math.PI * 4;
       death.velocityY += 0.5;
       death.y  += death.velocityY;
       if (death.y >= GROUND) death.y = GROUND;
       if (death.frame >= DEATH_SPIN_TOTAL) {
-        game.state = 'dead';
+        game.state = states.DEAD;
         elements.jumpLabel.textContent = 'Start';
         elements.hint.textContent   = 'Click Start or Space to play again';
         elements.savePanel.classList.add('is-visible');
@@ -283,8 +305,8 @@
       return;
     }
 
-    if (game.state === 'dead')    { game.deadFrame++; return; }
-    if (game.state !== 'running') return;
+    if (game.state === states.DEAD)    { game.deadFrame++; return; }
+    if (game.state !== states.RUNNING) return;
 
     // physics
     game.frame++;
@@ -325,9 +347,9 @@
     // world.clouds and ground
     for (const c of world.clouds) {
       c.x -= game.speed * 0.28;
-      if (c.x + c.r < 0) { c.x = W + c.r; c.y = 15 + Math.random() * 45; }
+      if (c.x + c.r < 0) { c.x = WIDTH + c.r; c.y = 15 + Math.random() * 45; }
     }
-    world.groundX = (world.groundX - game.speed * 0.6 + W) % W;
+    world.groundX = (world.groundX - game.speed * 0.6 + WIDTH) % WIDTH;
 
     // hit spin animation
     if (panda.spinning) {
@@ -350,7 +372,7 @@
       panda.spinFrames = 0;
 
       if (game.lives <= 0) {
-        game.state      = 'dying';
+        game.state      = states.DYING;
         death.frame = 0;
         death.angle = 0;
         death.y     = panda.y - panda.height / 2;
@@ -403,18 +425,17 @@
   // Semi-transparent overlay + two-line text centred on canvas
   function drawOverlay(line1, line2) {
     ctx.fillStyle = colors.overlayBackground;
-    ctx.fillRect(0, 0, W, H);
+    ctx.fillRect(0, 0, WIDTH, HEIGTH);
     ctx.textAlign = 'center';
     ctx.fillStyle = colors.overlayTitle;
     ctx.font      = '500 18px sans-serif';
-    ctx.fillText(line1, W / 2, H / 2 - 8);
+    ctx.fillText(line1, WIDTH / 2, HEIGTH / 2 - 8);
     ctx.fillStyle = colors.overlaySubtitle;
     ctx.font      = '400 13px sans-serif';
-    ctx.fillText(line2, W / 2, H / 2 + 16);
+    ctx.fillText(line2, WIDTH / 2, HEIGTH / 2 + 16);
   }
 
   // ── Scene drawing ────────────────────────────────────────────────────────────
-
   function drawCloud(c) {
     ctx.fillStyle = colors.cloud;
     ctx.beginPath();
@@ -427,19 +448,19 @@
   function drawGround() {
     const lineY = GROUND + 8; // y of ground line (used 4×)
     ctx.fillStyle = colors.ground;
-    ctx.fillRect(0, lineY, W, H - GROUND);
+    ctx.fillRect(0, lineY, WIDTH, HEIGTH - GROUND);
 
     ctx.strokeStyle = colors.groundLine;
     ctx.lineWidth   = 1.5;
     ctx.beginPath();
     ctx.moveTo(0, lineY);
-    ctx.lineTo(W, lineY);
+    ctx.lineTo(WIDTH, lineY);
     ctx.stroke();
 
     // animated "grass tufts" scrolling at terrain game.speed
     ctx.fillStyle = colors.ground;
     for (let i = 0; i < 8; i++) {
-      const gx = (world.groundX + i * (W / 8)) % W;
+      const gx = (world.groundX + i * (WIDTH / 8)) % WIDTH;
       ctx.beginPath();
       ctx.arc(gx, lineY, 4, Math.PI, 0);
       ctx.fill();
@@ -736,9 +757,9 @@
   // ── Main render loop ──────────────────────────────────────────────────────────
   function draw() {
     // sky
-    ctx.clearRect(0, 0, W, H);
+    ctx.clearRect(0, 0, WIDTH, HEIGTH);
     ctx.fillStyle = colors.sky;
-    ctx.fillRect(0, 0, W, H);
+    ctx.fillRect(0, 0, WIDTH, HEIGTH);
 
     for (const c of world.clouds) drawCloud(c);
 
@@ -758,37 +779,34 @@
     const pandaCX  = panda.x + panda.width / 2;
     const pandaCY  = panda.y - panda.height / 2;
 
-    if (game.state === 'running') {
+    if (game.state === states.RUNNING) {
       if (panda.spinning) {
         drawRotated(pandaCX, pandaCY, panda.spinAngle, () => drawPandaRunning(panda.x, pandaTop));
       } else if (!(panda.invincible && Math.floor(panda.invincibilityTimer / 5) % 2 === 0)) {
         // flash when panda.invincible
         drawPandaRunning(panda.x, pandaTop);
       }
-
-    } else if (game.state === 'dying') {
+    } else if (game.state === states.DYING) {
       drawRotated(pandaCX, death.y, death.angle, () => drawPandaRunning(panda.x, death.y - panda.height / 2));
-
-    } else if (game.state === 'idle') {
+    } else if (game.state === states.IDLE) {
       drawPandaRunning(panda.x, pandaTop);
       drawOverlay(
         'Click button below to start',
         'Jump = Space / button   |   Witch flies high — DON\'T jump!'
       );
-
-    } else if (game.state === 'dead') {
+    } else if (game.state === states.DEAD) {
       // panda drawn twice: once under the overlay, once above it
-      const EX = W / 2 - 22, EY = H / 2 - 58;
+      const EX = WIDTH / 2 - 22, EY = HEIGTH / 2 - 58;
       drawPandaEating(EX, EY, game.deadFrame);
       ctx.fillStyle = colors.overlayBackground;
-      ctx.fillRect(0, 0, W, H);
+      ctx.fillRect(0, 0, WIDTH, HEIGTH);
       drawPandaEating(EX, EY, game.deadFrame);
 
       ctx.textAlign = 'center';
       ctx.fillStyle = colors.overlayTitle; ctx.font = '500 17px sans-serif';
-      ctx.fillText('Game over!  Score: ' + game.score, W / 2, H / 2 + 36);
+      ctx.fillText('Game over!  Score: ' + game.score, WIDTH / 2, HEIGTH / 2 + 36);
       ctx.fillStyle = colors.overlayDead;  ctx.font = '400 12px sans-serif';
-      ctx.fillText('Click Start to play again', W / 2, H / 2 + 56);
+      ctx.fillText('Click Start to play again', WIDTH / 2, HEIGTH / 2 + 56);
     }
   }
 
