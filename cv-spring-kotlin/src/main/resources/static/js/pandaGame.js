@@ -45,7 +45,6 @@
     pandaBlack: prop('--canvas-panda-black'),
     pandaDark:  prop('--canvas-panda-dark'),
     pandaEar:   prop('--canvas-panda-ear'),
-    pandaBelly: prop('--canvas-panda-belly'),
     pandaEye:   prop('--canvas-panda-eye'),
     pandaBlush: prop('--canvas-panda-blush'),
     // Overlay
@@ -661,9 +660,8 @@
     fillEllipse(cx + 10, cy + 50 + bob, 11, 7,  0.6, colors.pandaBlack);
     fillEllipse(cx + 36, cy + 50 + bob, 11, 7, -0.6, colors.pandaBlack);
 
-    // torso with belly
+    // torso
     fillEllipse(cx + 22, cy + 36 + bob, 18, 20, 0, colors.pandaWhite);
-    fillEllipse(cx + 22, cy + 39 + bob, 10, 12, 0, colors.pandaBelly);
 
     // arms (swaying with body)
     fillEllipse(cx + 7,  cy + 28 + bob, 6, 11,  0.9, colors.pandaBlack);
