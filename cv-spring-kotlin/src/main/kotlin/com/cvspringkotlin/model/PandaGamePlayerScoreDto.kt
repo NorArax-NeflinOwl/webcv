@@ -11,6 +11,3 @@ data class PandaGamePlayerScoreResponse(
     val playedAt: String
 )
 
-data class ErrorResponse(
-    val error: String
-)

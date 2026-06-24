@@ -36,15 +36,21 @@
         </div>
       </div>
       <a class="pgbutton" id="jumpBtn">
-        <span id="jumpBtnLabel">Jump</span>
+        <span id="jumpBtnLabel">Start</span>
       </a>
       <div id="hint">Click button or press Space</div>
+      <div id="level">
+        <button class="level-btn is-active" data-level="1">Level 1</button>
+        <button class="level-btn" data-level="2">Level 2</button>
+        <button class="level-btn" data-level="3">Level 3</button>
+      </div>
       <div id="save-score-wrap">
         <label id="nick-label" for="nickInput">Nick:</label>
         <input type="text" id="nickInput" maxlength="20" placeholder="Your nick">
         <button class="pgbutton" id="saveScoreBtn">Save score</button>
         <div id="save-confirm"></div>
       </div>
+      <br>
       <a class="pgbutton" href="/api/pandagame/scores">
         🐼 Scores
       </a>
