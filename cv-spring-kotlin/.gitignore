@@ -38,3 +38,14 @@ out/
 
 ### Kotlin ###
 .kotlin
+
+### Secrets — never commit these ###
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+secrets/
+credentials/

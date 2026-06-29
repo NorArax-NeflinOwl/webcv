@@ -1,1 +1,16 @@
 /temp/*
+
+### Secrets — never commit these ###
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+secrets/
+credentials/
+*-service-account.json
+gcloud-credentials.json
+.aws/
