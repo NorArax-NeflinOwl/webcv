@@ -1,6 +1,6 @@
 # 🌐 WebCV
 
-> Portfolio & CV as a web application — a collection of projects showcasing different technologies.
+> Portfolio & CV as a web application  a collection of projects showcasing different technologies.
 
 ![Kotlin](https://img.shields.io/badge/Kotlin-7F52FF?style=flat&logo=kotlin&logoColor=white)
 ![Spring Boot](https://img.shields.io/badge/Spring_Boot-6DB33F?style=flat&logo=springboot&logoColor=white)
@@ -16,13 +16,13 @@
 
 ## About
 
-A series of mini-projects building an interactive CV as a web application. Each project focuses on a different technology stack — from backend and containerisation to real-time communication and frontend. The application will eventually be deployed on a public server as a skills showcase.
+A series of mini-projects building an interactive CV as a web application. Each project focuses on a different technology stack  from backend and containerisation to real-time communication and frontend. The application will eventually be deployed on a public server as a skills showcase.
 
 ---
 
 ## Projects
 
-### 01 — CV Page: Kotlin + Spring Boot + PostgreSQL + Docker
+### 01  CV Page: Kotlin + Spring Boot + PostgreSQL + Docker
 > Status: ✅ Done
 
 A web server serving the CV page. Backend written in Kotlin with Spring Boot, data stored in PostgreSQL with Flyway migrations, containerised with Docker.
@@ -35,15 +35,15 @@ A web server serving the CV page. Backend written in Kotlin with Spring Boot, da
 - Docker + Docker Compose
 - Gradle (build tool)
 - JUnit 5 + MockK + H2 (unit & integration tests)
-- HTML / CSS / JavaScript (frontend — CV page)
+- HTML / CSS / JavaScript (frontend  CV page)
 - REST API (`/api/profileinfo`, `/api/hello`, `/actuator/health`)
 
 ---
 
-### 02 — Panda Game
+### 02  Panda Game
 > Status: 🚧 In progress
 
-A mini-game in the style of the Google Chrome Dino — a panda jumping over obstacles.
+A mini-game in the style of the Google Chrome Dino  a panda jumping over obstacles.
 Built with plain HTML + CSS + JavaScript, served by the same Spring Boot server.
 Player scores are saved to PostgreSQL (`panda_game_player_score`) and displayed as a leaderboard.
 
@@ -62,7 +62,7 @@ Player scores are saved to PostgreSQL (`panda_game_player_score`) and displayed 
 
 ---
 
-### 03 — Poker Game
+### 03  Poker Game
 > Status: 🚧 In progress
 
 Real-time multiplayer Texas Hold'em Poker. The game engine is written in Kotlin with Coroutines;
@@ -73,9 +73,9 @@ two bots (RandomBot). Frontend in plain HTML + CSS + JavaScript.
 
 **Technologies:**
 - Kotlin + Kotlinx Coroutines (game engine: dealing, betting, hand evaluation)
-- Spring WebSocket (`TextWebSocketHandler`) — table state pushed after every action
+- Spring WebSocket (`TextWebSocketHandler`)  table state pushed after every action
 - REST API (`/api/pokertable`, `/api/pokertable/{id}/join`, `/api/pokertable/{id}/start`)
-- HTML5 / CSS3 / JavaScript (vanilla) — table view with card rendering
+- HTML5 / CSS3 / JavaScript (vanilla)  table view with card rendering
 - JUnit 5 + MockK (engine tests, hand evaluation tests, integration tests)
 
 **Protocol:**
@@ -114,11 +114,11 @@ Application available at: `http://localhost:8080`
 | `http://localhost:8080/poker-game/` | Poker Game |
 | `http://localhost:8080/api/profileinfo` | Profile data (JSON) |
 | `http://localhost:8080/api/hello` | Hello World |
-| `http://localhost:8080/api/pandagame/scores` | Panda Game scores (GET — all scores, POST — save score) |
+| `http://localhost:8080/api/pandagame/scores` | Panda Game scores (GET  all scores, POST  save score) |
 | `http://localhost:8080/api/pokertable` | List poker tables (GET) / Create table (POST) |
 | `http://localhost:8080/api/pokertable/{id}/join` | Join a table (POST) |
 | `http://localhost:8080/api/pokertable/{id}/start` | Start a hand (POST) |
-| `ws://localhost:8080/api/pokertable/{id}/ws` | WebSocket — real-time game state |
+| `ws://localhost:8080/api/pokertable/{id}/ws` | WebSocket  real-time game state |
 | `http://localhost:8080/actuator/health` | Application health |
 
 ---
@@ -143,7 +143,7 @@ docker compose up db -d
 
 Unit tests (`ProfileServiceTest`, `PandaGameServiceTest`) and controller tests
 (`ProfileControllerTest`, `PandaGameControllerTest`) use MockK.
-Repository tests (`RepositoryTest`, `PandaScoreRepositoryTest`) use an H2 in-memory database —
+Repository tests (`RepositoryTest`, `PandaScoreRepositoryTest`) use an H2 in-memory database 
 no PostgreSQL required.
 Poker tests (`GameEngineTest`, `HandEvaluatorTest`, `HandRankTest`) cover the game engine
 and hand evaluation. The integration test (`PokerGameIntegrationTest`) verifies a complete hand flow.
@@ -152,16 +152,16 @@ and hand evaluation. The integration test (`PokerGameIntegrationTest`) verifies 
 
 ## Roadmap
 
-- [x] Project 01 — Kotlin + Spring Boot + Docker
-- [x] Project 01 — PostgreSQL + Flyway integration
-- [x] Project 01 — REST API + unit tests
-- [x] Project 02 — Panda Game
-- [x] Project 02 — Leaderboard (PostgreSQL + REST API)
-- [ ] Project 02 — Leaderboard visualisation
-- [x] Project 03 — Poker Game (Texas Hold'em engine + WebSocket)
-- [x] Project 03 — Bots (RandomBot) + engine & integration tests
-- [ ] Project 03 — Advanced bot difficulty levels
-- [ ] Project 03 — Multiplayer
+- [x] Project 01  Kotlin + Spring Boot + Docker
+- [x] Project 01  PostgreSQL + Flyway integration
+- [x] Project 01  REST API + unit tests
+- [x] Project 02  Panda Game
+- [x] Project 02  Leaderboard (PostgreSQL + REST API)
+- [ ] Project 02  Leaderboard visualisation
+- [x] Project 03  Poker Game (Texas Hold'em engine + WebSocket)
+- [x] Project 03  Bots (RandomBot) + engine & integration tests
+- [ ] Project 03  Advanced bot difficulty levels
+- [ ] Project 03  Multiplayer
 - [ ] Deploy to hosting
 
 ---

@@ -124,13 +124,13 @@ object HandEvaluator {
         return isWheel(ranksDesc)
     }
 
-    /** A-2-3-4-5 (the "wheel" — lowest possible straight). */
+    /** A-2-3-4-5 (the "wheel"  lowest possible straight). */
     private fun isWheel(ranksDesc: List<Int>): Boolean =
         ranksDesc.toSet() == setOf(14, 5, 4, 3, 2)
 
     /**
      * Generates all [k]-element combinations from [list].
-     * For 7 cards and k=5 this produces 21 combinations — negligible cost.
+     * For 7 cards and k=5 this produces 21 combinations  negligible cost.
      */
     private fun <T> combinations(list: List<T>, k: Int): List<List<T>> {
         if (k == 0) return listOf(emptyList())

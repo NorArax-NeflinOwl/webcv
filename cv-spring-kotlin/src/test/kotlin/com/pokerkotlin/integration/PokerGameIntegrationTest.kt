@@ -125,8 +125,8 @@ class PokerGameIntegrationTest {
     /**
      * Drives the human player through all four betting rounds.
      *
-     * Pre-flop : human calls the BB (10 chips) — bots auto-play after.
-     * Flop / Turn / River : human checks — bots auto-play first, human checks last.
+     * Pre-flop : human calls the BB (10 chips)  bots auto-play after.
+     * Flop / Turn / River : human checks  bots auto-play first, human checks last.
      *
      * Returns the engine after the Showdown state is reached.
      */
@@ -292,7 +292,7 @@ class PokerGameIntegrationTest {
         val state   = buildEngine().playFullHand().snapshot().state as GameState.Showdown
         val ranking = state.ranking
 
-        // ranking[1] and ranking[2] should be the two bots — in any order
+        // ranking[1] and ranking[2] should be the two bots  in any order
         val loserIds = ranking.drop(1).map { it.playerId }.toSet()
         assertEquals(setOf(bot1Id, bot2Id), loserIds, "Both bots must be ranked 2nd (tied Straights)")
 
@@ -354,7 +354,7 @@ class PokerGameIntegrationTest {
         // yield() suspends the main coroutine for one scheduler tick, giving the collector
         // coroutine a turn to drain all events buffered in the SharedFlow (extraBufferCapacity=32).
         // In single-threaded runBlocking the collector never runs during playFullHand() because
-        // the Mutex is always free and no suspension occurs — this yield() is the fix.
+        // the Mutex is always free and no suspension occurs  this yield() is the fix.
         yield()
 
         collectJob.cancel()

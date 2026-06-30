@@ -8,7 +8,7 @@ import com.pokerkotlin.core.model.PlayerId
  *
  * [handValue] holds the full evaluation hand (hole cards + board) so that
  * [compareTo] can delegate to [Hand.compareTo] -> [HandEvaluator].
- * Sorted descending — the strongest hand ranks first.
+ * Sorted descending  the strongest hand ranks first.
  */
 data class PlayerResult(
     val playerId: PlayerId,

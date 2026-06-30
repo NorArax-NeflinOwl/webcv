@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap
 /**
  * In-memory registry that maps opaque bearer tokens to [PlayerSession] records.
  *
- * Thread-safe via [ConcurrentHashMap] — tokens are write-once, read-many.
+ * Thread-safe via [ConcurrentHashMap]  tokens are write-once, read-many.
  * In a multi-node deployment this would be backed by Redis, but for the
  * single-node use-case an in-memory map is sufficient.
  */

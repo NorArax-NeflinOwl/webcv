@@ -85,7 +85,7 @@ class ProfileServiceTest {
     fun `getProfile returns correct basic data`() {
         val result = profileService.getProfile()
 
-        assertEquals("Jan Kowalski — Backend Developer", result.title)
+        assertEquals("Jan Kowalski  Backend Developer", result.title)
         assertEquals("backend developer", result.eyebrow)
         assertEquals("Jan Kowalski", result.name)
         assertEquals("<span>Kotlin</span>", result.role)

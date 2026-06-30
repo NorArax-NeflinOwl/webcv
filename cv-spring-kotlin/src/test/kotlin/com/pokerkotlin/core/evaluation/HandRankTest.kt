@@ -13,14 +13,14 @@ class HandRankTest {
     }
 
     @Test
-    fun `same category — higher first tiebreaker wins`() {
+    fun `same category  higher first tiebreaker wins`() {
         val highPair = HandRank(HandCategory.ONE_PAIR, listOf(14, 13, 12))
         val lowPair  = HandRank(HandCategory.ONE_PAIR, listOf(14, 10, 9))
         assertTrue(highPair > lowPair)
     }
 
     @Test
-    fun `same category — second tiebreaker decides when first is equal`() {
+    fun `same category  second tiebreaker decides when first is equal`() {
         val a = HandRank(HandCategory.TWO_PAIR, listOf(14, 13, 12))
         val b = HandRank(HandCategory.TWO_PAIR, listOf(14, 13, 2))
         assertTrue(a > b)

@@ -39,7 +39,7 @@ out/
 ### Kotlin ###
 .kotlin
 
-### Secrets — never commit these ###
+### Secrets  never commit these ###
 .env
 !.env.example
 *.pem

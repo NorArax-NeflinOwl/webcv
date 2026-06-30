@@ -46,7 +46,7 @@ INSERT INTO profile (name, eyebrow, role, bio, footer, footer_status, email, git
         'Patryk Norbert Pudwel',
         'backend developer',
         '<span>Kotlin</span> / Spring Boot / Docker / PostgreSQL',
-        'Backend developer z pasją do czystego kodu i skalowalnych systemów. Buduję RESTowe API i mikroserwisy w ekosystemie JVM — od projektu do produkcji w kontenerze.',
+        'Backend developer z pasją do czystego kodu i skalowalnych systemów. Buduję RESTowe API i mikroserwisy w ekosystemie JVM  od projektu do produkcji w kontenerze.',
         'dostępny do współpracy w ciągu 3 miesięcy',
         'YELLOW',
         'pudwel.n.patryk@gmail.com',

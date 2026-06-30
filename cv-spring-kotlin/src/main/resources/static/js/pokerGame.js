@@ -1,5 +1,5 @@
 /**
- * pokerGame.js — Poker front-end
+ * pokerGame.js  Poker front-end
  *
  * Protocol summary:
  *   POST /api/pokertable                     → { tableId }
@@ -133,7 +133,7 @@ function render(snap) {
   const boardEl = el('board-cards');
   boardEl.innerHTML = snap.board.length > 0
     ? snap.board.map(cardHTML).join('')
-    : '<span class="placeholder">—</span>';
+    : '<span class="placeholder"></span>';
 
   // Opponents (up to 2 slots)
   for (let i = 0; i < 2; i++) {
@@ -142,7 +142,7 @@ function render(snap) {
     if (!seat) continue;
 
     if (!opp) {
-      seat.querySelector('.player-name').textContent  = '—';
+      seat.querySelector('.player-name').textContent  = '';
       seat.querySelector('.player-cards').innerHTML   = '';
       seat.querySelector('.player-coins').textContent = '';
       seat.querySelector('.player-bet').textContent   = '';
@@ -200,7 +200,7 @@ function render(snap) {
     checkBtn.style.display = '';
   }
 
-  // "Next hand" button — only after a completed hand, never on the initial waiting state
+  // "Next hand" button  only after a completed hand, never on the initial waiting state
   // (the first hand is started automatically via ws.onopen)
   el('btn-start').style.display = snap.phase === 'Showdown' ? '' : 'none';
 
@@ -218,7 +218,7 @@ function render(snap) {
   if (snap.ranking && snap.ranking.length > 0) {
     rankingEl.innerHTML = '<h3>Results</h3>' +
       snap.ranking.map((r, i) =>
-        `<div class="rank-entry">${i + 1}. ${r.playerName} — ${r.handCategory}</div>`
+        `<div class="rank-entry">${i + 1}. ${r.playerName}  ${r.handCategory}</div>`
       ).join('');
     rankingEl.style.display = 'block';
   } else {

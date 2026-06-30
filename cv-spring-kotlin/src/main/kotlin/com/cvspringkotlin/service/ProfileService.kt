@@ -22,13 +22,13 @@ class ProfileService(
 
         val id = profile.id!!
 
-        // Każda kolekcja ładowana osobnym zapytaniem — brak MultipleBagFetchException
+        // Każda kolekcja ładowana osobnym zapytaniem  brak MultipleBagFetchException
         val skills      = profileSkillRepository.findByProfileId(id)
         val stacks      = profileStackRepository.findByProfileId(id)
         val experiences = experienceRepository.findByProfileIdOrderByDateFromDesc(id)
 
         return ProfileDto(
-            title        = "${profile.name} — Backend Developer",
+            title        = "${profile.name}  Backend Developer",
             eyebrow      = profile.eyebrow ?: "",
             name         = profile.name,
             role         = profile.role ?: "",

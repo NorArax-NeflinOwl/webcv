@@ -101,7 +101,7 @@ body {
 
 #join-form button:hover { filter: brightness(1.1); }
 
-/*  Game screen — 3×3 grid  */
+/*  Game screen  3×3 grid  */
 
 #game-screen {
   display: none; /* shown by JS */

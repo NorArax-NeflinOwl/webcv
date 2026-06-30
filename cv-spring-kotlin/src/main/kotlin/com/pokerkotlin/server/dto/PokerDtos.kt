@@ -20,7 +20,7 @@ data class TableSnapshotDto(
     val players: List<PlayerViewDto>,
     /** PlayerId.value of the player whose turn it is, or null when no betting is ongoing. */
     val currentTurnId: String?,
-    /** Only present in Showdown — ranked list of player results. */
+    /** Only present in Showdown  ranked list of player results. */
     val ranking: List<ShowdownResultDto>?,
 )
 

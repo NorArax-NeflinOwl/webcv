@@ -19,7 +19,7 @@ class PandaGameServiceTest {
         clearMocks(pandaScoreRepository)
     }
 
-    //  saveScore — happy path 
+    //  saveScore  happy path 
 
     @Test
     fun `saveScore saves score with given nick`() {
@@ -75,7 +75,7 @@ class PandaGameServiceTest {
         assertEquals(PandaGamePlayerScoreService.MAX_SCORE, result.score)
     }
 
-    //  saveScore — validation / errors 
+    //  saveScore  validation / errors 
 
     @Test
     fun `saveScore rejects negative score`() {

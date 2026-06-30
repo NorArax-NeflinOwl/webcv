@@ -41,7 +41,7 @@ class ProfileControllerTest {
         stacks: List<String> = listOf("JVM 17", "Docker"),
         experiences: List<ExperienceDto> = emptyList()
     ) = ProfileDto(
-        title        = "$name — Backend Developer",
+        title        = "$name  Backend Developer",
         eyebrow      = "backend developer",
         name         = name,
         role         = "<span>Kotlin</span>",
@@ -82,7 +82,7 @@ class ProfileControllerTest {
             .andExpect {
                 jsonPath("$.name")    { value("Jan Kowalski") }
                 jsonPath("$.eyebrow") { value("backend developer") }
-                jsonPath("$.title")   { value("Jan Kowalski — Backend Developer") }
+                jsonPath("$.title")   { value("Jan Kowalski  Backend Developer") }
                 jsonPath("$.role")    { value("<span>Kotlin</span>") }
                 jsonPath("$.bio")     { value("Test bio") }
                 jsonPath("$.footer")  { value("available") }

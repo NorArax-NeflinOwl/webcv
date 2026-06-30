@@ -48,7 +48,7 @@ import java.util.concurrent.ConcurrentHashMap
  * {"type":"Call"}
  * {"type":"Raise","amount":50}
  * ```
- * The `playerId` is never accepted from the client payload — it is always
+ * The `playerId` is never accepted from the client payload  it is always
  * resolved from the server-side session to prevent impersonation.
  */
 class PokerWebSocketHandler(
@@ -63,7 +63,7 @@ class PokerWebSocketHandler(
     private val scopes = ConcurrentHashMap<String, CoroutineScope>()
 
     /**
-     * Thread-safe session wrappers — Spring's raw [WebSocketSession] is NOT thread-safe,
+     * Thread-safe session wrappers  Spring's raw [WebSocketSession] is NOT thread-safe,
      * so concurrent sends from the event-collection coroutine and the main handler thread
      * would cause race conditions without this decorator.
      */
@@ -155,12 +155,12 @@ class PokerWebSocketHandler(
         try {
             runBlocking { engine.applyAction(domainAction) }
         } catch (ex: IllegalArgumentException) {
-            // Invalid action parameters (e.g. raise amount exceeds chip stack) — send error to client,
+            // Invalid action parameters (e.g. raise amount exceeds chip stack)  send error to client,
             // do NOT close the session so the player can retry with a valid amount.
             log.warn("[WS] Invalid action args [playerId={}]: {}", playerSession.playerId.value, ex.message)
             safeSession.sendMessage(TextMessage("""{"error":"${ex.message}"}"""))
         } catch (ex: IllegalStateException) {
-            // Action not allowed in current game state (e.g. not player's turn) — same treatment.
+            // Action not allowed in current game state (e.g. not player's turn)  same treatment.
             log.warn("[WS] Illegal action [playerId={}]: {}", playerSession.playerId.value, ex.message)
             safeSession.sendMessage(TextMessage("""{"error":"${ex.message}"}"""))
         }

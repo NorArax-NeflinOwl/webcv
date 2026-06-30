@@ -11,7 +11,7 @@
     const HEIGTH = 300;
     const GROUND = HEIGTH - 36;
     // The witch flies at this height (body centre); panda on the ground is safe,
-    // panda at jump peak collides — you must NOT jump when the witch is coming.
+    // panda at jump peak collides  you must NOT jump when the witch is coming.
     const WITCH_HEIGTH_SPAWN_MAX  = 220;
     const WITCH_HEIGTH_SPAWN  = 120;
     const WITCH_HEIGTH_SPAWN_MIN  = 50;
@@ -210,7 +210,7 @@
                     })
             )
             .then(data => {
-                elements.saveConfirm.textContent = `Saved: ${data.nick} — ${data.score} pts`;
+                elements.saveConfirm.textContent = `Saved: ${data.nick}  ${data.score} pts`;
             })
             .catch(err => {
                 console.error('Score save error:', err);
@@ -247,7 +247,7 @@
             witchInterval:  300 + Math.random() * 200,
         });
 
-        // save panel — hide on new game
+        // save panel  hide on new game
         elements.savePanel.classList.remove('is-visible');
         elements.saveConfirm.textContent = '';
         elements.saveButton.disabled     = false;
@@ -282,7 +282,7 @@
         spawner.obstacles.push({ type: 'witch', x: WIDTH + 55, y: witchHeigth, anim: 0 });
     }
 
-    // Returns false when an obstacle of a different type is too close to the right edge —
+    // Returns false when an obstacle of a different type is too close to the right edge 
     // the player wouldn't have time to react to both at once.
     function canSpawn(type) {
         const SAFE = 260; // minimum gap (px) between different obstacle types
@@ -356,7 +356,7 @@
         }
         spawner.obstacles = spawner.obstacles.filter(o => o.type === 'witch' ? o.x > -65 : o.x + o.w > -10);
 
-        // witch — appears after game.score > 1000
+        // witch  appears after game.score > 1000
         if (game.score > 1000) {
             spawner.witchTimer++;
             if (spawner.witchTimer >= spawner.witchInterval && canSpawn('witch')) {
@@ -530,7 +530,7 @@
         ctx.lineTo(wx + 36, y + 5);
         ctx.stroke();
 
-        // Broom bristles — fan on the right side (exit side)
+        // Broom bristles  fan on the right side (exit side)
         for (let i = -5; i <= 5; i++) {
             ctx.strokeStyle = i % 2 === 0 ? colors.witchBristleLight : colors.witchBristleDark;
             ctx.lineWidth   = 1.5;
@@ -555,7 +555,7 @@
         ctx.fill();
         ctx.stroke();
 
-        // Cape (fluttering in flight — on the left side, behind the back)
+        // Cape (fluttering in flight  on the left side, behind the back)
         const flap = Math.sin(anim * 0.18) * 7;
         ctx.fillStyle = colors.witchCape;
         ctx.beginPath();
@@ -785,14 +785,14 @@
 
         for (const c of world.clouds) drawCloud(c);
 
-        // witches — sky layer (in front of ground, behind world.clouds)
+        // witches  sky layer (in front of ground, behind world.clouds)
         for (const o of spawner.obstacles) {
             if (o.type === 'witch') drawWitch(o.x, o.y, o.anim);
         }
 
         drawGround();
 
-        // bamboos — ground layer
+        // bamboos  ground layer
         for (const o of spawner.obstacles) {
             if (o.type === 'bamboo') drawBamboo(o);
         }
@@ -814,7 +814,7 @@
             drawPandaRunning(panda.x, pandaTop);
             drawOverlay(
                 'Click button below to start',
-                'Jump = Space / button   |   Witch flies high — DON\'T jump!'
+                'Jump = Space / button   |   Witch flies high  DON\'T jump!'
             );
         } else if (game.state === states.DEAD) {
             // panda drawn twice: once under the overlay, once above it

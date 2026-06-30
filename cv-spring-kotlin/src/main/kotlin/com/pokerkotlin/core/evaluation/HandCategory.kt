@@ -2,7 +2,7 @@ package com.pokerkotlin.core.evaluation
 
 /**
  * Poker hand rankings ordered from lowest (HIGH_CARD) to highest (ROYAL_FLUSH).
- * Ordinal is used directly for comparison — do not reorder entries.
+ * Ordinal is used directly for comparison  do not reorder entries.
  */
 enum class HandCategory(val displayName: String) {
     HIGH_CARD("High Card"),

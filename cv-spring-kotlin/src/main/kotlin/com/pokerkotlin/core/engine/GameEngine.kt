@@ -15,7 +15,7 @@ class GameEngine(
     val tableId: TableId,
     private val blindAmount: Int = 10,
     private val random: SecureRandom = SecureRandom(),
-    /** Deck factory — overridable in tests to inject a deterministic card order. */
+    /** Deck factory  overridable in tests to inject a deterministic card order. */
     private val deckFactory: () -> Deck = { Deck.shuffle(random) },
 ) {
     //  Internal seat representation 
@@ -74,7 +74,7 @@ class GameEngine(
     }
 
     // 
-    // Game flow — public API
+    // Game flow  public API
     // 
 
     /**
@@ -165,9 +165,9 @@ class GameEngine(
                 folded = p.folded,
                 betThisRound = betsThisRound[p.id] ?: 0,
                 holeCards = when {
-                    p.id == forPlayer            -> p.holeCards.cards()  // own cards — always visible
-                    gameState is GameState.Showdown -> p.holeCards.cards()  // showdown — reveal all
-                    else                         -> null                 // opponent cards — hidden
+                    p.id == forPlayer            -> p.holeCards.cards()  // own cards  always visible
+                    gameState is GameState.Showdown -> p.holeCards.cards()  // showdown  reveal all
+                    else                         -> null                 // opponent cards  hidden
                 },
             )
         },
@@ -199,7 +199,7 @@ class GameEngine(
                 // If only one player remains active, they win the pot immediately
                 val remaining = activePlayers()
                 if (remaining.size == 1) {
-                    log.info("[{}] All others folded — {} wins | pot={}", tableId.value, remaining.first().name, pot)
+                    log.info("[{}] All others folded  {} wins | pot={}", tableId.value, remaining.first().name, pot)
                     awardPot(listOf(remaining.first().id))
                     finishHand(emptyList())
                     return
@@ -209,7 +209,7 @@ class GameEngine(
             is PlayerAction.Check -> {
                 val owed = toCall(action.playerId)
                 check(owed == 0) {
-                    "Cannot check — player must call $owed chips or fold"
+                    "Cannot check  player must call $owed chips or fold"
                 }
                 log.debug("[{}] {} CHECK | phase={}", tableId.value, player.name, gameState::class.simpleName)
                 actionQueue.removeFirst()
@@ -311,7 +311,7 @@ class GameEngine(
             if (gameState is GameState.Showdown || gameState is GameState.WaitingForPlayers) break
             val nextId = actionQueue.firstOrNull() ?: break
             val seat = seats.firstOrNull { it.player.id == nextId } ?: break
-            val strategy = seat.strategy ?: break   // human player — wait for applyAction
+            val strategy = seat.strategy ?: break   // human player  wait for applyAction
 
             val view = snapshot(forPlayer = nextId)
             val playerView = view.players.first { it.id == nextId }

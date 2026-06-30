@@ -81,7 +81,7 @@ function renderLinks(links) {
     const container = document.getElementById('links');
     if (!container) return;
 
-    // Keep static buttons — remove only dynamic ones
+    // Keep static buttons  remove only dynamic ones
     const dynamic = container.querySelectorAll('.link-btn--dynamic');
     dynamic.forEach(el => el.remove());
 
