@@ -51,3 +51,23 @@ kotlin {
 tasks.withType<Test> {
     useJUnitPlatform()
 }
+
+val dockerUp by tasks.registering(Exec::class) {
+    group = "docker"
+    description = "Start all services via Docker Compose (rebuild images)"
+    commandLine("docker", "compose", "up", "--build", "-d")
+}
+
+val dockerDown by tasks.registering(Exec::class) {
+    group = "docker"
+    description = "Stop all services and remove volumes and images"
+    commandLine("docker", "compose", "down", "-v", "--rmi", "all")
+}
+
+tasks.named("build") {
+    finalizedBy(dockerUp)
+}
+
+tasks.named("clean") {
+    finalizedBy(dockerDown)
+}
