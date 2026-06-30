@@ -18,7 +18,7 @@ class GameEngine(
     /** Deck factory — overridable in tests to inject a deterministic card order. */
     private val deckFactory: () -> Deck = { Deck.shuffle(random) },
 ) {
-    // ─── Internal seat representation ────────────────────────────────────────
+    //  Internal seat representation 
     private data class Seat(
         val player: Player,
         /** null = human player; non-null = bot using the given strategy */
@@ -44,13 +44,13 @@ class GameEngine(
      */
     private var actionQueue: ArrayDeque<PlayerId> = ArrayDeque()
 
-    // ─── SharedFlow (Observer) ────────────────────────────────────────────────
+    //  SharedFlow (Observer) 
     private val _events = MutableSharedFlow<GameEvent>(extraBufferCapacity = 32)
     val events: SharedFlow<GameEvent> = _events.asSharedFlow()
 
-    // ─────────────────────────────────────────────────────────────────────────
+    // 
     // Seat management
-    // ─────────────────────────────────────────────────────────────────────────
+    // 
 
     fun addPlayer(player: Player, strategy: BotStrategy? = null) {
         require(seats.none { it.player.id == player.id }) {
@@ -73,9 +73,9 @@ class GameEngine(
         }
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
+    // 
     // Game flow — public API
-    // ─────────────────────────────────────────────────────────────────────────
+    // 
 
     /**
      * Starts a new hand: shuffles the deck, deals hole cards, posts blinds,
@@ -116,7 +116,7 @@ class GameEngine(
 
         if (log.isInfoEnabled) {
             log.info(
-                "[{}] ── New hand ── players={} SB={} BB={} blind={}",
+                "[{}]  New hand  players={} SB={} BB={} blind={}",
                 tableId.value,
                 handPlayers.map { it.name },
                 handPlayers[sbIndex].name,
@@ -174,9 +174,9 @@ class GameEngine(
         currentTurnId = actionQueue.firstOrNull(),
     )
 
-    // ─────────────────────────────────────────────────────────────────────────
+    // 
     // Action logic (private)
-    // ─────────────────────────────────────────────────────────────────────────
+    // 
 
     private fun applyActionInternal(action: PlayerAction) {
         // Validate turn order
@@ -251,9 +251,9 @@ class GameEngine(
         }
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
+    // 
     // Phase transitions
-    // ─────────────────────────────────────────────────────────────────────────
+    // 
 
     private fun advancePhase() {
         currentBet = 0
@@ -263,28 +263,28 @@ class GameEngine(
             is GameState.PreFlop -> {
                 board = deck.drawMany(3)
                 resetPostFlopQueue()
-                log.info("[{}] ── FLOP: {} | pot={}", tableId.value, board, pot)
+                log.info("[{}]  FLOP: {} | pot={}", tableId.value, board, pot)
                 GameState.Flop(pot, board)
             }
             is GameState.Flop -> {
                 board = board + deck.draw()
                 resetPostFlopQueue()
-                log.info("[{}] ── TURN: {} | pot={}", tableId.value, board.last(), pot)
+                log.info("[{}]  TURN: {} | pot={}", tableId.value, board.last(), pot)
                 GameState.Turn(pot, board)
             }
             is GameState.Turn -> {
                 board = board + deck.draw()
                 resetPostFlopQueue()
-                log.info("[{}] ── RIVER: {} | pot={}", tableId.value, board.last(), pot)
+                log.info("[{}]  RIVER: {} | pot={}", tableId.value, board.last(), pot)
                 GameState.River(pot, board)
             }
             is GameState.River -> {
                 val ranking = evaluateShowdown()
                 val winners = findWinners(ranking)
                 if (winners.size == 1) {
-                    log.info("[{}] ── SHOWDOWN | winner={} | ranking={}", tableId.value, ranking.first().playerName, ranking.map { it.playerName })
+                    log.info("[{}]  SHOWDOWN | winner={} | ranking={}", tableId.value, ranking.first().playerName, ranking.map { it.playerName })
                 } else {
-                    log.info("[{}] ── SHOWDOWN tie | winners={} | ranking={}", tableId.value, winners.map { it.value }, ranking.map { it.playerName })
+                    log.info("[{}]  SHOWDOWN tie | winners={} | ranking={}", tableId.value, winners.map { it.value }, ranking.map { it.playerName })
                 }
                 awardPot(winners)
                 finishHand(ranking)
@@ -296,9 +296,9 @@ class GameEngine(
         publish()
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
+    // 
     // Bot auto-play
-    // ─────────────────────────────────────────────────────────────────────────
+    // 
 
     /**
      * Processes bot actions in sequence until:
@@ -320,9 +320,9 @@ class GameEngine(
         }
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
+    // 
     // Helpers (private)
-    // ─────────────────────────────────────────────────────────────────────────
+    // 
 
     private fun activePlayers(): List<Player> = handPlayers.filter { !it.folded }
 

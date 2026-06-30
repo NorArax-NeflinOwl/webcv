@@ -48,7 +48,7 @@ class RepositoryTest {
         em.clear()
     }
 
-    // ── ProfileRepository ─────────────────────────────────
+    //  ProfileRepository 
 
     @Test
     fun `findFirst zwraca profil gdy istnieje`() {
@@ -69,7 +69,7 @@ class RepositoryTest {
         assertNull(profileRepository.findFirst())
     }
 
-    // ── ProfileSkillRepository ────────────────────────────
+    //  ProfileSkillRepository 
 
     @Test
     fun `findByProfileId zwraca skille dla profilu`() {
@@ -86,7 +86,7 @@ class RepositoryTest {
         assertTrue(profileSkillRepository.findByProfileId(inny.id!!).isEmpty())
     }
 
-    // ── ProfileStackRepository ────────────────────────────
+    //  ProfileStackRepository 
 
     @Test
     fun `findByProfileId zwraca stack items dla profilu`() {
@@ -96,7 +96,7 @@ class RepositoryTest {
         assertEquals("JVM 17", result.first().stackItem.label)
     }
 
-    // ── ExperienceRepository ──────────────────────────────
+    //  ExperienceRepository 
 
     @Test
     fun `findByProfileIdOrderByDateFromDesc zwraca doswiadczenie`() {

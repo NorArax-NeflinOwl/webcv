@@ -51,9 +51,9 @@ class TableController(
 
     private val secureRandom = SecureRandom()
 
-    // ─────────────────────────────────────────────────────────────────────────
+    // 
     // GET /api/pokertable — list all active tables
-    // ─────────────────────────────────────────────────────────────────────────
+    // 
 
     /**
      * Returns a list of all currently active table IDs.
@@ -72,9 +72,9 @@ class TableController(
         )
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
+    // 
     // POST /api/pokertable — create a new table (with 2 bots pre-seated)
-    // ─────────────────────────────────────────────────────────────────────────
+    // 
 
     /**
      * Creates a new poker table and pre-seats two RandomBot players.
@@ -107,9 +107,9 @@ class TableController(
         return CreateTableResponse(tableId.value)
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
+    // 
     // POST /api/pokertable/{id}/join — add a human player and issue a session token
-    // ─────────────────────────────────────────────────────────────────────────
+    // 
 
     /**
      * Adds a human player to an existing table and returns a session token.
@@ -146,9 +146,9 @@ class TableController(
         return JoinTableResponse(sessionToken = token, playerId = playerId.value)
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
+    // 
     // POST /api/pokertable/{id}/start — start the first (or next) hand
-    // ─────────────────────────────────────────────────────────────────────────
+    // 
 
     /**
      * Starts a new hand on the table.
@@ -179,9 +179,9 @@ class TableController(
         }
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
+    // 
     // GET /api/pokertable/{id}/snapshot — REST snapshot (polling fallback)
-    // ─────────────────────────────────────────────────────────────────────────
+    // 
 
     /**
      * Returns a JSON snapshot of the table from the requesting player's perspective.

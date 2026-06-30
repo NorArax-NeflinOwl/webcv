@@ -47,7 +47,7 @@ body::before {
     z-index: 0;
 }
 
-/* ── Layout ── */
+/*  Layout  */
 
 .container {
     position: relative;
@@ -57,7 +57,7 @@ body::before {
     padding: 80px 24px 120px;
 }
 
-/* ── Header ── */
+/*  Header  */
 
 .header {
     margin-bottom: 72px;
@@ -110,7 +110,7 @@ body::before {
     padding-left: 20px;
 }
 
-/* ── Links ── */
+/*  Links  */
 
 .links {
     display: flex;
@@ -152,7 +152,7 @@ body::before {
     flex-shrink: 0;
 }
 
-/* ── Sections ── */
+/*  Sections  */
 
 .section {
     margin-bottom: 56px;
@@ -178,7 +178,7 @@ body::before {
     background: var(--border);
 }
 
-/* ── Skills grid ── */
+/*  Skills grid  */
 
 .skills {
     display: grid;
@@ -213,7 +213,7 @@ body::before {
     letter-spacing: .06em;
 }
 
-/* ── Stack chips ── */
+/*  Stack chips  */
 
 .stack {
     display: flex;
@@ -238,7 +238,7 @@ body::before {
     border-color: var(--accent);
 }
 
-/* ── Health badge ── */
+/*  Health badge  */
 
 .health-ok {
     border-color: var(--accent) !important;
@@ -250,7 +250,7 @@ body::before {
     color: #ef4444 !important;
 }
 
-/* ── Footer ── */
+/*  Footer  */
 
 .footer {
     margin-top: 80px;
@@ -270,7 +270,7 @@ body::before {
     gap: 6px;
 }
 
-/* ── Status dot — trzy stany ── */
+/*  Status dot — trzy stany  */
 
 .footer .dot {
     width: 7px;
@@ -293,7 +293,7 @@ body::before {
     animation: pulse-red 2s ease infinite;
 }
 
-/* ── Animations ── */
+/*  Animations  */
 
 @keyframes pulse {
     0%, 100% { opacity: 1; }

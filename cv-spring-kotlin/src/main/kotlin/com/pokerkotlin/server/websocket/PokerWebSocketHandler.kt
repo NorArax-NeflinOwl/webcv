@@ -69,9 +69,9 @@ class PokerWebSocketHandler(
      */
     private val safeSessions = ConcurrentHashMap<String, WebSocketSession>()
 
-    // ─────────────────────────────────────────────────────────────────────────
+    // 
     // Lifecycle
-    // ─────────────────────────────────────────────────────────────────────────
+    // 
 
     override fun afterConnectionEstablished(session: WebSocketSession) {
         val (playerSession, tableId) = authenticate(session) ?: return
@@ -94,10 +94,10 @@ class PokerWebSocketHandler(
         log.info("[WS] Connected [playerId={} tableId={} wsId={}]",
             playerSession.playerId.value, tableId.value, session.id)
 
-        // ── Push initial snapshot ──────────────────────────────────────────
+        //  Push initial snapshot 
         sendSnapshot(safeSession, playerSession, tableId)
 
-        // ── Subscribe to engine events in a background coroutine ──────────
+        //  Subscribe to engine events in a background coroutine 
         val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
         scopes[session.id] = scope
         scope.launch {
@@ -123,9 +123,9 @@ class PokerWebSocketHandler(
         }
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
+    // 
     // Incoming messages
-    // ─────────────────────────────────────────────────────────────────────────
+    // 
 
     override fun handleTextMessage(session: WebSocketSession, message: TextMessage) {
         val safeSession = safeSessions[session.id] ?: session
@@ -172,9 +172,9 @@ class PokerWebSocketHandler(
         safeSessions.remove(session.id)
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
+    // 
     // Helpers
-    // ─────────────────────────────────────────────────────────────────────────
+    // 
 
     /**
      * Validates the session token from the query-string.

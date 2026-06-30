@@ -59,7 +59,7 @@ class ProfileControllerTest {
         clearMocks(profileService)
     }
 
-    // ── HTTP status ───────────────────────────────────────
+    //  HTTP status 
 
     @Test
     fun `GET api profileinfo returns 200`() {
@@ -72,7 +72,7 @@ class ProfileControllerTest {
             }
     }
 
-    // ── JSON structure ────────────────────────────────────
+    //  JSON structure 
 
     @Test
     fun `GET api profileinfo returns correct fields in JSON`() {
@@ -89,7 +89,7 @@ class ProfileControllerTest {
             }
     }
 
-    // ── Footer status ─────────────────────────────────────
+    //  Footer status 
 
     @Test
     fun `GET api profileinfo returns footerStatus YELLOW by default`() {
@@ -121,7 +121,7 @@ class ProfileControllerTest {
             }
     }
 
-    // ── Links ─────────────────────────────────────────────
+    //  Links 
 
     @Test
     fun `GET api profileinfo returns links`() {
@@ -190,7 +190,7 @@ class ProfileControllerTest {
             }
     }
 
-    // ── Service calls ─────────────────────────────────────
+    //  Service calls 
 
     @Test
     fun `GET api profileinfo calls service exactly once`() {

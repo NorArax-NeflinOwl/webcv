@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 
 class GameEngineTest {
 
-    // ── Helpers ──────────────────────────────────────────────
+    //  Helpers 
 
     private fun player(id: String, name: String, coins: Int = 1000) = Player(
         id        = PlayerId(id),
@@ -47,7 +47,7 @@ class GameEngineTest {
         engine = GameEngine(tableId = TableId("test"), blindAmount = 10)
     }
 
-    // ── startHand ────────────────────────────────────────────
+    //  startHand 
 
     @Test
     fun `startHand requires at least 2 players`() {
@@ -87,7 +87,7 @@ class GameEngineTest {
         assertNull(p1view.holeCards)     // opponent cards hidden
     }
 
-    // ── Action validation ────────────────────────────────────
+    //  Action validation 
 
     @Test
     fun `action out of turn throws`() = runBlocking {
@@ -120,7 +120,7 @@ class GameEngineTest {
         }
     }
 
-    // ── Fold ─────────────────────────────────────────────────
+    //  Fold 
 
     @Test
     fun `fold — pot goes to the only remaining player`() = runBlocking {
@@ -167,7 +167,7 @@ class GameEngineTest {
             "Total chips must be conserved after fold")
     }
 
-    // ── Full hand to showdown ────────────────────────────────
+    //  Full hand to showdown 
 
     @Test
     fun `full hand — showdown reached after call and checks, chips conserved`() = runBlocking {
@@ -203,7 +203,7 @@ class GameEngineTest {
         assertEquals(2000, finalSnap.players.sumOf { it.coins })
     }
 
-    // ── Tie (split pot) ──────────────────────────────────────
+    //  Tie (split pot) 
 
     @Test
     fun `tie — pot split evenly, both players return to starting chips`() = runBlocking {
@@ -276,7 +276,7 @@ class GameEngineTest {
             "Total chips must be conserved after a split pot")
     }
 
-    // ── Raise ────────────────────────────────────────────────
+    //  Raise 
 
     @Test
     fun `raise — opponent must respond`() = runBlocking {

@@ -21,9 +21,9 @@ class SessionRegistry {
 
     private val sessions = ConcurrentHashMap<String, PlayerSession>()
 
-    // ─────────────────────────────────────────────────────────────────────────
+    // 
     // Create
-    // ─────────────────────────────────────────────────────────────────────────
+    // 
 
     /**
      * Generates a new random token, stores the session, and returns the token.
@@ -35,9 +35,9 @@ class SessionRegistry {
         return token
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
+    // 
     // Retrieve
-    // ─────────────────────────────────────────────────────────────────────────
+    // 
 
     /** Returns the [PlayerSession] for the given token, or null if not found / expired. */
     fun get(token: String): PlayerSession? = sessions[token]
@@ -52,9 +52,9 @@ class SessionRegistry {
         return if (session.tableId == tableId) session else null
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
+    // 
     // Revoke
-    // ─────────────────────────────────────────────────────────────────────────
+    // 
 
     /** Revokes a session token (e.g. when the player disconnects permanently). */
     fun revoke(token: String) {

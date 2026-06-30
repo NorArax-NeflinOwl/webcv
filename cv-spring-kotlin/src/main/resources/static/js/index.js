@@ -1,4 +1,4 @@
-// ── Actuator health check ────────────────────────────────
+//  Actuator health check 
 async function checkHealth() {
     const link = document.getElementById('health-link');
     if (!link) return;
@@ -18,7 +18,7 @@ async function checkHealth() {
     }
 }
 
-// ── Footer status dot ────────────────────────────────────
+//  Footer status dot 
 /**
  * Sets the footer dot colour and class based on the footerStatus
  * value from the API: "GREEN" | "YELLOW" | "RED"
@@ -47,7 +47,7 @@ function applyFooterStatus(status) {
     }
 }
 
-// ── Staggered skill card animation ──────────────────────
+//  Staggered skill card animation 
 function animateSkills() {
     const items = document.querySelectorAll('.skill-item');
     items.forEach((el, i) => {
@@ -61,7 +61,7 @@ function animateSkills() {
     });
 }
 
-// ── Link icons ───────────────────────────────────────────
+//  Link icons 
 const LINK_ICONS = {
     GithubLink: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>`,
     LinkedIn:   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>`,
@@ -76,7 +76,7 @@ const LINK_LABELS = {
     'E-mail':   '',  // shows email address as label
 };
 
-// ── Render links from API ────────────────────────────────
+//  Render links from API 
 function renderLinks(links) {
     const container = document.getElementById('links');
     if (!container) return;
@@ -111,7 +111,7 @@ function renderLinks(links) {
     });
 }
 
-// ── Render technologies from API ─────────────────────────
+//  Render technologies from API 
 function renderTechnologies(technologies) {
     const grid = document.getElementById('skills-grid');
     if (!grid) return;
@@ -125,7 +125,7 @@ function renderTechnologies(technologies) {
         .join('');
 }
 
-// ── Render stack chips from API ──────────────────────────
+//  Render stack chips from API 
 function renderChips(stacks) {
     const container = document.getElementById('stack-chips');
     if (!container) return;
@@ -135,7 +135,7 @@ function renderChips(stacks) {
         .join('');
 }
 
-// ── Fetch & populate profile ─────────────────────────────
+//  Fetch & populate profile 
 async function loadProfile() {
     try {
         const res  = await fetch('/api/profileinfo');
@@ -161,7 +161,7 @@ async function loadProfile() {
     }
 }
 
-// ── Helpers ──────────────────────────────────────────────
+//  Helpers 
 function setText(id, value) {
     const el = document.getElementById(id);
     if (el && value !== undefined) el.textContent = value;
@@ -172,7 +172,7 @@ function setHTML(id, value) {
     if (el && value !== undefined) el.innerHTML = value;
 }
 
-// ── Init ─────────────────────────────────────────────────
+//  Init 
 document.addEventListener('DOMContentLoaded', () => {
     loadProfile();
     checkHealth();

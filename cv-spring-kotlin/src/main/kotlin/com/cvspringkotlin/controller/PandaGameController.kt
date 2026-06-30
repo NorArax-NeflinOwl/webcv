@@ -27,7 +27,7 @@ class PandaGameController(private val pandaGameService: PandaGamePlayerScoreServ
         ResponseEntity.ok(pandaGameService.topScores())
 
 
-    // ── Error handling ────────────────────────────────────
+    //  Error handling 
 
     /** Invalid input data (e.g. negative score, nick too long). */
     @ExceptionHandler(IllegalArgumentException::class)

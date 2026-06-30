@@ -1,4 +1,4 @@
--- ── Icons ────────────────────────────────────────────────
+--  Icons 
 INSERT INTO icon (key, svg_path, label) VALUES
                                             ('github',    'M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22', 'GitHub'),
                                             ('linkedin',  'M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z', 'LinkedIn'),
@@ -11,7 +11,7 @@ INSERT INTO icon (key, svg_path, label) VALUES
                                             ('pulse',     'M22 12h-4l-3 9L9 3l-3 9H2', 'Actuator'),
                                             ('web',       'M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2zm0 2c1.66 0 3.18.56 4.39 1.48L5.48 16.39A7.96 7.96 0 0 1 4 12c0-4.41 3.59-8 8-8zm0 16c-1.66 0-3.18-.56-4.39-1.48l10.91-10.91A7.96 7.96 0 0 1 20 12c0 4.41-3.59 8-8 8z', 'Web');
 
--- ── Skills ───────────────────────────────────────────────
+--  Skills 
 INSERT INTO skill (name, category, icon_id) VALUES
                                                 ('Kotlin',      'primary language',  (SELECT id FROM icon WHERE key = 'kotlin')),
                                                 ('Spring Boot', 'web / rest api',    NULL),
@@ -22,7 +22,7 @@ INSERT INTO skill (name, category, icon_id) VALUES
                                                 ('HTML / CSS',  'frontend',          (SELECT id FROM icon WHERE key = 'web')),
                                                 ('Flyway',      'db migrations',     (SELECT id FROM icon WHERE key = 'database'));
 
--- ── Stack items ──────────────────────────────────────────
+--  Stack items 
 INSERT INTO stack_item (label, sort_order) VALUES
                                                ('JVM 17',          1),
                                                ('Spring MVC',      2),
@@ -40,7 +40,7 @@ INSERT INTO stack_item (label, sort_order) VALUES
                                                ('GitHub Actions',  14),
                                                ('REST API',        15);
 
--- ── Profile ───────────────────────────────────────────────
+--  Profile 
 INSERT INTO profile (name, eyebrow, role, bio, footer, footer_status, email, github_url, linkedin_url) VALUES
     (
         'Patryk Norbert Pudwel',
@@ -54,7 +54,7 @@ INSERT INTO profile (name, eyebrow, role, bio, footer, footer_status, email, git
         'https://www.linkedin.com/in/ppudwel199527/'
     );
 
--- ── Profile skills ────────────────────────────────────────
+--  Profile skills 
 INSERT INTO profile_skill (profile_id, skill_id, tag, sort_order)
 SELECT
     (SELECT id FROM profile LIMIT 1),
@@ -63,7 +63,7 @@ SELECT
     ROW_NUMBER() OVER (ORDER BY s.name)
 FROM skill s;
 
--- ── Profile stack ─────────────────────────────────────────
+--  Profile stack 
 INSERT INTO profile_stack (profile_id, stack_item_id, sort_order)
 SELECT
     (SELECT id FROM profile LIMIT 1),
@@ -71,7 +71,7 @@ SELECT
     si.sort_order
 FROM stack_item si;
 
--- ── Experience ────────────────────────────────────────────
+--  Experience 
 INSERT INTO experience (profile_id, company, position, contract_type, date_from, is_current, description) VALUES
     (
         (SELECT id FROM profile LIMIT 1),

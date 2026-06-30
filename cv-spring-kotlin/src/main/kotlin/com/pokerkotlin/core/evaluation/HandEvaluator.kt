@@ -18,9 +18,9 @@ object HandEvaluator {
 
     private val log = LoggerFactory.getLogger(HandEvaluator::class.java)
 
-    // ─────────────────────────────────────────────────────────────────────────
+    // 
     // Public API
-    // ─────────────────────────────────────────────────────────────────────────
+    // 
 
     /**
      * Evaluates the best possible 5-card hand from [hand].
@@ -48,9 +48,9 @@ object HandEvaluator {
         return best
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
+    // 
     // Five-card evaluation
-    // ─────────────────────────────────────────────────────────────────────────
+    // 
 
     /**
      * Scores exactly 5 cards.
@@ -109,9 +109,9 @@ object HandEvaluator {
         return HandRank(category, tiebreakers)
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
+    // 
     // Helpers
-    // ─────────────────────────────────────────────────────────────────────────
+    // 
 
     /**
      * Returns true when [ranksDesc] forms 5 consecutive values,

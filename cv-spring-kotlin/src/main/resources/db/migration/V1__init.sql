@@ -1,7 +1,7 @@
--- ── Extensions ────────────────────────────────────────────
+--  Extensions 
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
--- ── icon ──────────────────────────────────────────────────
+--  icon 
 CREATE TABLE icon (
                       id        UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
                       key       VARCHAR(64) NOT NULL UNIQUE,
@@ -9,7 +9,7 @@ CREATE TABLE icon (
                       label     VARCHAR(128)
 );
 
--- ── skill ─────────────────────────────────────────────────
+--  skill 
 CREATE TABLE skill (
                        id        UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
                        name      VARCHAR(128) NOT NULL,
@@ -17,7 +17,7 @@ CREATE TABLE skill (
                        icon_id   UUID         REFERENCES icon(id)
 );
 
--- ── stack_item ────────────────────────────────────────────
+--  stack_item 
 CREATE TABLE stack_item (
                             id         UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
                             label      VARCHAR(128) NOT NULL,
@@ -27,7 +27,7 @@ CREATE TABLE stack_item (
 
 CREATE TYPE footer_status_enum AS ENUM ('GREEN', 'YELLOW', 'RED');
 
--- ── profile ───────────────────────────────────────────────
+--  profile 
 CREATE TABLE profile (
                          id            UUID         PRIMARY KEY DEFAULT gen_random_uuid(),
                          name          VARCHAR(256) NOT NULL,
@@ -41,7 +41,7 @@ CREATE TABLE profile (
                          linkedin_url  VARCHAR(512)
 );
 
--- ── profile_skill ─────────────────────────────────────────
+--  profile_skill 
 CREATE TABLE profile_skill (
                                id         UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
                                profile_id UUID        NOT NULL REFERENCES profile(id) ON DELETE CASCADE,
@@ -51,7 +51,7 @@ CREATE TABLE profile_skill (
                                UNIQUE (profile_id, skill_id)
 );
 
--- ── profile_stack ─────────────────────────────────────────
+--  profile_stack 
 CREATE TABLE profile_stack (
                                id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
                                profile_id    UUID NOT NULL REFERENCES profile(id)    ON DELETE CASCADE,
@@ -60,7 +60,7 @@ CREATE TABLE profile_stack (
                                UNIQUE (profile_id, stack_item_id)
 );
 
--- ── experience ────────────────────────────────────────────
+--  experience 
 CREATE TABLE experience (
                             id            UUID         PRIMARY KEY DEFAULT gen_random_uuid(),
                             profile_id    UUID         NOT NULL REFERENCES profile(id) ON DELETE CASCADE,

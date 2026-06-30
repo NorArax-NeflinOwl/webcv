@@ -35,7 +35,7 @@ class PandaGamePlayerScoreControllerTest {
         clearMocks(pandaGameService)
     }
 
-    // ── POST /api/pandagame/scores — success ──────────────
+    //  POST /api/pandagame/scores — success 
 
     @Test
     fun `POST scores returns 201 and saved score`() {
@@ -55,7 +55,7 @@ class PandaGamePlayerScoreControllerTest {
         verify(exactly = 1) { pandaGameService.saveScore(any()) }
     }
 
-    // ── POST /api/pandagame/scores — validation errors ────
+    //  POST /api/pandagame/scores — validation errors 
 
     @Test
     fun `POST scores returns 400 when service rejects data`() {
@@ -96,7 +96,7 @@ class PandaGamePlayerScoreControllerTest {
         }
     }
 
-    // ── GET /api/pandagame/scores ─────────────────────────
+    //  GET /api/pandagame/scores 
 
     @Test
     fun `GET scores returns 200 and list of scores`() {

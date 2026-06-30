@@ -8,7 +8,7 @@ import com.pokerkotlin.core.engine.TableView
 import com.pokerkotlin.core.evaluation.HandEvaluator
 import com.pokerkotlin.core.model.PlayerId
 
-// ── Outbound (server → client): snapshot sent over WebSocket ─────────────────
+//  Outbound (server → client): snapshot sent over WebSocket 
 
 data class TableSnapshotDto(
     /** Discriminator string: WaitingForPlayers | PreFlop | Flop | Turn | River | Showdown */
@@ -38,7 +38,7 @@ data class PlayerViewDto(
 
 data class ShowdownResultDto(val playerId: String, val playerName: String, val handCategory: String)
 
-// ── Extension: TableView → TableSnapshotDto ───────────────────────────────────
+//  Extension: TableView → TableSnapshotDto 
 
 fun TableView.toDto(): TableSnapshotDto {
     val phase = when (state) {
@@ -80,7 +80,7 @@ fun TableView.toDto(): TableSnapshotDto {
     )
 }
 
-// ── Inbound (client → server): action sent over WebSocket ────────────────────
+//  Inbound (client → server): action sent over WebSocket 
 
 /**
  * Polymorphic JSON with a "type" discriminator field.

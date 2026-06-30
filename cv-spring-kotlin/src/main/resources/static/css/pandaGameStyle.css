@@ -4,7 +4,7 @@
     padding: 0;
 }
 
-/* ── Motyw (zgodny z indexStyle.css) ── */
+/*  Motyw (zgodny z indexStyle.css)  */
 :root {
     --bg:      #0a0a0f;
     --surface: #12121a;
@@ -16,7 +16,7 @@
     --mono:    'DM Mono', monospace;
     --display: 'Syne', sans-serif;
 
-    /* ── Canvas colour palette ── */
+    /*  Canvas colour palette  */
     /* Scene */
     --canvas-sky:         #94c1e8;
     --canvas-cloud:       rgba(255,255,255,0.72);
@@ -81,7 +81,7 @@ body::before {
     z-index: 0;
 }
 
-/* ── Przycisk skoku ── */
+/*  Przycisk skoku  */
 .pgbutton {
     display: inline-flex;
     align-items: center;
@@ -115,7 +115,7 @@ body::before {
     flex-shrink: 0;
 }
 
-/* ── Layout gry ── */
+/*  Layout gry  */
 #game-wrap {
     display: flex;
     gap: 16px;
@@ -194,7 +194,7 @@ body::before {
     transform-origin: top left;
 }
 
-/* ── Statystyki ── */
+/*  Statystyki  */
 #stats {
     display: flex;
     gap: 24px;
@@ -258,7 +258,7 @@ body::before {
     margin-top: 8px;
 }
 
-/* ── Wybór poziomu ── */
+/*  Wybór poziomu  */
 #level {
     display: flex;
     gap: 8px;
@@ -290,7 +290,7 @@ body::before {
     background: rgba(76, 175, 80, .1);
 }
 
-/* ── Zapis wyniku ── */
+/*  Zapis wyniku  */
 #save-score-wrap {
     display: none;
     align-items: center;

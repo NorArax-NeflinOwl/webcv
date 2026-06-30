@@ -67,7 +67,7 @@ import org.junit.jupiter.api.Test
  */
 class PokerGameIntegrationTest {
 
-    // ── Test infrastructure ───────────────────────────────────────────────────
+    //  Test infrastructure 
 
     /**
      * A bot that never folds: calls when chips are owed, otherwise checks.
@@ -139,7 +139,7 @@ class PokerGameIntegrationTest {
         return this
     }
 
-    // ── Phase progression ─────────────────────────────────────────────────────
+    //  Phase progression 
 
     @Test
     fun `after startHand state is PreFlop and human is UTG`() = runBlocking {
@@ -194,7 +194,7 @@ class PokerGameIntegrationTest {
         assertTrue(engine.snapshot().state is GameState.Showdown, "Expected Showdown at end of hand")
     }
 
-    // ── Card visibility ───────────────────────────────────────────────────────
+    //  Card visibility 
 
     @Test
     fun `opponent hole cards are hidden from human before Showdown`() = runBlocking {
@@ -239,7 +239,7 @@ class PokerGameIntegrationTest {
         assertEquals(setOf(Suit.RED_HEART), suits, "Both hole cards should be RED_HEART")
     }
 
-    // ── Chip accounting ───────────────────────────────────────────────────────
+    //  Chip accounting 
 
     @Test
     fun `total chips are conserved across the full hand`() = runBlocking {
@@ -271,7 +271,7 @@ class PokerGameIntegrationTest {
         assertEquals(990, bot2Coins, "Bot2 (BB → put in 10) should end at 990")
     }
 
-    // ── Showdown ranking ──────────────────────────────────────────────────────
+    //  Showdown ranking 
 
     @Test
     fun `showdown ranking is present and has all 3 players`() = runBlocking {
@@ -302,7 +302,7 @@ class PokerGameIntegrationTest {
         assertEquals(0, bot1Result.compareTo(bot2Result), "Bots should tie (same best Straight)")
     }
 
-    // ── toCall correctness ────────────────────────────────────────────────────
+    //  toCall correctness 
 
     @Test
     fun `toCall for UTG is BB amount (10) at start of hand`() = runBlocking {
@@ -324,7 +324,7 @@ class PokerGameIntegrationTest {
         assertEquals(0, snap.toCall, "No chips owed on the flop after all called pre-flop")
     }
 
-    // ── Event emission ────────────────────────────────────────────────────────
+    //  Event emission 
 
     /**
      * Verifies that [GameEngine] emits exactly 13 [GameEvent.StateChanged] events
@@ -361,7 +361,7 @@ class PokerGameIntegrationTest {
         assertEquals(13, count.get(), "Expected exactly 13 StateChanged events across the full hand")
     }
 
-    // ── TableRepository + SessionRegistry (lightweight integration) ───────────
+    //  TableRepository + SessionRegistry (lightweight integration) 
 
     @Test
     fun `TableRepository stores and retrieves a GameEngine by TableId`() {

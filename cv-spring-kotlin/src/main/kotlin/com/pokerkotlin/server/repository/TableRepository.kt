@@ -21,9 +21,9 @@ class TableRepository {
 
     private val tables = ConcurrentHashMap<String, GameEngine>()
 
-    // ─────────────────────────────────────────────────────────────────────────
+    // 
     // Create / retrieve
-    // ─────────────────────────────────────────────────────────────────────────
+    // 
 
     /**
      * Creates a new table with a random UUID and returns its [TableId].
@@ -53,9 +53,9 @@ class TableRepository {
     fun getOrThrow(tableId: TableId): GameEngine =
         get(tableId) ?: throw NoSuchElementException("Table not found: ${tableId.value}")
 
-    // ─────────────────────────────────────────────────────────────────────────
+    // 
     // Remove
-    // ─────────────────────────────────────────────────────────────────────────
+    // 
 
     /**
      * Removes a table (e.g. when all players have left).
@@ -71,9 +71,9 @@ class TableRepository {
         return removed
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
+    // 
     // Utilities
-    // ─────────────────────────────────────────────────────────────────────────
+    // 
 
     /** Number of currently active tables — useful for metrics / actuator. */
     fun count(): Int = tables.size

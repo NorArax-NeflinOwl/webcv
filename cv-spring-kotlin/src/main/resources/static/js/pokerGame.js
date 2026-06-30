@@ -11,7 +11,7 @@
 
 'use strict';
 
-// ── State ───────────────────────────────────────────────────────────────────
+//  State 
 
 const state = {
   tableId:  null,
@@ -20,7 +20,7 @@ const state = {
   ws:       null,
 };
 
-// ── Card rendering ───────────────────────────────────────────────────────────
+//  Card rendering 
 
 const RANK_LABEL = {
   TWO: '2', THREE: '3', FOUR: '4', FIVE: '5', SIX: '6',
@@ -55,7 +55,7 @@ function cardsHTML(cards, faceDown = false, count = 2) {
   return cards.map(cardHTML).join('');
 }
 
-// ── API helpers ──────────────────────────────────────────────────────────────
+//  API helpers 
 
 async function apiPost(path, body = null) {
   const opts = { method: 'POST', headers: {} };
@@ -77,7 +77,7 @@ const createTable = ()             => apiPost('/api/pokertable', { blindAmount: 
 const joinTable   = (id, name)     => apiPost(`/api/pokertable/${id}/join`, { playerName: name, coins: 1000 });
 const startHand   = (id, token)    => apiPost(`/api/pokertable/${id}/start?token=${token}`);
 
-// ── WebSocket ────────────────────────────────────────────────────────────────
+//  WebSocket 
 
 function connectWS(tableId, token) {
   const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
@@ -115,7 +115,7 @@ function sendAction(type, amount = undefined) {
   state.ws.send(JSON.stringify(payload));
 }
 
-// ── Render ───────────────────────────────────────────────────────────────────
+//  Render 
 
 function render(snap) {
   const myId      = state.playerId;
@@ -226,7 +226,7 @@ function render(snap) {
   }
 }
 
-// ── Event handlers ───────────────────────────────────────────────────────────
+//  Event handlers 
 
 async function onJoin(e) {
   e.preventDefault();
@@ -283,7 +283,7 @@ function showGameOver(humanWon, finalCoins) {
   el('btn-new-game').focus();
 }
 
-// ── Util ─────────────────────────────────────────────────────────────────────
+//  Util 
 
 const el = (id) => document.getElementById(id);
 
@@ -292,7 +292,7 @@ function setStatus(msg) {
   if (s) s.textContent = msg;
 }
 
-// ── Init ─────────────────────────────────────────────────────────────────────
+//  Init 
 
 document.addEventListener('DOMContentLoaded', () => {
   el('join-form').addEventListener('submit',  onJoin);

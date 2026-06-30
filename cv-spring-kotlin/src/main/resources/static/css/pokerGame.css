@@ -1,4 +1,4 @@
-/* ── Reset & base ────────────────────────────────────────────────────────── */
+/*  Reset & base  */
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -32,7 +32,7 @@ body {
   justify-content: center;
 }
 
-/* ── Join screen ─────────────────────────────────────────────────────────── */
+/*  Join screen  */
 
 #join-screen {
   display: flex;
@@ -101,7 +101,7 @@ body {
 
 #join-form button:hover { filter: brightness(1.1); }
 
-/* ── Game screen — 3×3 grid ──────────────────────────────────────────────── */
+/*  Game screen — 3×3 grid  */
 
 #game-screen {
   display: none; /* shown by JS */
@@ -117,7 +117,7 @@ body {
   box-shadow: 0 0 60px rgba(0,0,0,0.6);
 }
 
-/* ── Seats ───────────────────────────────────────────────────────────────── */
+/*  Seats  */
 
 .seat {
   background: var(--seat-bg);
@@ -171,7 +171,7 @@ body {
 .player-coins { color: var(--gold); font-weight: 600; }
 .player-bet   { color: #7ec8e3; font-size: 0.75rem; }
 
-/* ── Card row ────────────────────────────────────────────────────────────── */
+/*  Card row  */
 
 .card-row {
   display: flex;
@@ -182,7 +182,7 @@ body {
   min-height: 58px;
 }
 
-/* ── Card ────────────────────────────────────────────────────────────────── */
+/*  Card  */
 
 .card {
   width: 42px;
@@ -230,7 +230,7 @@ body {
   font-size: 1.4rem;
 }
 
-/* ── Board area ──────────────────────────────────────────────────────────── */
+/*  Board area  */
 
 .board-area {
   background: rgba(0,0,0,0.25);
@@ -250,7 +250,7 @@ body {
   color: var(--text-dim);
 }
 
-/* ── Info cells (row 1) ──────────────────────────────────────────────────── */
+/*  Info cells (row 1)  */
 
 .info-cell {
   display: flex;
@@ -293,7 +293,7 @@ body {
   letter-spacing: 1px;
 }
 
-/* ── Ranking (showdown) ──────────────────────────────────────────────────── */
+/*  Ranking (showdown)  */
 
 #ranking {
   font-size: 0.78rem;
@@ -314,7 +314,7 @@ body {
   line-height: 1.4;
 }
 
-/* ── Action area (row 2, col 0) ──────────────────────────────────────────── */
+/*  Action area (row 2, col 0)  */
 
 .action-area {
   display: flex;
@@ -331,7 +331,7 @@ body {
   width: 100%;
 }
 
-/* ── Raise area (row 2, col 2) ───────────────────────────────────────────── */
+/*  Raise area (row 2, col 2)  */
 
 .raise-area {
   display: flex;
@@ -369,7 +369,7 @@ body {
 
 #raise-amount:focus { border-color: var(--gold); }
 
-/* ── Buttons ─────────────────────────────────────────────────────────────── */
+/*  Buttons  */
 
 .btn {
   padding: 10px 14px;
@@ -405,7 +405,7 @@ body {
   transform: none;
 }
 
-/* ── Game over overlay ───────────────────────────────────────────────────── */
+/*  Game over overlay  */
 
 #game-over {
   position: fixed;

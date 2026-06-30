@@ -12,7 +12,7 @@ class HandEvaluatorTest {
     private fun card(rank: Rank, suit: Suit) = Card(rank, suit)
     private fun hand(vararg cards: Card)     = Hand(cards.toList())
 
-    // ── All 10 hand categories ───────────────────────────────
+    //  All 10 hand categories 
 
     @Test
     fun `high card — no matching pattern`() {
@@ -167,7 +167,7 @@ class HandEvaluatorTest {
         assertEquals(HandCategory.ROYAL_FLUSH, rank.category)
     }
 
-    // ── 7-card best-5 selection ──────────────────────────────
+    //  7-card best-5 selection 
 
     @Test
     fun `7 cards — picks the best 5-card combination`() {
@@ -201,7 +201,7 @@ class HandEvaluatorTest {
         assertEquals(listOf(13, 12), rank.tiebreakers)
     }
 
-    // ── Tiebreakers ──────────────────────────────────────────
+    //  Tiebreakers 
 
     @Test
     fun `kicker decides between equal pairs of aces`() {
@@ -260,7 +260,7 @@ class HandEvaluatorTest {
         assertEquals(0, HandEvaluator.evaluate(a).compareTo(HandEvaluator.evaluate(b)))
     }
 
-    // ── Validation ───────────────────────────────────────────
+    //  Validation 
 
     @Test
     fun `error when too few cards — 2`() {

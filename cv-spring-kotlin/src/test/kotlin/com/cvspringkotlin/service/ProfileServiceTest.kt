@@ -79,7 +79,7 @@ class ProfileServiceTest {
         every { experienceRepository.findByProfileIdOrderByDateFromDesc(profileId) } returns listOf(defaultExperience)
     }
 
-    // ── Basic data ────────────────────────────────────────
+    //  Basic data 
 
     @Test
     fun `getProfile returns correct basic data`() {
@@ -93,7 +93,7 @@ class ProfileServiceTest {
         assertEquals("available", result.footer)
     }
 
-    // ── Footer status ─────────────────────────────────────
+    //  Footer status 
 
     @Test
     fun `getProfile returns YELLOW footerStatus by default`() {
@@ -120,7 +120,7 @@ class ProfileServiceTest {
         assertEquals("RED", result.footerStatus)
     }
 
-    // ── Links ─────────────────────────────────────────────
+    //  Links 
 
     @Test
     fun `getProfile returns correct links`() {
@@ -153,7 +153,7 @@ class ProfileServiceTest {
         assertTrue(result.links.isEmpty())
     }
 
-    // ── Technologies and stack ────────────────────────────
+    //  Technologies and stack 
 
     @Test
     fun `getProfile returns correct technologies`() {
@@ -170,7 +170,7 @@ class ProfileServiceTest {
         assertEquals(listOf("JVM 17", "Docker"), result.stacks)
     }
 
-    // ── Null values ───────────────────────────────────────
+    //  Null values 
 
     @Test
     fun `getProfile returns empty strings when fields are null`() {
@@ -186,7 +186,7 @@ class ProfileServiceTest {
         assertEquals("", result.footer)
     }
 
-    // ── Experience ────────────────────────────────────────
+    //  Experience 
 
     @Test
     fun `getProfile returns correct experience`() {
@@ -214,7 +214,7 @@ class ProfileServiceTest {
         assertFalse(result.experiences.first().isCurrent)
     }
 
-    // ── Errors ────────────────────────────────────────────
+    //  Errors 
 
     @Test
     fun `getProfile throws exception when profile not in database`() {
@@ -245,7 +245,7 @@ class ProfileServiceTest {
         assertTrue(profileService.getProfile().experiences.isEmpty())
     }
 
-    // ── Call verification ─────────────────────────────────
+    //  Call verification 
 
     @Test
     fun `getProfile calls all repositories exactly once`() {

@@ -16,12 +16,12 @@
     const WITCH_HEIGTH_SPAWN  = 120;
     const WITCH_HEIGTH_SPAWN_MIN  = 50;
 
-    // ── Invincibility / spin constants ───────────────────────────────────────────
+    //  Invincibility / spin constants 
     const INV_DUR          = 110; // frames of invincibility after a hit
     const SPIN_TOTAL       = 50;  // frames of hit-spin animation
     const DEATH_SPIN_TOTAL = 70;  // frames of death-spin animation
 
-    // ── DOM elements ─────────────────────────────────────────────────────────────
+    //  DOM elements 
     // All DOM references centralised here; ctx is a rendering context, not an element.
     const elements = {
         canvas:           document.getElementById('gc'),
@@ -43,7 +43,7 @@
 
     const ctx = elements.canvas.getContext('2d');
 
-    // ── Canvas colour palette (values defined in pandaGameStyle.css) ────────────
+    //  Canvas colour palette (values defined in pandaGameStyle.css) 
     const css  = getComputedStyle(document.documentElement);
     const prop = name => css.getPropertyValue(name).trim();
     const colors = {
@@ -94,7 +94,7 @@
     };
 
 
-    // ── Game game.state ───────────────────────────────────────────────────────────────
+    //  Game game.state 
     const states = {
         IDLE:     'idle',
         RUNNING:  'running',
@@ -166,7 +166,7 @@
         });
     });
 
-    // ── Game logic ───────────────────────────────────────────────────────────────
+    //  Game logic 
     function slide(){
         const s = parseInt(this.value) / 100;
         elements.scaleValue.textContent = this.value + '%';
@@ -408,7 +408,7 @@
         if (game.frame % 4 === 0) updateUI();
     }
 
-    // ── Drawing helpers ──────────────────────────────────────────────────────────
+    //  Drawing helpers 
 
     // Filled ellipse with outline
     function fillEllipse(x, y, rx, ry, rot, fill) {
@@ -457,7 +457,7 @@
         ctx.fillText(line2, WIDTH / 2, HEIGTH / 2 + 16);
     }
 
-    // ── Scene drawing ────────────────────────────────────────────────────────────
+    //  Scene drawing 
     function drawCloud(c) {
         ctx.fillStyle = colors.cloud;
         ctx.beginPath();
@@ -507,7 +507,7 @@
         ctx.beginPath(); ctx.ellipse(o.x + o.w * 0.5,     o.y - 11,  9, 4,   0,   0, Math.PI * 2); ctx.fill();
     }
 
-    // ── Witch drawing ────────────────────────────────────────────────────────────
+    //  Witch drawing 
     // wx, wy = horizontal and vertical body centre; anim = animation game.frame counter
     function drawWitch(wx, wy, anim) {
         const bob = Math.sin(anim * 0.12) * 2.5; // gentle floating
@@ -640,7 +640,7 @@
         ctx.restore();
     }
 
-    // ── Panda drawing ────────────────────────────────────────────────────────────
+    //  Panda drawing 
 
     // Running / jumping panda. px, py = top-left corner (py = panda.y - panda.h)
     function drawPandaRunning(px, py) {
@@ -776,7 +776,7 @@
         }
     }
 
-    // ── Main render loop ──────────────────────────────────────────────────────────
+    //  Main render loop 
     function draw() {
         // sky
         ctx.clearRect(0, 0, WIDTH, HEIGTH);
