@@ -173,10 +173,10 @@ function renderChips(stacks) {
         .join('');
 }
 
-//  Fetch & populate profile 
-async function loadProfile() {
+//  Fetch & populate profile
+async function loadProfile(language) {
     try {
-        const res  = await fetch('/api/profileinfo');
+        const res  = await fetch(`/api/profileinfo?lang=${language}`);
         const data = await res.json();
 
         document.title = data.title ?? document.title;
@@ -200,6 +200,26 @@ async function loadProfile() {
     }
 }
 
+//  Language switcher
+function initLanguageSwitcher() {
+    const savedLanguage = localStorage.getItem('lang') ?? 'pl';
+    applyLanguage(savedLanguage);
+
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.addEventListener('click', () => applyLanguage(btn.dataset.lang));
+    });
+}
+
+function applyLanguage(language) {
+    localStorage.setItem('lang', language);
+
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.toggle('lang-btn--active', btn.dataset.lang === language);
+    });
+
+    loadProfile(language);
+}
+
 //  Helpers 
 function setText(id, value) {
     const el = document.getElementById(id);
@@ -211,8 +231,8 @@ function setHTML(id, value) {
     if (el && value !== undefined) el.innerHTML = value;
 }
 
-//  Init 
+//  Init
 document.addEventListener('DOMContentLoaded', () => {
-    loadProfile();
+    initLanguageSwitcher();
     checkHealth();
 });

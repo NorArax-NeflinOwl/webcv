@@ -7,6 +7,18 @@ import org.springframework.stereotype.Repository
 import java.util.UUID
 
 @Repository
+interface ProfileTranslationRepository : JpaRepository<ProfileTranslation, UUID> {
+    fun findByProfileIdAndLanguage(profileId: UUID, language: String): ProfileTranslation?
+}
+
+@Repository
+interface ExperienceTranslationRepository : JpaRepository<ExperienceTranslation, UUID> {
+
+    @Query("SELECT et FROM ExperienceTranslation et WHERE et.experience.id IN :ids AND et.language = :language")
+    fun findByExperienceIdsAndLanguage(ids: List<UUID>, language: String): List<ExperienceTranslation>
+}
+
+@Repository
 interface ProfileRepository : JpaRepository<Profile, UUID> {
 
     @Query("SELECT p FROM Profile p")

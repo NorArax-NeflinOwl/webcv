@@ -63,7 +63,7 @@ class ProfileControllerTest {
 
     @Test
     fun `GET api profileinfo returns 200`() {
-        every { profileService.getProfile() } returns buildProfileDto()
+        every { profileService.getProfile(any()) } returns buildProfileDto()
 
         mockMvc.get("/api/profileinfo")
             .andExpect {
@@ -76,7 +76,7 @@ class ProfileControllerTest {
 
     @Test
     fun `GET api profileinfo returns correct fields in JSON`() {
-        every { profileService.getProfile() } returns buildProfileDto()
+        every { profileService.getProfile(any()) } returns buildProfileDto()
 
         mockMvc.get("/api/profileinfo")
             .andExpect {
@@ -93,7 +93,7 @@ class ProfileControllerTest {
 
     @Test
     fun `GET api profileinfo returns footerStatus YELLOW by default`() {
-        every { profileService.getProfile() } returns buildProfileDto(footerStatus = "YELLOW")
+        every { profileService.getProfile(any()) } returns buildProfileDto(footerStatus = "YELLOW")
 
         mockMvc.get("/api/profileinfo")
             .andExpect {
@@ -103,7 +103,7 @@ class ProfileControllerTest {
 
     @Test
     fun `GET api profileinfo returns footerStatus GREEN`() {
-        every { profileService.getProfile() } returns buildProfileDto(footerStatus = "GREEN")
+        every { profileService.getProfile(any()) } returns buildProfileDto(footerStatus = "GREEN")
 
         mockMvc.get("/api/profileinfo")
             .andExpect {
@@ -113,7 +113,7 @@ class ProfileControllerTest {
 
     @Test
     fun `GET api profileinfo returns footerStatus RED`() {
-        every { profileService.getProfile() } returns buildProfileDto(footerStatus = "RED")
+        every { profileService.getProfile(any()) } returns buildProfileDto(footerStatus = "RED")
 
         mockMvc.get("/api/profileinfo")
             .andExpect {
@@ -125,7 +125,7 @@ class ProfileControllerTest {
 
     @Test
     fun `GET api profileinfo returns links`() {
-        every { profileService.getProfile() } returns buildProfileDto()
+        every { profileService.getProfile(any()) } returns buildProfileDto()
 
         mockMvc.get("/api/profileinfo")
             .andExpect {
@@ -136,7 +136,7 @@ class ProfileControllerTest {
 
     @Test
     fun `GET api profileinfo returns technologies`() {
-        every { profileService.getProfile() } returns buildProfileDto()
+        every { profileService.getProfile(any()) } returns buildProfileDto()
 
         mockMvc.get("/api/profileinfo")
             .andExpect {
@@ -146,7 +146,7 @@ class ProfileControllerTest {
 
     @Test
     fun `GET api profileinfo returns stacks as array`() {
-        every { profileService.getProfile() } returns buildProfileDto()
+        every { profileService.getProfile(any()) } returns buildProfileDto()
 
         mockMvc.get("/api/profileinfo")
             .andExpect {
@@ -167,7 +167,7 @@ class ProfileControllerTest {
             isCurrent    = true,
             description  = "Description"
         )
-        every { profileService.getProfile() } returns buildProfileDto(experiences = listOf(exp))
+        every { profileService.getProfile(any()) } returns buildProfileDto(experiences = listOf(exp))
 
         mockMvc.get("/api/profileinfo")
             .andExpect {
@@ -181,7 +181,7 @@ class ProfileControllerTest {
 
     @Test
     fun `GET api profileinfo returns empty experiences list when none exist`() {
-        every { profileService.getProfile() } returns buildProfileDto(experiences = emptyList())
+        every { profileService.getProfile(any()) } returns buildProfileDto(experiences = emptyList())
 
         mockMvc.get("/api/profileinfo")
             .andExpect {
@@ -190,14 +190,34 @@ class ProfileControllerTest {
             }
     }
 
-    //  Service calls 
+    //  Language param
 
     @Test
-    fun `GET api profileinfo calls service exactly once`() {
-        every { profileService.getProfile() } returns buildProfileDto()
+    fun `GET api profileinfo passes lang param to service`() {
+        every { profileService.getProfile("en") } returns buildProfileDto()
+
+        mockMvc.get("/api/profileinfo?lang=en").andExpect { status { isOk() } }
+
+        verify(exactly = 1) { profileService.getProfile("en") }
+    }
+
+    @Test
+    fun `GET api profileinfo defaults to pl when lang param is absent`() {
+        every { profileService.getProfile("pl") } returns buildProfileDto()
 
         mockMvc.get("/api/profileinfo").andExpect { status { isOk() } }
 
-        verify(exactly = 1) { profileService.getProfile() }
+        verify(exactly = 1) { profileService.getProfile("pl") }
+    }
+
+    //  Service calls
+
+    @Test
+    fun `GET api profileinfo calls service exactly once`() {
+        every { profileService.getProfile(any()) } returns buildProfileDto()
+
+        mockMvc.get("/api/profileinfo").andExpect { status { isOk() } }
+
+        verify(exactly = 1) { profileService.getProfile(any()) }
     }
 }

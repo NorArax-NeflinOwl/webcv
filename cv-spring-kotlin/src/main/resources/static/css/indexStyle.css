@@ -365,6 +365,41 @@ body::before {
     animation: pulse-red 2s ease infinite;
 }
 
+/*  Language switcher  */
+
+.lang-switcher {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+}
+
+.lang-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+    background: var(--surface);
+    cursor: pointer;
+    transition: border-color .2s, color .2s, background .2s;
+}
+
+.lang-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(127, 219, 202, .05);
+}
+
+.lang-btn--active {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(127, 219, 202, .08);
+}
+
 /*  Animations  */
 
 @keyframes pulse {
