@@ -213,6 +213,78 @@ body::before {
     letter-spacing: .06em;
 }
 
+/*  Experience  */
+
+.experience {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.exp-entry {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 16px 20px;
+    transition: border-color .2s, background .2s;
+}
+
+.exp-entry:hover {
+    border-color: var(--accent);
+    background: rgba(127, 219, 202, .04);
+}
+
+.exp-entry__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 4px;
+}
+
+.exp-entry__company {
+    font-family: var(--display);
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+}
+
+.exp-entry__period {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: .06em;
+    white-space: nowrap;
+}
+
+.exp-entry__sub {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.exp-entry__position {
+    font-size: 13px;
+    color: var(--accent);
+}
+
+.exp-entry__contract {
+    font-size: 10px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 1px 6px;
+}
+
+.exp-entry__description {
+    margin-top: 8px;
+    font-size: 13px;
+    line-height: 1.7;
+    color: #a0a0b0;
+}
+
 /*  Stack chips  */
 
 .stack {

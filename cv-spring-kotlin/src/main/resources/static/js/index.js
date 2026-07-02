@@ -125,7 +125,45 @@ function renderTechnologies(technologies) {
         .join('');
 }
 
-//  Render stack chips from API 
+//  Render experience entries from API
+function renderExperiences(experiences) {
+    const container = document.getElementById('experience-list');
+    if (!container) return;
+
+    if (!experiences || experiences.length === 0) {
+        container.innerHTML = '';
+        return;
+    }
+
+    container.innerHTML = experiences.map(exp => {
+        const period = exp.isCurrent
+            ? `${exp.dateFrom} – now`
+            : `${exp.dateFrom} – ${exp.dateTo ?? ''}`;
+
+        const contractBadge = exp.contractType
+            ? `<span class="exp-entry__contract">${exp.contractType}</span>`
+            : '';
+
+        const description = exp.description
+            ? `<p class="exp-entry__description">${exp.description}</p>`
+            : '';
+
+        return `
+            <div class="exp-entry">
+                <div class="exp-entry__header">
+                    <span class="exp-entry__company">${exp.company}</span>
+                    <span class="exp-entry__period">${period}</span>
+                </div>
+                <div class="exp-entry__sub">
+                    <span class="exp-entry__position">${exp.position}</span>
+                    ${contractBadge}
+                </div>
+                ${description}
+            </div>`;
+    }).join('');
+}
+
+//  Render stack chips from API
 function renderChips(stacks) {
     const container = document.getElementById('stack-chips');
     if (!container) return;
@@ -151,6 +189,7 @@ async function loadProfile() {
 
         if (data.footerStatus)  applyFooterStatus(data.footerStatus);
         if (data.links)         renderLinks(data.links);
+        if (data.experiences)   renderExperiences(data.experiences);
         if (data.technologies)  renderTechnologies(data.technologies);
         if (data.stacks)        renderChips(data.stacks);
 
