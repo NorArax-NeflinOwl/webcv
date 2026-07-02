@@ -232,6 +232,7 @@ class ProfileServiceTest {
     @Test
     fun `getProfile falls back to pl when requested language has no translation`() {
         every { profileTranslationRepository.findByProfileIdAndLanguage(profileId, "de") } returns null
+        every { experienceTranslationRepository.findByExperienceIdsAndLanguage(listOf(experienceId), "de") } returns emptyList()
 
         val result = profileService.getProfile("de")
 

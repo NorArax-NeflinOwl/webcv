@@ -64,13 +64,48 @@ body::before {
     animation: fadeUp .7s ease both;
 }
 
+/*  Top row: eyebrow left, lang-switcher right, vertically centred  */
+.header__top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
 .header__eyebrow {
     font-family: var(--mono);
     font-size: 12px;
     letter-spacing: .18em;
     color: var(--accent);
     text-transform: uppercase;
-    margin-bottom: 16px;
+    margin-bottom: 0;
+}
+
+/*  Language switcher  */
+.lang-switcher {
+    display: flex;
+    gap: 4px;
+}
+
+.lang-btn {
+    background: none;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    opacity: .45;
+    transition: opacity .2s, border-color .2s;
+}
+
+.lang-btn:hover {
+    opacity: .8;
+}
+
+.lang-btn--active {
+    opacity: 1;
+    border-color: var(--border);
 }
 
 .header__eyebrow::before {

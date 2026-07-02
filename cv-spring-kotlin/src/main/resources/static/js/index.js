@@ -173,7 +173,7 @@ function renderChips(stacks) {
         .join('');
 }
 
-//  Fetch & populate profile
+//  Fetch & populate profile 
 async function loadProfile(language) {
     try {
         const res  = await fetch(`/api/profileinfo?lang=${language}`);
@@ -231,7 +231,7 @@ function setHTML(id, value) {
     if (el && value !== undefined) el.innerHTML = value;
 }
 
-//  Init
+//  Init 
 document.addEventListener('DOMContentLoaded', () => {
     initLanguageSwitcher();
     checkHealth();
