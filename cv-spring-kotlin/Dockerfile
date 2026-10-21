@@ -7,7 +7,7 @@ COPY cv-spring-kotlin/gradlew cv-spring-kotlin/build.gradle.kts cv-spring-kotlin
 COPY cv-spring-kotlin/gradle ./gradle
 RUN ./gradlew dependencies --no-daemon # cache warstwy
 
-# run.ps1 passes a new BUILD_ID every time, so the code below is compiled on every run even when it did not change.
+# "run webcv.ps1" passes a new BUILD_ID every time, so the code below is compiled on every run even when it did not change.
 ARG BUILD_ID=manual
 RUN echo "build $BUILD_ID"
 COPY cv-shared /app/cv-shared
