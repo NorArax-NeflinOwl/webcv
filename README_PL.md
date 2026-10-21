@@ -30,7 +30,7 @@ webcv/
 ├── cv-shared/          strony (HTML/CSS/JS) i migracje SQL  wspólne dla obu backendów
 ├── cv-spring-kotlin/   backend: Kotlin + Spring Boot          → http://localhost:8280
 ├── cv-asp.net/         backend: C# + ASP.NET Core             → http://localhost:8281
-└── run.ps1             buduje i (re)startuje backendy w Dockerze
+└── run webcv.ps1       buduje i (re)startuje backendy w Dockerze
 ```
 
 Kontrakt, który musi spełnić backend, opisuje [cv-shared/README.md](cv-shared/README.md).
@@ -127,7 +127,7 @@ To samo CV, Panda Game i Poker Game z backendem .NET: te same strony i te same m
 
 ## Uruchomienie
 
-**Wymagania:** Docker (oraz PowerShell dla `run.ps1`)
+**Wymagania:** Docker (oraz PowerShell dla `run webcv.ps1`)
 
 ```powershell
 # Klonowanie repozytorium
@@ -135,12 +135,13 @@ git clone https://github.com/NorArax-NeflinOwl/webcv.git
 cd webcv
 
 # Budowa z bieżącego kodu i (re)start obu backendów; dane zostają w wolumenach baz
-.\run.ps1                     # oba: Kotlin na :8280, .NET na :8281
-.\run.ps1 -Backend dotnet     # albo tylko jeden (kotlin | dotnet)
-.\run.ps1 -Backend kotlin -Logs   # i zostań podpięty do jego logu
+# (nazwa ma spację, stąd operator wywołania & i cudzysłów)
+& ".\run webcv.ps1"                         # oba: Kotlin na :8280, .NET na :8281
+& ".\run webcv.ps1" -Backend dotnet         # albo tylko jeden (kotlin | dotnet)
+& ".\run webcv.ps1" -Backend kotlin -Logs   # i zostań podpięty do jego logu
 ```
 
-Przy pierwszym uruchomieniu `run.ps1` tworzy `.env` każdego backendu z `.env.example` z losowym hasłem do bazy.
+Przy pierwszym uruchomieniu `run webcv.ps1` tworzy `.env` każdego backendu z `.env.example` z losowym hasłem do bazy.
 Bez skryptu każdy backend nadal uruchamia się samodzielnie:
 
 ```bash

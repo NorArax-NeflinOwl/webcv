@@ -27,7 +27,7 @@ webcv/
 ├── cv-shared/          pages (HTML/CSS/JS) and SQL migrations  used by both backends
 ├── cv-spring-kotlin/   backend: Kotlin + Spring Boot          → http://localhost:8280
 ├── cv-asp.net/         backend: C# + ASP.NET Core             → http://localhost:8281
-└── run.ps1             builds and (re)starts the backends in Docker
+└── run webcv.ps1       builds and (re)starts the backends in Docker
 ```
 
 See [cv-shared/README.md](cv-shared/README.md) for the contract a backend has to fulfil.
@@ -122,7 +122,7 @@ The same CV, Panda Game and Poker Game with a .NET backend: the same pages and t
 
 ## Running the app
 
-**Requirements:** Docker (and PowerShell for `run.ps1`)
+**Requirements:** Docker (and PowerShell for `run webcv.ps1`)
 
 ```powershell
 # Clone the repository
@@ -130,12 +130,13 @@ git clone https://github.com/NorArax-NeflinOwl/webcv.git
 cd webcv
 
 # Build from the current code and (re)start both backends; the data stays in the database volumes
-.\run.ps1                     # both: Kotlin on :8280, .NET on :8281
-.\run.ps1 -Backend dotnet     # or only one (kotlin | dotnet)
-.\run.ps1 -Backend kotlin -Logs   # and stay attached to its log
+# (the name has a space, hence the call operator & and the quotes)
+& ".\run webcv.ps1"                         # both: Kotlin on :8280, .NET on :8281
+& ".\run webcv.ps1" -Backend dotnet         # or only one (kotlin | dotnet)
+& ".\run webcv.ps1" -Backend kotlin -Logs   # and stay attached to its log
 ```
 
-On the first run `run.ps1` creates each backend's `.env` from `.env.example` with a random database password.
+On the first run `run webcv.ps1` creates each backend's `.env` from `.env.example` with a random database password.
 Without the script, each backend still runs on its own:
 
 ```bash

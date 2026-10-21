@@ -10,7 +10,7 @@ COPY cv-asp.net/src/CvAspNet.Poker/CvAspNet.Poker.csproj src/CvAspNet.Poker/
 COPY cv-asp.net/src/CvAspNet.Web/CvAspNet.Web.csproj src/CvAspNet.Web/
 RUN dotnet restore src/CvAspNet.Web/CvAspNet.Web.csproj
 
-# run.ps1 passes a new BUILD_ID every time, so the code below is compiled on every run even when it did not change.
+# "run webcv.ps1" passes a new BUILD_ID every time, so the code below is compiled on every run even when it did not change.
 ARG BUILD_ID=manual
 RUN echo "build $BUILD_ID"
 COPY cv-shared /source/cv-shared
