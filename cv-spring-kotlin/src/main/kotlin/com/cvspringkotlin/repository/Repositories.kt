@@ -8,7 +8,7 @@ import java.util.UUID
 
 @Repository
 interface ProfileTranslationRepository : JpaRepository<ProfileTranslation, UUID> {
-    fun findByProfileIdAndLanguage(profileId: UUID, language: String): ProfileTranslation?
+    fun findByProfileIdAndBackendAndLanguage(profileId: UUID, backend: String, language: String): ProfileTranslation?
 }
 
 @Repository
@@ -31,10 +31,10 @@ interface ProfileSkillRepository : JpaRepository<ProfileSkill, UUID> {
     @Query("""
         SELECT ps FROM ProfileSkill ps
         JOIN FETCH ps.skill
-        WHERE ps.profile.id = :profileId
+        WHERE ps.profile.id = :profileId AND ps.backend = :backend
         ORDER BY ps.sortOrder
     """)
-    fun findByProfileId(profileId: UUID): List<ProfileSkill>
+    fun findByProfileIdAndBackend(profileId: UUID, backend: String): List<ProfileSkill>
 }
 
 @Repository
@@ -43,10 +43,10 @@ interface ProfileStackRepository : JpaRepository<ProfileStack, UUID> {
     @Query("""
         SELECT pt FROM ProfileStack pt
         JOIN FETCH pt.stackItem
-        WHERE pt.profile.id = :profileId
+        WHERE pt.profile.id = :profileId AND pt.backend = :backend
         ORDER BY pt.sortOrder
     """)
-    fun findByProfileId(profileId: UUID): List<ProfileStack>
+    fun findByProfileIdAndBackend(profileId: UUID, backend: String): List<ProfileStack>
 }
 
 @Repository

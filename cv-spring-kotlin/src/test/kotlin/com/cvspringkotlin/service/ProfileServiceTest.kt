@@ -112,10 +112,10 @@ class ProfileServiceTest {
     @BeforeEach
     fun setUp() {
         every { profileRepository.findFirst() } returns defaultProfile
-        every { profileTranslationRepository.findByProfileIdAndLanguage(profileId, "pl") } returns defaultTranslationPl
-        every { profileTranslationRepository.findByProfileIdAndLanguage(profileId, "en") } returns defaultTranslationEn
-        every { profileSkillRepository.findByProfileId(profileId) } returns defaultSkills
-        every { profileStackRepository.findByProfileId(profileId) } returns defaultStacks
+        every { profileTranslationRepository.findByProfileIdAndBackendAndLanguage(profileId, "kotlin", "pl") } returns defaultTranslationPl
+        every { profileTranslationRepository.findByProfileIdAndBackendAndLanguage(profileId, "kotlin", "en") } returns defaultTranslationEn
+        every { profileSkillRepository.findByProfileIdAndBackend(profileId, "kotlin") } returns defaultSkills
+        every { profileStackRepository.findByProfileIdAndBackend(profileId, "kotlin") } returns defaultStacks
         every { experienceRepository.findByProfileIdOrderByDateFromDesc(profileId) } returns listOf(defaultExperience)
         every { experienceTranslationRepository.findByExperienceIdsAndLanguage(listOf(experienceId), "pl") } returns listOf(defaultExperienceTranslationPl)
         every { experienceTranslationRepository.findByExperienceIdsAndLanguage(listOf(experienceId), "en") } returns listOf(defaultExperienceTranslationEn)
@@ -231,7 +231,7 @@ class ProfileServiceTest {
 
     @Test
     fun `getProfile falls back to pl when requested language has no translation`() {
-        every { profileTranslationRepository.findByProfileIdAndLanguage(profileId, "de") } returns null
+        every { profileTranslationRepository.findByProfileIdAndBackendAndLanguage(profileId, "kotlin", "de") } returns null
         every { experienceTranslationRepository.findByExperienceIdsAndLanguage(listOf(experienceId), "de") } returns emptyList()
 
         val result = profileService.getProfile("de")
@@ -243,7 +243,7 @@ class ProfileServiceTest {
 
     @Test
     fun `getProfile returns empty strings when translation fields are null`() {
-        every { profileTranslationRepository.findByProfileIdAndLanguage(profileId, "pl") } returns
+        every { profileTranslationRepository.findByProfileIdAndBackendAndLanguage(profileId, "kotlin", "pl") } returns
             defaultTranslationPl.copy(eyebrow = null, role = null, bio = null, footer = null)
 
         val result = profileService.getProfile()
@@ -304,14 +304,14 @@ class ProfileServiceTest {
 
     @Test
     fun `getProfile returns empty technologies when no skills`() {
-        every { profileSkillRepository.findByProfileId(profileId) } returns emptyList()
+        every { profileSkillRepository.findByProfileIdAndBackend(profileId, "kotlin") } returns emptyList()
 
         assertTrue(profileService.getProfile().technologies.isEmpty())
     }
 
     @Test
     fun `getProfile returns empty stacks when no stack items`() {
-        every { profileStackRepository.findByProfileId(profileId) } returns emptyList()
+        every { profileStackRepository.findByProfileIdAndBackend(profileId, "kotlin") } returns emptyList()
 
         assertTrue(profileService.getProfile().stacks.isEmpty())
     }
@@ -331,9 +331,9 @@ class ProfileServiceTest {
         profileService.getProfile()
 
         verify(exactly = 1) { profileRepository.findFirst() }
-        verify(exactly = 1) { profileTranslationRepository.findByProfileIdAndLanguage(profileId, "pl") }
-        verify(exactly = 1) { profileSkillRepository.findByProfileId(profileId) }
-        verify(exactly = 1) { profileStackRepository.findByProfileId(profileId) }
+        verify(exactly = 1) { profileTranslationRepository.findByProfileIdAndBackendAndLanguage(profileId, "kotlin", "pl") }
+        verify(exactly = 1) { profileSkillRepository.findByProfileIdAndBackend(profileId, "kotlin") }
+        verify(exactly = 1) { profileStackRepository.findByProfileIdAndBackend(profileId, "kotlin") }
         verify(exactly = 1) { experienceRepository.findByProfileIdOrderByDateFromDesc(profileId) }
         verify(exactly = 1) { experienceTranslationRepository.findByExperienceIdsAndLanguage(listOf(experienceId), "pl") }
     }
@@ -344,9 +344,9 @@ class ProfileServiceTest {
 
         assertThrows<IllegalStateException> { profileService.getProfile() }
 
-        verify(exactly = 0) { profileTranslationRepository.findByProfileIdAndLanguage(any(), any()) }
-        verify(exactly = 0) { profileSkillRepository.findByProfileId(any()) }
-        verify(exactly = 0) { profileStackRepository.findByProfileId(any()) }
+        verify(exactly = 0) { profileTranslationRepository.findByProfileIdAndBackendAndLanguage(any(), any(), any()) }
+        verify(exactly = 0) { profileSkillRepository.findByProfileIdAndBackend(any(), any()) }
+        verify(exactly = 0) { profileStackRepository.findByProfileIdAndBackend(any(), any()) }
         verify(exactly = 0) { experienceRepository.findByProfileIdOrderByDateFromDesc(any()) }
     }
 }

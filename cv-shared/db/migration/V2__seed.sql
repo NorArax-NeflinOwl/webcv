@@ -72,13 +72,54 @@ SELECT
 FROM stack_item si;
 
 --  Experience 
-INSERT INTO experience (profile_id, company, position, contract_type, date_from, is_current, description) VALUES
+INSERT INTO experience (profile_id, company, position, contract_type, date_from, date_to, is_current, description) VALUES
+    (
+       (SELECT id FROM profile LIMIT 1),
+       'Przykładowa Firma Sp. z o.o.',
+       'Backend Developer',
+       'B2B',
+       '2021-06-01',
+       null,
+       TRUE,
+       'Rozwój mikroserwisów w Kotlin + Spring Boot. Utrzymanie infrastruktury Docker.'
+    ),
+    (
+       (SELECT id FROM profile LIMIT 1),
+       'Przykładowa Firma Sp. z o.o.',
+       'Backend Developer',
+       'UoP',
+       '2021-06-01',
+       null,
+       TRUE,
+       'Rozwój mikroserwisów w Kotlin + Spring Boot. Utrzymanie infrastruktury Docker.'
+    ),
+    (
+        (SELECT id FROM profile LIMIT 1),
+        'Przykładowa Firma Sp. z o.o.',
+        'Junior Backend Developer',
+        'UoP',
+        '2019-06-01',
+        null,
+        TRUE,
+        'Rozwój mikroserwisów w Kotlin + Spring Boot. Utrzymanie infrastruktury Docker.'
+    ),
     (
         (SELECT id FROM profile LIMIT 1),
         'Przykładowa Firma Sp. z o.o.',
         'Junior Backend Developer',
         'B2B',
-        '2023-03-01',
+        '2019-06-01',
+        null,
         TRUE,
+        'Rozwój mikroserwisów w Kotlin + Spring Boot. Utrzymanie infrastruktury Docker.'
+    ),
+    (
+        (SELECT id FROM profile LIMIT 1),
+        'Przykładowa Firma Sp. z o.o. Practice',
+        'Junior Backend Developer',
+        'Uop',
+        '2017-11-01',
+        '2019-03-01',
+        FALSE,
         'Rozwój mikroserwisów w Kotlin + Spring Boot. Utrzymanie infrastruktury Docker.'
     );

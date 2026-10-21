@@ -58,20 +58,6 @@
         <p class="section__label">// experience</p>
         <div class="experience" id="experience-list"></div>
     </section>
-
-    <section class="section">
-        <p class="section__label">// game</p>
-        <a class="link-btn" th:href="@{/pandaGame.html}">
-            🐼 Panda Runner
-        </a>
-        <a class="link-btn" href="/api/pandagame/scores">
-            🐼 Scores
-        </a>
-        <a class="link-btn" th:href="@{/pokerGame.html}">
-            ♠ Poker
-        </a>
-    </section>
-
     <!-- Technologies  populated from API (data.technologies) -->
     <section class="section">
         <p class="section__label">// technologies</p>
@@ -84,6 +70,19 @@
         <div class="stack" id="stack-chips"></div>
     </section>
 
+    <section class="section">
+        <p class="section__label">// game</p>
+        <a class="link-btn" href="/pandaGame.html">
+            🐼 Panda Runner
+        </a>
+        <a class="link-btn" href="/api/pandagame/scores">
+            🐼 Scores
+        </a>
+        <a class="link-btn" href="/pokerGame.html">
+            ♠ Poker
+        </a>
+    </section>
+
     <!-- Footer -->
     <footer class="footer">
         <div class="status">
@@ -91,7 +90,8 @@
             <!-- populated from API (data.footer) -->
             <span id="footer-status"></span>
         </div>
-        <span>Kotlin + Spring Boot + Docker  cv-spring-kotlin</span>
+        <!-- populated from API (/api/backend)  the page is shared by both backends -->
+        <span id="backend-label"></span>
     </footer>
 </div>
 <script src="/js/index.js"></script>

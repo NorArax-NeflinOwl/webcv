@@ -248,7 +248,7 @@ body::before {
     letter-spacing: .06em;
 }
 
-/*  Experience  */
+/*  Experience timeline  */
 
 .experience {
     display: flex;
@@ -256,54 +256,61 @@ body::before {
     gap: 2px;
 }
 
-.exp-entry {
+.timeline-row {
     background: var(--surface);
     border: 1px solid var(--border);
-    padding: 16px 20px;
+    padding: 14px 20px;
     transition: border-color .2s, background .2s;
 }
 
-.exp-entry:hover {
+.timeline-row:hover {
     border-color: var(--accent);
     background: rgba(127, 219, 202, .04);
 }
 
-.exp-entry__header {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    gap: 12px;
-    flex-wrap: wrap;
-    margin-bottom: 4px;
+.timeline-row__period {
+    display: block;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: .06em;
+    margin-bottom: 10px;
 }
 
-.exp-entry__company {
+.timeline-row__cells {
+    display: flex;
+}
+
+/* Each cell takes equal width; a border separates adjacent cells */
+.timeline-cell {
+    flex: 1;
+    min-width: 0;
+    padding-right: 16px;
+    position: relative;
+    cursor: default;
+}
+
+.timeline-cell + .timeline-cell {
+    padding-left: 16px;
+    padding-right: 0;
+    border-left: 1px solid var(--border);
+}
+
+.timeline-cell__header {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 3px;
+}
+
+.timeline-cell__company {
     font-family: var(--display);
     font-size: 14px;
     font-weight: 600;
     color: #fff;
 }
 
-.exp-entry__period {
-    font-size: 11px;
-    color: var(--muted);
-    letter-spacing: .06em;
-    white-space: nowrap;
-}
-
-.exp-entry__sub {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-}
-
-.exp-entry__position {
-    font-size: 13px;
-    color: var(--accent);
-}
-
-.exp-entry__contract {
+.timeline-cell__contract {
     font-size: 10px;
     letter-spacing: .1em;
     text-transform: uppercase;
@@ -311,13 +318,40 @@ body::before {
     border: 1px solid var(--border);
     border-radius: 2px;
     padding: 1px 6px;
+    white-space: nowrap;
 }
 
-.exp-entry__description {
-    margin-top: 8px;
+.timeline-cell__position {
+    display: block;
     font-size: 13px;
+    color: var(--accent);
+    margin-bottom: 5px;
+}
+
+/* Description tooltip shown on card hover */
+.timeline-cell__tooltip {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 0;
+    width: 300px;
+    max-width: calc(100vw - 80px);
+    background: #1a1a26;
+    border: 1px solid var(--accent);
+    border-radius: 4px;
+    padding: 10px 14px;
+    font-size: 12px;
     line-height: 1.7;
-    color: #a0a0b0;
+    color: var(--text);
+    white-space: normal;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .15s;
+    z-index: 100;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .6);
+}
+
+.timeline-cell:hover .timeline-cell__tooltip {
+    opacity: 1;
 }
 
 /*  Stack chips  */
@@ -377,13 +411,13 @@ body::before {
     gap: 6px;
 }
 
-/*  Status dot  trzy stany  */
+/*  Status dot  */
 
 .footer .dot {
     width: 7px;
     height: 7px;
     border-radius: 50%;
-    background: var(--status-yellow);   /* domyślny: żółty */
+    background: var(--status-yellow);
     animation: pulse 2s ease infinite;
 }
 
@@ -398,41 +432,6 @@ body::before {
 .footer .dot--red {
     background: var(--status-red);
     animation: pulse-red 2s ease infinite;
-}
-
-/*  Language switcher  */
-
-.lang-switcher {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 24px;
-}
-
-.lang-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 14px;
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    font-family: var(--mono);
-    font-size: 12px;
-    color: var(--muted);
-    background: var(--surface);
-    cursor: pointer;
-    transition: border-color .2s, color .2s, background .2s;
-}
-
-.lang-btn:hover {
-    border-color: var(--accent);
-    color: var(--accent);
-    background: rgba(127, 219, 202, .05);
-}
-
-.lang-btn--active {
-    border-color: var(--accent);
-    color: var(--accent);
-    background: rgba(127, 219, 202, .08);
 }
 
 /*  Animations  */

@@ -15,6 +15,9 @@ data class ProfileStack(
     @JoinColumn(name = "profile_id", nullable = false)
     val profile: Profile = Profile(),
 
+    @Column(nullable = false, length = 16)
+    val backend: String = "",
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "stack_item_id", nullable = false)
     val stackItem: StackItem = StackItem(),

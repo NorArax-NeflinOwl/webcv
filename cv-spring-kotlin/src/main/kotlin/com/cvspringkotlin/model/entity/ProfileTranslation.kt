@@ -15,6 +15,9 @@ data class ProfileTranslation(
     @JoinColumn(name = "profile_id", nullable = false)
     val profile: Profile = Profile(),
 
+    @Column(nullable = false, length = 16)
+    val backend: String = "",
+
     @Column(nullable = false, length = 8)
     val language: String = "",
 

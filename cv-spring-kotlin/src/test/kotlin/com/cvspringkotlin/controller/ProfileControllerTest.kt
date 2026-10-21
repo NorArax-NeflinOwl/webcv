@@ -220,4 +220,17 @@ class ProfileControllerTest {
 
         verify(exactly = 1) { profileService.getProfile(any()) }
     }
+
+    //  Backend label
+
+    @Test
+    fun `GET api backend returns the label of this backend`() {
+        mockMvc.get("/api/backend")
+            .andExpect {
+                status { isOk() }
+                jsonPath("$.label") { value(ProfileController.BACKEND_LABEL) }
+            }
+
+        verify(exactly = 0) { profileService.getProfile(any()) }
+    }
 }

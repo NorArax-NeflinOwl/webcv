@@ -125,8 +125,150 @@ function renderTechnologies(technologies) {
         .join('');
 }
 
-//  Render experience entries from API
-function renderExperiences(experiences) {
+//  Experience timeline — month-level granularity helpers
+
+const MONTHS_ABBR = {
+    pl: ['sty','lut','mar','kwi','maj','cze','lip','sie','wrz','paź','lis','gru'],
+    en: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+};
+
+function toMonthIndex(dateStr) {
+    const d = new Date(dateStr);
+    return d.getFullYear() * 12 + d.getMonth();
+}
+
+function formatMonthLabel(monthIndex, language) {
+    const year  = Math.floor(monthIndex / 12);
+    const month = monthIndex % 12;
+    const names = MONTHS_ABBR[language] ?? MONTHS_ABBR.en;
+    return `${names[month]} ${year}`;
+}
+
+/**
+ * Splits experiences into merged timeline segments where each segment holds
+ * the set of entries active during that period.  Consecutive segments with
+ * the same active set are merged into one row.
+ */
+/**
+ * Within the same (company, contractType), a newer isCurrent entry
+ * supersedes an older one: the older is closed at newer.startMonth - 1.
+ * Mutates the entries array in place.
+ */
+function resolveSupersededEntries(entries) {
+    const groups = {};
+    entries.forEach((e, idx) => {
+        if (!e.isCurrent) return;
+        const key = e.exp.company + '||' + (e.exp.contractType ?? '');
+        if (!groups[key]) groups[key] = [];
+        groups[key].push(idx);
+    });
+
+    Object.values(groups).forEach(indices => {
+        if (indices.length <= 1) return;
+        indices.sort((a, b) => entries[a].startMonth - entries[b].startMonth);
+        for (let i = 0; i < indices.length - 1; i++) {
+            const older = entries[indices[i]];
+            older.endMonth  = entries[indices[i + 1]].startMonth - 1;
+            older.isCurrent = false;
+        }
+    });
+}
+
+/**
+ * Splits experiences into merged timeline segments.  Each entry (including
+ * isCurrent ones) contributes both startMonth and endMonth+1 as breakpoints,
+ * so no separate trailing-segment handling is needed.
+ * Consecutive segments with the same active set are merged.
+ * Result is reversed so the newest period appears first.
+ */
+function buildTimelineSegments(experiences) {
+    const now = new Date();
+    const currentMonth = now.getFullYear() * 12 + now.getMonth();
+
+    const entries = experiences.map(exp => ({
+        exp,
+        startMonth: toMonthIndex(exp.dateFrom),
+        endMonth:   exp.isCurrent ? currentMonth : toMonthIndex(exp.dateTo),
+        isCurrent:  exp.isCurrent
+    }));
+
+    resolveSupersededEntries(entries);
+
+    // Every entry contributes its start and (end+1) as breakpoints
+    const pointSet = new Set();
+    entries.forEach(({ startMonth, endMonth }) => {
+        pointSet.add(startMonth);
+        pointSet.add(endMonth + 1);
+    });
+    const points = [...pointSet].sort((a, b) => a - b);
+
+    // For each interval between breakpoints, collect active entries
+    const rawSegments = [];
+    for (let i = 0; i < points.length - 1; i++) {
+        const segStart   = points[i];
+        const segEnd     = points[i + 1] - 1;
+        const activeEntries = entries.filter(e => e.startMonth <= segStart && e.endMonth >= segEnd);
+        if (activeEntries.length === 0) continue;
+
+        rawSegments.push({
+            startMonth: segStart,
+            endMonth:   segEnd,
+            isCurrent:  activeEntries.some(e => e.isCurrent),
+            active:     activeEntries.map(e => e.exp)
+        });
+    }
+
+    if (rawSegments.length === 0) return [];
+
+    // Merge consecutive segments with the same active-experience set
+    const merged = [{ ...rawSegments[0], active: [...rawSegments[0].active] }];
+    for (let i = 1; i < rawSegments.length; i++) {
+        const cur  = rawSegments[i];
+        const last = merged[merged.length - 1];
+        if (sameExperienceSet(last.active, cur.active)) {
+            last.endMonth  = cur.endMonth;
+            last.isCurrent = cur.isCurrent;
+        } else {
+            merged.push({ ...cur, active: [...cur.active] });
+        }
+    }
+
+    // Newest period first
+    return merged.reverse();
+}
+
+function sameExperienceSet(a, b) {
+    if (a.length !== b.length) return false;
+    const key = exps => exps
+        .map(e => `${e.company}|${e.position}|${e.contractType}`)
+        .sort()
+        .join('\n');
+    return key(a) === key(b);
+}
+
+/** Renders one card per experience entry. Description is hidden;
+ * hovering the card reveals it as a tooltip. */
+function buildTimelineCellHTML(exp) {
+    const contractBadge = exp.contractType
+        ? `<span class="timeline-cell__contract">${exp.contractType}</span>`
+        : '';
+    const tooltip = exp.description
+        ? `<div class="timeline-cell__tooltip">${exp.description}</div>`
+        : '';
+
+    return `
+        <div class="timeline-cell">
+            <div class="timeline-cell__header">
+                <span class="timeline-cell__company">${exp.company}</span>
+                ${contractBadge}
+            </div>
+            <span class="timeline-cell__position">${exp.position}</span>
+            ${tooltip}
+        </div>`;
+}
+
+//  Render experience timeline from API
+function renderExperiences(experiences, language = 'pl') {
     const container = document.getElementById('experience-list');
     if (!container) return;
 
@@ -135,30 +277,18 @@ function renderExperiences(experiences) {
         return;
     }
 
-    container.innerHTML = experiences.map(exp => {
-        const period = exp.isCurrent
-            ? `${exp.dateFrom} – now`
-            : `${exp.dateFrom} – ${exp.dateTo ?? ''}`;
+    const nowLabel = language === 'pl' ? 'teraz' : 'now';
+    const segments = buildTimelineSegments(experiences);
 
-        const contractBadge = exp.contractType
-            ? `<span class="exp-entry__contract">${exp.contractType}</span>`
-            : '';
-
-        const description = exp.description
-            ? `<p class="exp-entry__description">${exp.description}</p>`
-            : '';
+    container.innerHTML = segments.map(seg => {
+        const from  = formatMonthLabel(seg.startMonth, language);
+        const to    = seg.isCurrent ? nowLabel : formatMonthLabel(seg.endMonth, language);
+        const cells = seg.active.map(buildTimelineCellHTML).join('');
 
         return `
-            <div class="exp-entry">
-                <div class="exp-entry__header">
-                    <span class="exp-entry__company">${exp.company}</span>
-                    <span class="exp-entry__period">${period}</span>
-                </div>
-                <div class="exp-entry__sub">
-                    <span class="exp-entry__position">${exp.position}</span>
-                    ${contractBadge}
-                </div>
-                ${description}
+            <div class="timeline-row">
+                <span class="timeline-row__period">${from} – ${to}</span>
+                <div class="timeline-row__cells">${cells}</div>
             </div>`;
     }).join('');
 }
@@ -173,7 +303,7 @@ function renderChips(stacks) {
         .join('');
 }
 
-//  Fetch & populate profile 
+//  Fetch & populate profile
 async function loadProfile(language) {
     try {
         const res  = await fetch(`/api/profileinfo?lang=${language}`);
@@ -189,7 +319,7 @@ async function loadProfile(language) {
 
         if (data.footerStatus)  applyFooterStatus(data.footerStatus);
         if (data.links)         renderLinks(data.links);
-        if (data.experiences)   renderExperiences(data.experiences);
+        if (data.experiences)   renderExperiences(data.experiences, language);
         if (data.technologies)  renderTechnologies(data.technologies);
         if (data.stacks)        renderChips(data.stacks);
 
@@ -220,7 +350,7 @@ function applyLanguage(language) {
     loadProfile(language);
 }
 
-//  Helpers 
+//  Helpers
 function setText(id, value) {
     const el = document.getElementById(id);
     if (el && value !== undefined) el.textContent = value;
@@ -231,8 +361,24 @@ function setHTML(id, value) {
     if (el && value !== undefined) el.innerHTML = value;
 }
 
-//  Init 
+//  Backend label
+/**
+ * The page is shared by every backend (cv-shared/web), so the footer asks
+ * the server which one is serving it instead of hard-coding the stack.
+ */
+async function loadBackendLabel() {
+    try {
+        const res  = await fetch('/api/backend');
+        const data = await res.json();
+        setText('backend-label', data.label);
+    } catch (err) {
+        console.error('Backend label loading error:', err);
+    }
+}
+
+//  Init
 document.addEventListener('DOMContentLoaded', () => {
     initLanguageSwitcher();
     checkHealth();
+    loadBackendLabel();
 });

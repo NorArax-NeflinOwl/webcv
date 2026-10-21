@@ -25,12 +25,13 @@ class ProfileService(
 
         val id = profile.id!!
 
-        val translation = profileTranslationRepository.findByProfileIdAndLanguage(id, language)
-            ?: profileTranslationRepository.findByProfileIdAndLanguage(id, "pl")
+        // Description, technologies and stack are this backend's own (column `backend`)
+        val translation = profileTranslationRepository.findByProfileIdAndBackendAndLanguage(id, BACKEND, language)
+            ?: profileTranslationRepository.findByProfileIdAndBackendAndLanguage(id, BACKEND, "pl")
 
         // Each collection loaded in a separate query — avoids MultipleBagFetchException
-        val skills      = profileSkillRepository.findByProfileId(id)
-        val stacks      = profileStackRepository.findByProfileId(id)
+        val skills      = profileSkillRepository.findByProfileIdAndBackend(id, BACKEND)
+        val stacks      = profileStackRepository.findByProfileIdAndBackend(id, BACKEND)
         val experiences = experienceRepository.findByProfileIdOrderByDateFromDesc(id)
 
         val experienceTranslations = fetchExperienceTranslations(experiences.mapNotNull { it.id }, language)
@@ -72,4 +73,9 @@ class ProfileService(
             profile.linkedinUrl?.takeIf { it.isNotBlank() }?.let { put("LinkedIn",   it) }
             profile.email?.takeIf       { it.isNotBlank() }?.let { put("E-mail",     it) }
         }
+
+    companion object {
+        /** This backend's rows in profile_translation, profile_skill and profile_stack; cv-asp.net reads "dotnet". */
+        const val BACKEND = "kotlin"
+    }
 }

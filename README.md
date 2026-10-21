@@ -11,12 +11,26 @@
 ![Flyway](https://img.shields.io/badge/Flyway-CC0200?style=flat&logo=flyway&logoColor=white)
 ![Gradle](https://img.shields.io/badge/Gradle-02303A?style=flat&logo=gradle&logoColor=white)
 ![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=flat&logo=html5&logoColor=white)
+![C#](https://img.shields.io/badge/C%23-512BD4?style=flat&logo=dotnet&logoColor=white)
+![ASP.NET Core](https://img.shields.io/badge/ASP.NET_Core-512BD4?style=flat&logo=dotnet&logoColor=white)
 
 ---
 
 ## About
 
 A series of mini-projects building an interactive CV as a web application. Each project focuses on a different technology stack  from backend and containerisation to real-time communication and frontend. The application will eventually be deployed on a public server as a skills showcase.
+
+The same application exists twice, with two interchangeable backends behind one frontend:
+
+```
+webcv/
+├── cv-shared/          pages (HTML/CSS/JS) and SQL migrations  used by both backends
+├── cv-spring-kotlin/   backend: Kotlin + Spring Boot          → http://localhost:8280
+├── cv-asp.net/         backend: C# + ASP.NET Core             → http://localhost:8281
+└── run.ps1             builds and (re)starts the backends in Docker
+```
+
+See [cv-shared/README.md](cv-shared/README.md) for the contract a backend has to fulfil.
 
 ---
 
@@ -47,9 +61,9 @@ A mini-game in the style of the Google Chrome Dino  a panda jumping over obstacl
 Built with plain HTML + CSS + JavaScript, served by the same Spring Boot server.
 Player scores are saved to PostgreSQL (`panda_game_player_score`) and displayed as a leaderboard.
 
-📁 Directory: `/cv-spring-kotlin/src/main/resources/templates/pandaGame.html`
-📁 Directory: `/cv-spring-kotlin/src/main/resources/static/css/pandaGameStyle.css`
-📁 Directory: `/cv-spring-kotlin/src/main/resources/static/js/pandaGame.js`
+📁 Directory: `/cv-shared/web/pandaGame.html`
+📁 Directory: `/cv-shared/web/css/pandaGameStyle.css`
+📁 Directory: `/cv-shared/web/js/pandaGame.js`
 
 **Technologies:**
 - HTML5 Canvas
@@ -89,57 +103,98 @@ WS   /api/pokertable/{id}/ws?token=…   ← TableSnapshotDto (pushed on every s
 
 ---
 
+### 04  CV Page: C# + ASP.NET Core + PostgreSQL + Docker
+> Status: ✅ Done
+
+The same CV, Panda Game and Poker Game with a .NET backend: the same pages and the same SQL migrations
+(from `cv-shared`), the same REST/WebSocket API, the same tests ported from Kotlin.
+
+📁 Directory: `/cv-asp.net`
+
+**Technologies:**
+- C# 14 + ASP.NET Core 10 (MVC controllers, static files, WebSockets, health checks)
+- PostgreSQL + EF Core (Npgsql) + DbUp (runs the Flyway-named scripts from `cv-shared/db/migration`)
+- `CvAspNet.Poker`  the Texas Hold'em engine as a separate library (no ASP.NET, no database)
+- Docker + Docker Compose (own database on port 5443)
+- xUnit + NSubstitute + SQLite in-memory + `WebApplicationFactory` (unit, repository, API and WebSocket tests)
+
+---
+
 ## Running the app
 
-**Requirements:** Docker
+**Requirements:** Docker (and PowerShell for `run.ps1`)
 
-```bash
+```powershell
 # Clone the repository
 git clone https://github.com/NorArax-NeflinOwl/webcv.git
-cd webcv/cv-spring-kotlin
+cd webcv
 
-# Start the full stack (app + database)
-docker compose up --build -d
+# Build from the current code and (re)start both backends; the data stays in the database volumes
+.\run.ps1                     # both: Kotlin on :8280, .NET on :8281
+.\run.ps1 -Backend dotnet     # or only one (kotlin | dotnet)
+.\run.ps1 -Backend kotlin -Logs   # and stay attached to its log
+```
+
+On the first run `run.ps1` creates each backend's `.env` from `.env.example` with a random database password.
+Without the script, each backend still runs on its own:
+
+```bash
+cd cv-spring-kotlin             # or cv-asp.net
+docker compose up --build -d    # needs .env (copy .env.example)
 
 # Tear everything down and remove images
 docker compose down -v --rmi all
 ```
 
-Application available at: `http://localhost:8080`
+Application available at: `http://localhost:8280` (Kotlin) and `http://localhost:8281` (.NET)  the endpoints are the same:
 
 | Endpoint | Description |
 |---|---|
-| `http://localhost:8080/` | CV page |
-| `http://localhost:8080/panda-game/` | Panda mini-game |
-| `http://localhost:8080/poker-game/` | Poker Game |
-| `http://localhost:8080/api/profileinfo` | Profile data (JSON) |
-| `http://localhost:8080/api/hello` | Hello World |
-| `http://localhost:8080/api/pandagame/scores` | Panda Game scores (GET  all scores, POST  save score) |
-| `http://localhost:8080/api/pokertable` | List poker tables (GET) / Create table (POST) |
-| `http://localhost:8080/api/pokertable/{id}/join` | Join a table (POST) |
-| `http://localhost:8080/api/pokertable/{id}/start` | Start a hand (POST) |
-| `ws://localhost:8080/api/pokertable/{id}/ws` | WebSocket  real-time game state |
-| `http://localhost:8080/actuator/health` | Application health |
+| `http://localhost:8280/` | CV page |
+| `http://localhost:8280/pandaGame` | Panda mini-game |
+| `http://localhost:8280/pokerGame` | Poker Game |
+| `http://localhost:8280/api/profileinfo` | Profile data (JSON) |
+| `http://localhost:8280/api/hello` | Hello World |
+| `http://localhost:8280/api/backend` | Which backend serves the page (footer label) |
+| `http://localhost:8280/api/pandagame/scores` | Panda Game scores (GET  all scores, POST  save score) |
+| `http://localhost:8280/api/pokertable` | List poker tables (GET) / Create table (POST) |
+| `http://localhost:8280/api/pokertable/{id}/join` | Join a table (POST) |
+| `http://localhost:8280/api/pokertable/{id}/start` | Start a hand (POST) |
+| `ws://localhost:8280/api/pokertable/{id}/ws` | WebSocket  real-time game state |
+| `http://localhost:8280/actuator/health` | Application health |
 
 ---
 
 ## Running locally (without Docker)
 
-**Requirements:** JDK 17+, PostgreSQL 16
+**Kotlin**  requirements: JDK 21, PostgreSQL 16
 
 ```bash
-# Start PostgreSQL via Docker
-docker compose up db -d
+cd cv-spring-kotlin
+docker compose up db -d     # PostgreSQL via Docker (port 5442)
+./gradlew bootRun           # DATABASE_URL / DATABASE_USERNAME / DATABASE_PASSWORD as in .env.example
+```
 
-# Run the application
-./gradlew bootRun
+**.NET**  requirements: .NET 10 SDK, PostgreSQL 16
+
+```bash
+cd cv-asp.net
+docker compose up db -d     # PostgreSQL via Docker (port 5443)
+dotnet run --project src/CvAspNet.Web   # Database__Password (and ConnectionStrings__CvDatabase) as in .env.example
 ```
 
 ## Tests
 
 ```bash
-./gradlew test
+cd cv-spring-kotlin && ./gradlew test
+cd cv-asp.net && dotnet test
 ```
+
+**.NET:** the same cases as below, ported to xUnit + NSubstitute; the repository tests use SQLite in-memory
+instead of H2. On top of that: API tests on the real application (`WebApplicationFactory`, SQLite), the poker
+REST + WebSocket protocol end to end, the shared pages being served, and the order of the shared migrations.
+
+**Kotlin:**
 
 Unit tests (`ProfileServiceTest`, `PandaGameServiceTest`) and controller tests
 (`ProfileControllerTest`, `PandaGameControllerTest`) use MockK.
@@ -162,6 +217,7 @@ and hand evaluation. The integration test (`PokerGameIntegrationTest`) verifies 
 - [x] Project 03  Bots (RandomBot) + engine & integration tests
 - [ ] Project 03  Advanced bot difficulty levels
 - [ ] Project 03  Multiplayer
+- [x] Project 04  C# + ASP.NET Core backend (parity with Kotlin, shared pages and migrations)
 - [ ] Deploy to hosting
 
 ---

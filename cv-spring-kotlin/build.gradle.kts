@@ -21,7 +21,6 @@ repositories {
 }
 
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-websocket")
@@ -40,6 +39,16 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("io.mockk:mockk:1.13.10")
     testRuntimeOnly("com.h2database:h2")
+}
+
+sourceSets {
+    main {
+        resources {
+            // Pages (web/) and Flyway migrations (db/migration/) shared with cv-asp.net
+            srcDir("../cv-shared")
+            exclude("README.md")
+        }
+    }
 }
 
 kotlin {
