@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 
 class GameEngineTest {
 
-    // ── Helpers ──────────────────────────────────────────────
+    //  Helpers 
 
     private fun player(id: String, name: String, coins: Int = 1000) = Player(
         id        = PlayerId(id),
@@ -47,7 +47,7 @@ class GameEngineTest {
         engine = GameEngine(tableId = TableId("test"), blindAmount = 10)
     }
 
-    // ── startHand ────────────────────────────────────────────
+    //  startHand 
 
     @Test
     fun `startHand requires at least 2 players`() {
@@ -87,7 +87,7 @@ class GameEngineTest {
         assertNull(p1view.holeCards)     // opponent cards hidden
     }
 
-    // ── Action validation ────────────────────────────────────
+    //  Action validation 
 
     @Test
     fun `action out of turn throws`() = runBlocking {
@@ -109,7 +109,7 @@ class GameEngineTest {
         engine.addPlayer(p1)
         engine.startHand()
 
-        // SB posted 5, currentBet=10 — must call 5 more, cannot check
+        // SB posted 5, currentBet=10  must call 5 more, cannot check
         val firstToAct = engine.snapshot().currentTurnId!!
         val toCall     = engine.snapshot(firstToAct).toCall
 
@@ -120,10 +120,10 @@ class GameEngineTest {
         }
     }
 
-    // ── Fold ─────────────────────────────────────────────────
+    //  Fold 
 
     @Test
-    fun `fold — pot goes to the only remaining player`() = runBlocking {
+    fun `fold  pot goes to the only remaining player`() = runBlocking {
         engine = GameEngine(
             tableId     = TableId("test"),
             blindAmount = 10,
@@ -155,7 +155,7 @@ class GameEngineTest {
     }
 
     @Test
-    fun `fold — total chips are conserved`() = runBlocking {
+    fun `fold  total chips are conserved`() = runBlocking {
         engine.addPlayer(p0)
         engine.addPlayer(p1)
         engine.startHand()
@@ -167,10 +167,10 @@ class GameEngineTest {
             "Total chips must be conserved after fold")
     }
 
-    // ── Full hand to showdown ────────────────────────────────
+    //  Full hand to showdown 
 
     @Test
-    fun `full hand — showdown reached after call and checks, chips conserved`() = runBlocking {
+    fun `full hand  showdown reached after call and checks, chips conserved`() = runBlocking {
         engine = GameEngine(
             tableId     = TableId("test"),
             blindAmount = 10,
@@ -203,10 +203,10 @@ class GameEngineTest {
         assertEquals(2000, finalSnap.players.sumOf { it.coins })
     }
 
-    // ── Tie (split pot) ──────────────────────────────────────
+    //  Tie (split pot) 
 
     @Test
-    fun `tie — pot split evenly, both players return to starting chips`() = runBlocking {
+    fun `tie  pot split evenly, both players return to starting chips`() = runBlocking {
         // Both hole cards are irrelevant; board = A-A-A-A-K → Four Aces + King for both
         engine = GameEngine(
             tableId     = TableId("test"),
@@ -247,7 +247,7 @@ class GameEngineTest {
     }
 
     @Test
-    fun `tie — total chips are conserved`() = runBlocking {
+    fun `tie  total chips are conserved`() = runBlocking {
         engine = GameEngine(
             tableId     = TableId("test"),
             blindAmount = 10,
@@ -276,10 +276,10 @@ class GameEngineTest {
             "Total chips must be conserved after a split pot")
     }
 
-    // ── Raise ────────────────────────────────────────────────
+    //  Raise 
 
     @Test
-    fun `raise — opponent must respond`() = runBlocking {
+    fun `raise  opponent must respond`() = runBlocking {
         engine.addPlayer(p0)
         engine.addPlayer(p1)
         engine.startHand()
@@ -293,7 +293,7 @@ class GameEngineTest {
     }
 
     @Test
-    fun `raise — check after raise is illegal`() = runBlocking {
+    fun `raise  check after raise is illegal`() = runBlocking {
         engine.addPlayer(p0)
         engine.addPlayer(p1)
         engine.startHand()

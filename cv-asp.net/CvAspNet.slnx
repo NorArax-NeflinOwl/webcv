@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/CvAspNet.Poker/CvAspNet.Poker.csproj" />
+    <Project Path="src/CvAspNet.Web/CvAspNet.Web.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/CvAspNet.Tests/CvAspNet.Tests.csproj" />
+  </Folder>
+</Solution>

@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap
  * In-memory repository of active poker tables.
  *
  * Each table is a [GameEngine] instance identified by a [TableId].
- * Uses [ConcurrentHashMap] — safe under concurrent HTTP/WebSocket requests
+ * Uses [ConcurrentHashMap]  safe under concurrent HTTP/WebSocket requests
  * without a global lock (each [GameEngine] has its own per-table Mutex).
  */
 @Repository
@@ -21,9 +21,9 @@ class TableRepository {
 
     private val tables = ConcurrentHashMap<String, GameEngine>()
 
-    // ─────────────────────────────────────────────────────────────────────────
+    // 
     // Create / retrieve
-    // ─────────────────────────────────────────────────────────────────────────
+    // 
 
     /**
      * Creates a new table with a random UUID and returns its [TableId].
@@ -48,14 +48,14 @@ class TableRepository {
     }
 
     /**
-     * Returns the [GameEngine] or throws [NoSuchElementException] — convenient in routing.
+     * Returns the [GameEngine] or throws [NoSuchElementException]  convenient in routing.
      */
     fun getOrThrow(tableId: TableId): GameEngine =
         get(tableId) ?: throw NoSuchElementException("Table not found: ${tableId.value}")
 
-    // ─────────────────────────────────────────────────────────────────────────
+    // 
     // Remove
-    // ─────────────────────────────────────────────────────────────────────────
+    // 
 
     /**
      * Removes a table (e.g. when all players have left).
@@ -71,11 +71,11 @@ class TableRepository {
         return removed
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
+    // 
     // Utilities
-    // ─────────────────────────────────────────────────────────────────────────
+    // 
 
-    /** Number of currently active tables — useful for metrics / actuator. */
+    /** Number of currently active tables  useful for metrics / actuator. */
     fun count(): Int = tables.size
 
     /** Snapshot of all active table IDs (order not guaranteed). */

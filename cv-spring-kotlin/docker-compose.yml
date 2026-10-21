@@ -1,8 +1,16 @@
+name: cv-spring-kotlin
+
 services:
   app:
-    build: .
+    image: cv-spring-kotlin:latest
+    build:
+      # The repository root: the image also needs cv-shared (pages and migrations).
+      context: ..
+      dockerfile: cv-spring-kotlin/Dockerfile
+      args:
+        BUILD_ID: ${BUILD_ID:-manual}
     ports:
-      - "8080:8080"
+      - "8280:8280"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
@@ -18,7 +26,8 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
-      - "5432:5432"
+      # Published for "./gradlew bootRun"; POSTGRES_HOST_PORT in .env overrides the default 5442.
+      - "${POSTGRES_HOST_PORT:-5442}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:

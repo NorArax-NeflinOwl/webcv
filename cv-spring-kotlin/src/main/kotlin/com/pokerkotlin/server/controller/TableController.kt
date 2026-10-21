@@ -51,9 +51,9 @@ class TableController(
 
     private val secureRandom = SecureRandom()
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // GET /api/pokertable — list all active tables
-    // ─────────────────────────────────────────────────────────────────────────
+    // 
+    // GET /api/pokertable  list all active tables
+    // 
 
     /**
      * Returns a list of all currently active table IDs.
@@ -72,9 +72,9 @@ class TableController(
         )
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // POST /api/pokertable — create a new table (with 2 bots pre-seated)
-    // ─────────────────────────────────────────────────────────────────────────
+    // 
+    // POST /api/pokertable  create a new table (with 2 bots pre-seated)
+    // 
 
     /**
      * Creates a new poker table and pre-seats two RandomBot players.
@@ -107,9 +107,9 @@ class TableController(
         return CreateTableResponse(tableId.value)
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // POST /api/pokertable/{id}/join — add a human player and issue a session token
-    // ─────────────────────────────────────────────────────────────────────────
+    // 
+    // POST /api/pokertable/{id}/join  add a human player and issue a session token
+    // 
 
     /**
      * Adds a human player to an existing table and returns a session token.
@@ -139,16 +139,16 @@ class TableController(
                 holeCards = Hand(emptyList()),
                 isBot = false,
             ),
-            strategy = null,    // human — actions come through WebSocket
+            strategy = null,    // human  actions come through WebSocket
         )
 
         val token = sessionRegistry.create(playerId = playerId, tableId = tableId)
         return JoinTableResponse(sessionToken = token, playerId = playerId.value)
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // POST /api/pokertable/{id}/start — start the first (or next) hand
-    // ─────────────────────────────────────────────────────────────────────────
+    // 
+    // POST /api/pokertable/{id}/start  start the first (or next) hand
+    // 
 
     /**
      * Starts a new hand on the table.
@@ -169,9 +169,9 @@ class TableController(
         val engine = tableRepository.get(tableId)
             ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Table not found: $id")
 
-        // startHand is a suspend function — bridge to blocking context.
+        // startHand is a suspend function  bridge to blocking context.
         // IllegalArgumentException means the engine rejected the request (e.g. hand already in progress
-        // or not enough players) — map to 409 Conflict rather than letting Spring emit a 500.
+        // or not enough players)  map to 409 Conflict rather than letting Spring emit a 500.
         try {
             runBlocking { engine.startHand() }
         } catch (ex: IllegalArgumentException) {
@@ -179,9 +179,9 @@ class TableController(
         }
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // GET /api/pokertable/{id}/snapshot — REST snapshot (polling fallback)
-    // ─────────────────────────────────────────────────────────────────────────
+    // 
+    // GET /api/pokertable/{id}/snapshot  REST snapshot (polling fallback)
+    // 
 
     /**
      * Returns a JSON snapshot of the table from the requesting player's perspective.

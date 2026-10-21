@@ -23,6 +23,7 @@ class RepositoryTest {
 
     @Autowired lateinit var em: TestEntityManager
     @Autowired lateinit var profileRepository: ProfileRepository
+    @Autowired lateinit var profileTranslationRepository: ProfileTranslationRepository
     @Autowired lateinit var profileSkillRepository: ProfileSkillRepository
     @Autowired lateinit var profileStackRepository: ProfileStackRepository
     @Autowired lateinit var experienceRepository: ExperienceRepository
@@ -36,11 +37,19 @@ class RepositoryTest {
                 githubUrl = "https://github.com/test")
         )
         val savedSkill = em.persistAndFlush(Skill(name = "Kotlin", category = "primary language"))
-        em.persistAndFlush(ProfileSkill(profile = savedProfile, skill = savedSkill,
+        em.persistAndFlush(ProfileSkill(profile = savedProfile, backend = "kotlin", skill = savedSkill,
+            tag = "primary language", sortOrder = 1))
+        val dotnetSkill = em.persistAndFlush(Skill(name = "C#", category = "primary language"))
+        em.persistAndFlush(ProfileSkill(profile = savedProfile, backend = "dotnet", skill = dotnetSkill,
             tag = "primary language", sortOrder = 1))
 
         val savedStackItem = em.persistAndFlush(StackItem(label = "JVM 17", sortOrder = 1))
-        em.persistAndFlush(ProfileStack(profile = savedProfile, stackItem = savedStackItem, sortOrder = 1))
+        em.persistAndFlush(ProfileStack(profile = savedProfile, backend = "kotlin", stackItem = savedStackItem, sortOrder = 1))
+        val dotnetStackItem = em.persistAndFlush(StackItem(label = ".NET 10", sortOrder = 1))
+        em.persistAndFlush(ProfileStack(profile = savedProfile, backend = "dotnet", stackItem = dotnetStackItem, sortOrder = 1))
+
+        em.persistAndFlush(ProfileTranslation(profile = savedProfile, backend = "kotlin", language = "pl", bio = "Bio Kotlin"))
+        em.persistAndFlush(ProfileTranslation(profile = savedProfile, backend = "dotnet", language = "pl", bio = "Bio .NET"))
 
         em.persistAndFlush(Experience(profile = savedProfile, company = "Firma Sp. z o.o.",
             position = "Developer", contractType = "B2B",
@@ -48,7 +57,7 @@ class RepositoryTest {
         em.clear()
     }
 
-    // ── ProfileRepository ─────────────────────────────────
+    //  ProfileRepository 
 
     @Test
     fun `findFirst zwraca profil gdy istnieje`() {
@@ -63,17 +72,27 @@ class RepositoryTest {
     fun `findFirst zwraca null gdy brak profilu`() {
         em.entityManager.createQuery("DELETE FROM ProfileSkill").executeUpdate()
         em.entityManager.createQuery("DELETE FROM ProfileStack").executeUpdate()
+        em.entityManager.createQuery("DELETE FROM ProfileTranslation").executeUpdate()
         em.entityManager.createQuery("DELETE FROM Experience").executeUpdate()
         em.entityManager.createQuery("DELETE FROM Profile").executeUpdate()
 
         assertNull(profileRepository.findFirst())
     }
 
-    // ── ProfileSkillRepository ────────────────────────────
+    //  ProfileTranslationRepository
 
     @Test
-    fun `findByProfileId zwraca skille dla profilu`() {
-        val result = profileSkillRepository.findByProfileId(savedProfile.id!!)
+    fun `findByProfileIdAndBackendAndLanguage zwraca tlumaczenie danego backendu`() {
+        assertEquals("Bio Kotlin", profileTranslationRepository.findByProfileIdAndBackendAndLanguage(savedProfile.id!!, "kotlin", "pl")?.bio)
+        assertEquals("Bio .NET", profileTranslationRepository.findByProfileIdAndBackendAndLanguage(savedProfile.id!!, "dotnet", "pl")?.bio)
+        assertNull(profileTranslationRepository.findByProfileIdAndBackendAndLanguage(savedProfile.id!!, "kotlin", "en"))
+    }
+
+    //  ProfileSkillRepository
+
+    @Test
+    fun `findByProfileIdAndBackend zwraca skille dla profilu i backendu`() {
+        val result = profileSkillRepository.findByProfileIdAndBackend(savedProfile.id!!, "kotlin")
 
         assertEquals(1, result.size)
         assertEquals("Kotlin", result.first().skill.name)
@@ -81,22 +100,36 @@ class RepositoryTest {
     }
 
     @Test
-    fun `findByProfileId zwraca pusta liste dla nieznanego profilu`() {
-        val inny = em.persistAndFlush(Profile(name = "Inny"))
-        assertTrue(profileSkillRepository.findByProfileId(inny.id!!).isEmpty())
+    fun `findByProfileIdAndBackend zwraca skille innego backendu osobno`() {
+        val result = profileSkillRepository.findByProfileIdAndBackend(savedProfile.id!!, "dotnet")
+
+        assertEquals(listOf("C#"), result.map { it.skill.name })
     }
 
-    // ── ProfileStackRepository ────────────────────────────
+    @Test
+    fun `findByProfileIdAndBackend zwraca pusta liste dla nieznanego profilu`() {
+        val inny = em.persistAndFlush(Profile(name = "Inny"))
+        assertTrue(profileSkillRepository.findByProfileIdAndBackend(inny.id!!, "kotlin").isEmpty())
+    }
+
+    //  ProfileStackRepository
 
     @Test
-    fun `findByProfileId zwraca stack items dla profilu`() {
-        val result = profileStackRepository.findByProfileId(savedProfile.id!!)
+    fun `findByProfileIdAndBackend zwraca stack items dla profilu i backendu`() {
+        val result = profileStackRepository.findByProfileIdAndBackend(savedProfile.id!!, "kotlin")
 
         assertEquals(1, result.size)
         assertEquals("JVM 17", result.first().stackItem.label)
     }
 
-    // ── ExperienceRepository ──────────────────────────────
+    @Test
+    fun `findByProfileIdAndBackend zwraca stack items innego backendu osobno`() {
+        val result = profileStackRepository.findByProfileIdAndBackend(savedProfile.id!!, "dotnet")
+
+        assertEquals(listOf(".NET 10"), result.map { it.stackItem.label })
+    }
+
+    //  ExperienceRepository 
 
     @Test
     fun `findByProfileIdOrderByDateFromDesc zwraca doswiadczenie`() {

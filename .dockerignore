@@ -1,0 +1,19 @@
+# Both images build from the repository root (cv-spring-kotlin/Dockerfile, cv-asp.net/Dockerfile):
+# only sources go into the context, no build output, tests or secrets.
+.git/
+.claude/
+temp/
+**/.gradle/
+**/build/
+**/bin/
+**/obj/
+**/.idea/
+**/.vs/
+**/.vscode/
+**/.kotlin/
+**/TestResults/
+**/*.user
+**/.env
+**/*.md
+cv-spring-kotlin/src/test/
+cv-asp.net/tests/

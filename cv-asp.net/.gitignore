@@ -1,0 +1,11 @@
+bin/
+obj/
+.vs/
+.vscode/
+.idea/
+*.user
+TestResults/
+
+### Secrets  never commit these ###
+.env
+!.env.example

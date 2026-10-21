@@ -19,14 +19,17 @@ import java.util.UUID
 class ProfileServiceTest {
 
     @MockK lateinit var profileRepository: ProfileRepository
+    @MockK lateinit var profileTranslationRepository: ProfileTranslationRepository
     @MockK lateinit var profileSkillRepository: ProfileSkillRepository
     @MockK lateinit var profileStackRepository: ProfileStackRepository
     @MockK lateinit var experienceRepository: ExperienceRepository
+    @MockK lateinit var experienceTranslationRepository: ExperienceTranslationRepository
 
     @InjectMockKs
     lateinit var profileService: ProfileService
 
-    private val profileId = UUID.randomUUID()
+    private val profileId    = UUID.randomUUID()
+    private val experienceId = UUID.randomUUID()
 
     private val defaultProfile = Profile(
         id           = profileId,
@@ -39,6 +42,24 @@ class ProfileServiceTest {
         email        = "test@example.com",
         githubUrl    = "https://github.com/test",
         linkedinUrl  = "https://linkedin.com/in/test"
+    )
+
+    private val defaultTranslationPl = ProfileTranslation(
+        profile  = defaultProfile,
+        language = "pl",
+        eyebrow  = "backend developer",
+        role     = "<span>Kotlin</span>",
+        bio      = "Test bio",
+        footer   = "dostępny"
+    )
+
+    private val defaultTranslationEn = ProfileTranslation(
+        profile  = defaultProfile,
+        language = "en",
+        eyebrow  = "backend developer",
+        role     = "<span>Kotlin</span>",
+        bio      = "Test bio EN",
+        footer   = "available"
     )
 
     private val defaultSkills = listOf(
@@ -57,43 +78,64 @@ class ProfileServiceTest {
     )
 
     private val defaultStacks = listOf(
-        ProfileStack(profile = defaultProfile, stackItem = StackItem(label = "JVM 17",  sortOrder = 1), sortOrder = 1),
-        ProfileStack(profile = defaultProfile, stackItem = StackItem(label = "Docker",  sortOrder = 2), sortOrder = 2)
+        ProfileStack(profile = defaultProfile, stackItem = StackItem(label = "JVM 17", sortOrder = 1), sortOrder = 1),
+        ProfileStack(profile = defaultProfile, stackItem = StackItem(label = "Docker", sortOrder = 2), sortOrder = 2)
     )
 
     private val defaultExperience = Experience(
+        id           = experienceId,
         profile      = defaultProfile,
         company      = "Test Company Ltd.",
-        position     = "Developer",
+        position     = "Developer PL",
         contractType = "B2B",
         dateFrom     = LocalDate.of(2023, 1, 1),
         isCurrent    = true,
-        description  = "Description"
+        description  = "Description PL"
+    )
+
+    private val defaultExperienceTranslationPl = ExperienceTranslation(
+        experience    = defaultExperience,
+        language      = "pl",
+        position      = "Developer PL",
+        contractType  = "B2B",
+        description   = "Description PL"
+    )
+
+    private val defaultExperienceTranslationEn = ExperienceTranslation(
+        experience    = defaultExperience,
+        language      = "en",
+        position      = "Developer EN",
+        contractType  = "B2B",
+        description   = "Description EN"
     )
 
     @BeforeEach
     fun setUp() {
         every { profileRepository.findFirst() } returns defaultProfile
-        every { profileSkillRepository.findByProfileId(profileId) } returns defaultSkills
-        every { profileStackRepository.findByProfileId(profileId) } returns defaultStacks
+        every { profileTranslationRepository.findByProfileIdAndBackendAndLanguage(profileId, "kotlin", "pl") } returns defaultTranslationPl
+        every { profileTranslationRepository.findByProfileIdAndBackendAndLanguage(profileId, "kotlin", "en") } returns defaultTranslationEn
+        every { profileSkillRepository.findByProfileIdAndBackend(profileId, "kotlin") } returns defaultSkills
+        every { profileStackRepository.findByProfileIdAndBackend(profileId, "kotlin") } returns defaultStacks
         every { experienceRepository.findByProfileIdOrderByDateFromDesc(profileId) } returns listOf(defaultExperience)
+        every { experienceTranslationRepository.findByExperienceIdsAndLanguage(listOf(experienceId), "pl") } returns listOf(defaultExperienceTranslationPl)
+        every { experienceTranslationRepository.findByExperienceIdsAndLanguage(listOf(experienceId), "en") } returns listOf(defaultExperienceTranslationEn)
     }
 
-    // ── Basic data ────────────────────────────────────────
+    //  Basic data
 
     @Test
     fun `getProfile returns correct basic data`() {
         val result = profileService.getProfile()
 
-        assertEquals("Jan Kowalski — Backend Developer", result.title)
+        assertEquals("Jan Kowalski  Backend Developer", result.title)
         assertEquals("backend developer", result.eyebrow)
         assertEquals("Jan Kowalski", result.name)
         assertEquals("<span>Kotlin</span>", result.role)
         assertEquals("Test bio", result.bio)
-        assertEquals("available", result.footer)
+        assertEquals("dostępny", result.footer)
     }
 
-    // ── Footer status ─────────────────────────────────────
+    //  Footer status
 
     @Test
     fun `getProfile returns YELLOW footerStatus by default`() {
@@ -120,7 +162,7 @@ class ProfileServiceTest {
         assertEquals("RED", result.footerStatus)
     }
 
-    // ── Links ─────────────────────────────────────────────
+    //  Links
 
     @Test
     fun `getProfile returns correct links`() {
@@ -153,7 +195,7 @@ class ProfileServiceTest {
         assertTrue(result.links.isEmpty())
     }
 
-    // ── Technologies and stack ────────────────────────────
+    //  Technologies and stack
 
     @Test
     fun `getProfile returns correct technologies`() {
@@ -170,13 +212,39 @@ class ProfileServiceTest {
         assertEquals(listOf("JVM 17", "Docker"), result.stacks)
     }
 
-    // ── Null values ───────────────────────────────────────
+    //  Language
 
     @Test
-    fun `getProfile returns empty strings when fields are null`() {
-        every { profileRepository.findFirst() } returns defaultProfile.copy(
-            eyebrow = null, role = null, bio = null, footer = null
-        )
+    fun `getProfile defaults to pl language`() {
+        val result = profileService.getProfile()
+
+        assertEquals("dostępny", result.footer)
+    }
+
+    @Test
+    fun `getProfile returns EN translation when lang=en`() {
+        val result = profileService.getProfile("en")
+
+        assertEquals("Test bio EN", result.bio)
+        assertEquals("available", result.footer)
+    }
+
+    @Test
+    fun `getProfile falls back to pl when requested language has no translation`() {
+        every { profileTranslationRepository.findByProfileIdAndBackendAndLanguage(profileId, "kotlin", "de") } returns null
+        every { experienceTranslationRepository.findByExperienceIdsAndLanguage(listOf(experienceId), "de") } returns emptyList()
+
+        val result = profileService.getProfile("de")
+
+        assertEquals("dostępny", result.footer)
+    }
+
+    //  Null values
+
+    @Test
+    fun `getProfile returns empty strings when translation fields are null`() {
+        every { profileTranslationRepository.findByProfileIdAndBackendAndLanguage(profileId, "kotlin", "pl") } returns
+            defaultTranslationPl.copy(eyebrow = null, role = null, bio = null, footer = null)
 
         val result = profileService.getProfile()
 
@@ -186,20 +254,30 @@ class ProfileServiceTest {
         assertEquals("", result.footer)
     }
 
-    // ── Experience ────────────────────────────────────────
+    //  Experience
 
     @Test
-    fun `getProfile returns correct experience`() {
+    fun `getProfile returns correct experience with PL translation`() {
         val result = profileService.getProfile()
 
         assertEquals(1, result.experiences.size)
         val exp = result.experiences.first()
         assertEquals("Test Company Ltd.", exp.company)
-        assertEquals("Developer", exp.position)
+        assertEquals("Developer PL", exp.position)
         assertEquals("B2B", exp.contractType)
         assertEquals("2023-01-01", exp.dateFrom)
         assertNull(exp.dateTo)
         assertTrue(exp.isCurrent)
+        assertEquals("Description PL", exp.description)
+    }
+
+    @Test
+    fun `getProfile returns correct experience with EN translation`() {
+        val result = profileService.getProfile("en")
+
+        val exp = result.experiences.first()
+        assertEquals("Developer EN", exp.position)
+        assertEquals("Description EN", exp.description)
     }
 
     @Test
@@ -214,7 +292,7 @@ class ProfileServiceTest {
         assertFalse(result.experiences.first().isCurrent)
     }
 
-    // ── Errors ────────────────────────────────────────────
+    //  Errors
 
     @Test
     fun `getProfile throws exception when profile not in database`() {
@@ -226,14 +304,14 @@ class ProfileServiceTest {
 
     @Test
     fun `getProfile returns empty technologies when no skills`() {
-        every { profileSkillRepository.findByProfileId(profileId) } returns emptyList()
+        every { profileSkillRepository.findByProfileIdAndBackend(profileId, "kotlin") } returns emptyList()
 
         assertTrue(profileService.getProfile().technologies.isEmpty())
     }
 
     @Test
     fun `getProfile returns empty stacks when no stack items`() {
-        every { profileStackRepository.findByProfileId(profileId) } returns emptyList()
+        every { profileStackRepository.findByProfileIdAndBackend(profileId, "kotlin") } returns emptyList()
 
         assertTrue(profileService.getProfile().stacks.isEmpty())
     }
@@ -241,20 +319,23 @@ class ProfileServiceTest {
     @Test
     fun `getProfile returns empty experiences when none exist`() {
         every { experienceRepository.findByProfileIdOrderByDateFromDesc(profileId) } returns emptyList()
+        every { experienceTranslationRepository.findByExperienceIdsAndLanguage(emptyList(), "pl") } returns emptyList()
 
         assertTrue(profileService.getProfile().experiences.isEmpty())
     }
 
-    // ── Call verification ─────────────────────────────────
+    //  Call verification
 
     @Test
     fun `getProfile calls all repositories exactly once`() {
         profileService.getProfile()
 
         verify(exactly = 1) { profileRepository.findFirst() }
-        verify(exactly = 1) { profileSkillRepository.findByProfileId(profileId) }
-        verify(exactly = 1) { profileStackRepository.findByProfileId(profileId) }
+        verify(exactly = 1) { profileTranslationRepository.findByProfileIdAndBackendAndLanguage(profileId, "kotlin", "pl") }
+        verify(exactly = 1) { profileSkillRepository.findByProfileIdAndBackend(profileId, "kotlin") }
+        verify(exactly = 1) { profileStackRepository.findByProfileIdAndBackend(profileId, "kotlin") }
         verify(exactly = 1) { experienceRepository.findByProfileIdOrderByDateFromDesc(profileId) }
+        verify(exactly = 1) { experienceTranslationRepository.findByExperienceIdsAndLanguage(listOf(experienceId), "pl") }
     }
 
     @Test
@@ -263,8 +344,9 @@ class ProfileServiceTest {
 
         assertThrows<IllegalStateException> { profileService.getProfile() }
 
-        verify(exactly = 0) { profileSkillRepository.findByProfileId(any()) }
-        verify(exactly = 0) { profileStackRepository.findByProfileId(any()) }
+        verify(exactly = 0) { profileTranslationRepository.findByProfileIdAndBackendAndLanguage(any(), any(), any()) }
+        verify(exactly = 0) { profileSkillRepository.findByProfileIdAndBackend(any(), any()) }
+        verify(exactly = 0) { profileStackRepository.findByProfileIdAndBackend(any(), any()) }
         verify(exactly = 0) { experienceRepository.findByProfileIdOrderByDateFromDesc(any()) }
     }
 }

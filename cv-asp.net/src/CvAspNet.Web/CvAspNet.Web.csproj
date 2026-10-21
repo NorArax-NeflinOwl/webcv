@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <!-- cv-shared: pages and SQL migrations shared with cv-spring-kotlin. -->
+    <SharedDirectory>$(MSBuildThisFileDirectory)..\..\..\cv-shared\</SharedDirectory>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CvAspNet.Poker\CvAspNet.Poker.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="dbup-postgresql" Version="7.0.1" />
+    <PackageReference Include="EFCore.NamingConventions" Version="10.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="10.0.13" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Served as the site root from "web" next to the assembly (not wwwroot: no static web assets pipeline). -->
+    <Content Include="$(SharedDirectory)web\**\*" Link="web\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <!-- Flyway-named scripts (V<version>__<description>.sql), applied in version order by DatabaseMigrator. -->
+    <EmbeddedResource Include="$(SharedDirectory)db\migration\*.sql" LogicalName="db/migration/%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="CvAspNet.Tests" />
+  </ItemGroup>
+
+</Project>

@@ -21,7 +21,6 @@ repositories {
 }
 
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-websocket")
@@ -42,6 +41,16 @@ dependencies {
     testRuntimeOnly("com.h2database:h2")
 }
 
+sourceSets {
+    main {
+        resources {
+            // Pages (web/) and Flyway migrations (db/migration/) shared with cv-asp.net
+            srcDir("../cv-shared")
+            exclude("README.md")
+        }
+    }
+}
+
 kotlin {
     compilerOptions {
         freeCompilerArgs.addAll("-Xjsr305=strict")
@@ -50,4 +59,24 @@ kotlin {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+val dockerUp by tasks.registering(Exec::class) {
+    group = "docker"
+    description = "Start all services via Docker Compose (rebuild images)"
+    commandLine("docker", "compose", "up", "--build", "-d")
+}
+
+val dockerDown by tasks.registering(Exec::class) {
+    group = "docker"
+    description = "Stop all services and remove volumes and images"
+    commandLine("docker", "compose", "down", "-v", "--rmi", "all")
+}
+
+tasks.named("build") {
+    finalizedBy(dockerUp)
+}
+
+tasks.named("clean") {
+    finalizedBy(dockerDown)
 }

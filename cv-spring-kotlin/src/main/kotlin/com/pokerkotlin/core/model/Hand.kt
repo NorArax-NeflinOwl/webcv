@@ -3,7 +3,7 @@ package com.pokerkotlin.core.model
 import com.pokerkotlin.core.evaluation.HandEvaluator
 
 /**
- * Represents a set of cards — either a player's hole cards (2 cards)
+ * Represents a set of cards  either a player's hole cards (2 cards)
  * or a full evaluation hand (5–7 cards: hole cards + board).
  *
  * [compareTo] is only valid for evaluation hands (5–7 cards) and delegates
