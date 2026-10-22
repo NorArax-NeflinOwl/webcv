@@ -1,0 +1,9 @@
+# Shell scripts must keep LF regardless of core.autocrlf: a CRLF shebang ("#!/bin/sh\r") is not a valid
+# interpreter path on Linux, so the script fails inside a container with a misleading "not found".
+# cv-spring-kotlin/.gitattributes does the same for gradlew.
+*.sh text eol=lf
+
+# Windows-only scripts keep CRLF.
+*.ps1 text eol=crlf
+*.cmd text eol=crlf
+*.bat text eol=crlf

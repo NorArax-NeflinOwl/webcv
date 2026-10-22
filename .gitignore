@@ -1,1 +1,36 @@
 /temp/*
+
+# ---- Secrets and credentials - never commit these. ----
+# Each backend keeps its own .env next to its docker-compose.yml (made by "run webcv.ps1" from .env.example).
+.env
+.env.*
+!.env.example
+secrets/
+credentials/
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+*.Development.json
+docker-compose.override.yml
+# The user's own notes (machine-migration checklist etc.), never shared.
+*.local.md
+
+# ---- Claude Code: ephemeral state. ----
+/.claude/worktrees/
+/.claude/settings.local.json
+
+# ---- IDEs and build output (the backends' own .gitignore files add their specifics). ----
+/.vs/
+**/.vs/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/tasks.json
+.idea/
+*.user
+**/bin/
+**/obj/
+.DS_Store
