@@ -90,9 +90,9 @@ public class DatabaseMigratorTests
         var scripts = DatabaseMigrator.LoadScripts();
 
         Assert.Equal(
-            ["V1__init.sql", "V2__seed.sql", "V3__update_skills_and_stack.sql", "V4__add_translations.sql", "V5__split_profile_by_backend.sql"],
+            ["V1__init.sql", "V2__seed.sql", "V3__update_skills_and_stack.sql", "V4__add_translations.sql", "V5__split_profile_by_backend.sql", "V6__real_experience.sql"],
             scripts.Select(script => script.Name));
-        Assert.Equal([1, 2, 3, 4, 5], scripts.Select(script => script.SqlScriptOptions.RunGroupOrder));
+        Assert.Equal([1, 2, 3, 4, 5, 6], scripts.Select(script => script.SqlScriptOptions.RunGroupOrder));
         Assert.Contains("CREATE TABLE profile", scripts[0].Contents);
     }
 }
