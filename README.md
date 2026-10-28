@@ -164,6 +164,21 @@ Application available at: `http://localhost:8280` (Kotlin) and `http://localhost
 | `ws://localhost:8280/api/pokertable/{id}/ws` | WebSocket  real-time game state |
 | `http://localhost:8280/actuator/health` | Application health |
 
+### On the home server (behind the gateway)
+
+The public deployment runs the .NET backend in Docker on a home Linux server, behind a Raspberry Pi gateway whose
+Caddy terminates TLS and proxies to it (`wss:` included: the page picks the WebSocket scheme from its own address).
+The only difference is where the ports are published, set in `cv-asp.net/.env` (see `.env.example`): the application
+on the server's LAN address, which only the gateway may reach, and the database on loopback.
+
+```bash
+cd cv-asp.net
+# .env as in .env.example, with a random POSTGRES_PASSWORD, plus:
+#   APP_HOST_PORT=192.168.1.5:8281
+#   POSTGRES_HOST_PORT=127.0.0.1:5443
+sudo docker compose up --build -d
+```
+
 ---
 
 ## Running locally (without Docker)
