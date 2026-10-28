@@ -156,18 +156,18 @@ Aplikacja dostępna pod adresem: `http://localhost:8280` (Kotlin) i `http://loca
 
 | Endpoint | Opis |
 |---|---|
-| `http://localhost:8280/` | Strona CV |
-| `http://localhost:8280/pandaGame` | Minigierka Panda |
-| `http://localhost:8280/pokerGame` | Poker Game |
-| `http://localhost:8280/api/profileinfo` | Dane profilu (JSON) |
-| `http://localhost:8280/api/hello` | Hello World |
-| `http://localhost:8280/api/backend` | Który backend serwuje stronę (etykieta w stopce) |
-| `http://localhost:8280/api/pandagame/scores` | Wyniki Panda Game (GET  wszystkie wyniki, POST  zapis wyniku) |
-| `http://localhost:8280/api/pokertable` | Lista stołów pokerowych (GET) / Nowy stół (POST) |
-| `http://localhost:8280/api/pokertable/{id}/join` | Dołącz do stołu (POST) |
-| `http://localhost:8280/api/pokertable/{id}/start` | Rozpocznij rozdanie (POST) |
-| `ws://localhost:8280/api/pokertable/{id}/ws` | WebSocket  stan gry w czasie rzeczywistym |
-| `http://localhost:8280/actuator/health` | Status aplikacji |
+| `.../` | Strona CV |
+| `.../pandaGame` | Minigierka Panda |
+| `.../pokerGame` | Poker Game |
+| `.../api/profileinfo` | Dane profilu (JSON) |
+| `.../api/hello` | Hello World |
+| `.../api/backend` | Który backend serwuje stronę (etykieta w stopce) |
+| `.../api/pandagame/scores` | Wyniki Panda Game (GET  wszystkie wyniki, POST  zapis wyniku) |
+| `.../api/pokertable` | Lista stołów pokerowych (GET) / Nowy stół (POST) |
+| `.../api/pokertable/{id}/join` | Dołącz do stołu (POST) |
+| `.../api/pokertable/{id}/start` | Rozpocznij rozdanie (POST) |
+| `.../api/pokertable/{id}/ws` | WebSocket  stan gry w czasie rzeczywistym |
+| `.../actuator/health` | Status aplikacji |
 
 ### Na serwerze domowym (za bramą)
 
@@ -239,7 +239,7 @@ i ocenę rąk. Test integracyjny (`PokerGameIntegrationTest`) sprawdza pełny pr
 - [ ] Projekt 03  Nowe poziomy trudności Botów
 - [ ] Projekt 03  Multiplayer
 - [x] Projekt 04  Backend C# + ASP.NET Core (zgodny z Kotlinem, wspólne strony i migracje)
-- [ ] Wdrożenie na hosting
+- [x] Wdrożenie na hosting
 
 ---
 
