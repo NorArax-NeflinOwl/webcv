@@ -151,18 +151,18 @@ Application available at: `http://localhost:8280` (Kotlin) and `http://localhost
 
 | Endpoint | Description |
 |---|---|
-| `http://localhost:8280/` | CV page |
-| `http://localhost:8280/pandaGame` | Panda mini-game |
-| `http://localhost:8280/pokerGame` | Poker Game |
-| `http://localhost:8280/api/profileinfo` | Profile data (JSON) |
-| `http://localhost:8280/api/hello` | Hello World |
-| `http://localhost:8280/api/backend` | Which backend serves the page (footer label) |
-| `http://localhost:8280/api/pandagame/scores` | Panda Game scores (GET  all scores, POST  save score) |
-| `http://localhost:8280/api/pokertable` | List poker tables (GET) / Create table (POST) |
-| `http://localhost:8280/api/pokertable/{id}/join` | Join a table (POST) |
-| `http://localhost:8280/api/pokertable/{id}/start` | Start a hand (POST) |
-| `ws://localhost:8280/api/pokertable/{id}/ws` | WebSocket  real-time game state |
-| `http://localhost:8280/actuator/health` | Application health |
+| `.../` | CV page |
+| `.../pandaGame` | Panda mini-game |
+| `.../pokerGame` | Poker Game |
+| `.../api/profileinfo` | Profile data (JSON) |
+| `.../api/hello` | Hello World |
+| `.../api/backend` | Which backend serves the page (footer label) |
+| `.../api/pandagame/scores` | Panda Game scores (GET  all scores, POST  save score) |
+| `.../api/pokertable` | List poker tables (GET) / Create table (POST) |
+| `.../api/pokertable/{id}/join` | Join a table (POST) |
+| `.../api/pokertable/{id}/start` | Start a hand (POST) |
+| `.../api/pokertable/{id}/ws` | WebSocket  real-time game state |
+| `.../actuator/health` | Application health |
 
 ### On the home server (behind the gateway)
 
@@ -234,7 +234,7 @@ and hand evaluation. The integration test (`PokerGameIntegrationTest`) verifies 
 - [ ] Project 03  Advanced bot difficulty levels
 - [ ] Project 03  Multiplayer
 - [x] Project 04  C# + ASP.NET Core backend (parity with Kotlin, shared pages and migrations)
-- [ ] Deploy to hosting
+- [x] Deploy to hosting
 
 ---
 
