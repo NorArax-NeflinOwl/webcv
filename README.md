@@ -179,6 +179,9 @@ cd cv-asp.net
 sudo docker compose up --build -d
 ```
 
+Both containers have `restart: unless-stopped`, so they start again with Docker after the server reboots. A
+container stopped on purpose (`docker compose stop`) stays stopped.
+
 ---
 
 ## Running locally (without Docker)
