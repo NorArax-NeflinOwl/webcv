@@ -18,6 +18,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    # Back with Docker after a reboot of the home server, unless stopped on purpose.
+    restart: unless-stopped
 
   # Its own database: the migrations are shared with cv-spring-kotlin, the journal (DbUp vs Flyway) is not.
   db:
@@ -35,6 +37,7 @@ services:
       test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER}", "-d", "${POSTGRES_DB}"]
       interval: 5s
       retries: 5
+    restart: unless-stopped
 
 volumes:
   pgdata:
