@@ -189,7 +189,7 @@
     }
 
     function saveHandle() {
-        const nick = elements.elements.nickInput.value.trim() || 'Anonymous';
+        const nick = elements.nickInput.value.trim() || 'Anonymous';
 
         elements.saveButton.disabled = true;
         elements.saveButton.classList.add('is-saving');
