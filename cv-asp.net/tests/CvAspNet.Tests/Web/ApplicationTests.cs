@@ -32,6 +32,36 @@ public sealed class ApplicationTests : IDisposable
         Assert.Contains(expectedContent, await response.Content.ReadAsStringAsync());
     }
 
+    [Theory]
+    [InlineData("/")]
+    [InlineData("/pokerGame")]
+    [InlineData("/api/pandagame/scores")]
+    public async Task Responses_CarryTheSecurityHeaders(string path)
+    {
+        var response = await client.GetAsync(path);
+
+        var csp = string.Join(";", response.Headers.GetValues("Content-Security-Policy"));
+        Assert.Contains("script-src 'self';", csp);
+        Assert.Contains("frame-ancestors 'none'", csp);
+        Assert.Contains("connect-src 'self'", csp);
+        Assert.Equal("DENY", Assert.Single(response.Headers.GetValues("X-Frame-Options")));
+        Assert.Equal("nosniff", Assert.Single(response.Headers.GetValues("X-Content-Type-Options")));
+    }
+
+    [Theory]
+    [InlineData("/")]
+    [InlineData("/pandaGame.html")]
+    [InlineData("/pokerGame.html")]
+    public async Task SharedPages_HaveNothingInlineThatTheCspWouldBlock(string path)
+    {
+        var html = await client.GetStringAsync(path);
+
+        Assert.DoesNotContain("style=", html);
+        Assert.DoesNotContain("<style", html);
+        Assert.Matches("^(?s)((?!<script>).)*$", html);  // every script has a src
+        Assert.DoesNotMatch(@"\son[a-z]+=", html);       // no inline event handlers
+    }
+
     [Fact]
     public async Task ActuatorHealth_ReportsUpLikeSpringBoot()
     {

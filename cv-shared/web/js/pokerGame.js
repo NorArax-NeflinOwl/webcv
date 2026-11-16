@@ -206,7 +206,7 @@ function render(snap) {
   const checkBtn = el('btn-check');
   if (snap.toCall > 0) {
     callBtn.textContent    = `Call ${snap.toCall}`;
-    callBtn.style.display  = '';
+    callBtn.style.display  = 'block';
     checkBtn.style.display = 'none';
   } else {
     callBtn.style.display  = 'none';
@@ -215,7 +215,7 @@ function render(snap) {
 
   // "Next hand" button  only after a completed hand, never on the initial waiting state
   // (the first hand is started automatically via ws.onopen)
-  el('btn-start').style.display = snap.phase === 'Showdown' ? '' : 'none';
+  el('btn-start').style.display = snap.phase === 'Showdown' ? 'block' : 'none';
 
   // Game over detection: after showdown, if only 1 player has chips left the session is over
   if (snap.phase === 'Showdown') {
@@ -306,6 +306,9 @@ function showGameOver(humanWon, finalCoins) {
 
 const el = (id) => document.getElementById(id);
 
+// The stylesheet hides some elements at first, so the inline style alone does not tell.
+const isShown = (id) => getComputedStyle(el(id)).display !== 'none';
+
 function setStatus(msg) {
   const s = el('status');
   if (s) s.textContent = msg;
@@ -327,16 +330,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // Ignore when typing in an input field
     if (e.target.tagName === 'INPUT') return;
 
-    const actionsVisible = el('actions').style.display !== 'none';
+    const actionsVisible = isShown('actions');
 
     switch (e.key) {
       case ' ':
         e.preventDefault();
         if (actionsVisible) {
-          el('btn-call').style.display !== 'none'
+          isShown('btn-call')
             ? sendAction('Call')
             : sendAction('Check');
-        } else if (el('btn-start').style.display !== 'none') {
+        } else if (isShown('btn-start')) {
           onStartHand();
         }
         break;
@@ -349,7 +352,7 @@ document.addEventListener('DOMContentLoaded', () => {
       case 'R':
       case 'Enter':
         if (actionsVisible) onRaise();
-        else if (el('btn-start').style.display !== 'none') {
+        else if (isShown('btn-start')) {
           onStartHand();
         }
         break;

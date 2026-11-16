@@ -149,6 +149,8 @@ To samo CV, Panda Game i Poker Game z backendem .NET: te same strony i te same m
 - `CvAspNet.Poker`  silnik Texas Hold'em jako osobna biblioteka (bez ASP.NET i bazy)
 - Docker + Docker Compose (własna baza na porcie 5443, publikowanym tylko na loopbacku)
 - xUnit + NSubstitute + SQLite in-memory + `WebApplicationFactory` (testy jednostkowe, repozytoriów, API i WebSocketu)
+- Nagłówki bezpieczeństwa w każdej odpowiedzi: Content-Security-Policy bez kodu inline (zob. `cv-shared/README.md`),
+  `frame-ancestors 'none'` / `X-Frame-Options: DENY`, `nosniff`, Referrer-Policy
 
 ---
 
@@ -273,7 +275,7 @@ i ocenę rąk. Test integracyjny (`PokerGameIntegrationTest`) sprawdza pełny pr
 - [x] Projekt 03  Boty (RandomBot) + testy silnika i integracyjne
 - [ ] Projekt 03  Nowe poziomy trudności Botów
 - [ ] Projekt 03  Multiplayer
-- [ ] Projekt 03  backend Kotlin: limity stołów w pamięci z .NET (limit stołów, sprzątanie bezczynnych, timeout tury, limity WebSocketów) i limity żądań na odwiedzającego
+- [ ] Projekt 03  backend Kotlin: limity stołów w pamięci z .NET (limit stołów, sprzątanie bezczynnych, timeout tury, limity WebSocketów), limity żądań na odwiedzającego i nagłówki bezpieczeństwa (CSP)
 - [x] Projekt 04  Backend C# + ASP.NET Core (zgodny z Kotlinem, wspólne strony i migracje)
 - [x] Wdrożenie na hosting
 

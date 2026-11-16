@@ -25,6 +25,11 @@ A backend that serves `web/` has to answer the same requests with the same JSON:
 ## Rules for changes
 
 - **A page change** reaches both backends at their next build — check it on both.
+- **Nothing inline in the pages**: no `<script>` without `src`, no `<style>`, no `style="…"` attribute and no
+  `on…=` handler. cv-asp.net sends a Content-Security-Policy that blocks them (scripts and styles from the site
+  only, plus Google Fonts; `data:` images; requests and WebSockets to the same origin). Hide an element in the
+  stylesheet and show it from the script (`element.style.display = …` is allowed), and put user data in with
+  `textContent`, never `innerHTML`.
 - **A new migration** is a new file with the next version (`V5__…sql`). Never edit a migration that a
   database has already run: Flyway refuses to start when an applied script's checksum changes, and DbUp
   silently skips it.

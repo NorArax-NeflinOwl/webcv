@@ -144,6 +144,8 @@ The same CV, Panda Game and Poker Game with a .NET backend: the same pages and t
 - `CvAspNet.Poker`  the Texas Hold'em engine as a separate library (no ASP.NET, no database)
 - Docker + Docker Compose (own database on port 5443, published on loopback only)
 - xUnit + NSubstitute + SQLite in-memory + `WebApplicationFactory` (unit, repository, API and WebSocket tests)
+- Security headers on every response: a Content-Security-Policy without inline code (see `cv-shared/README.md`),
+  `frame-ancestors 'none'` / `X-Frame-Options: DENY`, `nosniff`, a Referrer-Policy
 
 ---
 
@@ -271,7 +273,7 @@ and hand evaluation. The integration test (`PokerGameIntegrationTest`) verifies 
 - [x] Project 03  Bots (RandomBot) + engine & integration tests
 - [ ] Project 03  Advanced bot difficulty levels
 - [ ] Project 03  Multiplayer
-- [ ] Project 03  Kotlin backend: the .NET limits on in-memory tables (table cap, idle-table sweep, turn timeout, WebSocket caps) and per-visitor rate limits
+- [ ] Project 03  Kotlin backend: the .NET limits on in-memory tables (table cap, idle-table sweep, turn timeout, WebSocket caps), per-visitor rate limits and the security headers (CSP)
 - [x] Project 04  C# + ASP.NET Core backend (parity with Kotlin, shared pages and migrations)
 - [x] Deploy to hosting
 

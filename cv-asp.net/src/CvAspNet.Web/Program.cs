@@ -59,6 +59,7 @@ if (knownProxies.Count > 0)
 {
     app.UseForwardedHeaders();
 }
+app.UseSecurityHeaders();
 app.UseRateLimiter();
 
 if (app.Configuration.GetValue("Database:MigrateOnStartup", true))
