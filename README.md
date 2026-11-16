@@ -273,7 +273,8 @@ and hand evaluation. The integration test (`PokerGameIntegrationTest`) verifies 
 - [x] Project 03  Bots (RandomBot) + engine & integration tests
 - [ ] Project 03  Advanced bot difficulty levels
 - [ ] Project 03  Multiplayer
-- [ ] Project 03  Kotlin backend: the .NET limits on in-memory tables (table cap, idle-table sweep, turn timeout, WebSocket caps), per-visitor rate limits and the security headers (CSP)
+- [ ] Project 03  Kotlin backend: the .NET limits on in-memory tables (table cap, idle-table sweep, turn timeout, WebSocket caps), per-visitor rate limits, the security headers (CSP), forwarded headers from the gateway, an older
+  client's `?token=…` checked before the WebSocket upgrade, and bad payloads logged only as a short prefix
 - [x] Project 04  C# + ASP.NET Core backend (parity with Kotlin, shared pages and migrations)
 - [x] Deploy to hosting
 

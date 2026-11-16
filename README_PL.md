@@ -275,7 +275,8 @@ i ocenę rąk. Test integracyjny (`PokerGameIntegrationTest`) sprawdza pełny pr
 - [x] Projekt 03  Boty (RandomBot) + testy silnika i integracyjne
 - [ ] Projekt 03  Nowe poziomy trudności Botów
 - [ ] Projekt 03  Multiplayer
-- [ ] Projekt 03  backend Kotlin: limity stołów w pamięci z .NET (limit stołów, sprzątanie bezczynnych, timeout tury, limity WebSocketów), limity żądań na odwiedzającego i nagłówki bezpieczeństwa (CSP)
+- [ ] Projekt 03  backend Kotlin: limity stołów w pamięci z .NET (limit stołów, sprzątanie bezczynnych, timeout tury, limity WebSocketów), limity żądań na odwiedzającego, nagłówki bezpieczeństwa (CSP), nagłówki przekazywane przez bramę,
+  `?token=…` starszych klientów sprawdzany przed upgrade'em WebSocketa i złe wiadomości logowane tylko jako krótki początek
 - [x] Projekt 04  Backend C# + ASP.NET Core (zgodny z Kotlinem, wspólne strony i migracje)
 - [x] Wdrożenie na hosting
 
