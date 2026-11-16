@@ -115,7 +115,7 @@ The same CV, Panda Game and Poker Game with a .NET backend: the same pages and t
 - C# 14 + ASP.NET Core 10 (MVC controllers, static files, WebSockets, health checks)
 - PostgreSQL + EF Core (Npgsql) + DbUp (runs the Flyway-named scripts from `cv-shared/db/migration`)
 - `CvAspNet.Poker`  the Texas Hold'em engine as a separate library (no ASP.NET, no database)
-- Docker + Docker Compose (own database on port 5443)
+- Docker + Docker Compose (own database on port 5443, published on loopback only)
 - xUnit + NSubstitute + SQLite in-memory + `WebApplicationFactory` (unit, repository, API and WebSocket tests)
 
 ---
@@ -169,13 +169,12 @@ Application available at: `http://localhost:8280` (Kotlin) and `http://localhost
 The public deployment runs the .NET backend in Docker on a home Linux server, behind a Raspberry Pi gateway whose
 Caddy terminates TLS and proxies to it (`wss:` included: the page picks the WebSocket scheme from its own address).
 The only difference is where the ports are published, set in `cv-asp.net/.env` (see `.env.example`): the application
-on the server's LAN address, which only the gateway may reach, and the database on loopback.
+on the server's LAN address, which only the gateway may reach (the database is published on loopback by default).
 
 ```bash
 cd cv-asp.net
 # .env as in .env.example, with a random POSTGRES_PASSWORD, plus:
 #   APP_HOST_PORT=192.168.1.5:8281
-#   POSTGRES_HOST_PORT=127.0.0.1:5443
 sudo docker compose up --build -d
 ```
 
