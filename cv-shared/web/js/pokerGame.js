@@ -36,9 +36,10 @@ const SUIT_META = {
   BLACK_SPADE:  { symbol: '♠', css: 'black-spade'  },
 };
 
+// Only the fixed labels above reach the markup: an unknown rank or suit from the server shows as '?'.
 function cardHTML(card) {
-  const rank = RANK_LABEL[card.rank] ?? card.rank;
-  const meta = SUIT_META[card.suit]  ?? { symbol: card.suit, css: 'black-spade' };
+  const rank = RANK_LABEL[card.rank] ?? '?';
+  const meta = SUIT_META[card.suit]  ?? { symbol: '?', css: 'black-spade' };
   return `<div class="card ${meta.css}">
     <span class="card-rank">${rank}</span>
     <span class="card-suit">${meta.symbol}</span>
@@ -214,12 +215,18 @@ function render(snap) {
   }
 
   // Ranking (showdown)
+  // Built as text nodes: the player names come from the clients and must never be parsed as HTML.
   const rankingEl = el('ranking');
   if (snap.ranking && snap.ranking.length > 0) {
-    rankingEl.innerHTML = '<h3>Results</h3>' +
-      snap.ranking.map((r, i) =>
-        `<div class="rank-entry">${i + 1}. ${r.playerName}  ${r.handCategory}</div>`
-      ).join('');
+    const title = document.createElement('h3');
+    title.textContent = 'Results';
+    const entries = snap.ranking.map((r, i) => {
+      const entry = document.createElement('div');
+      entry.className   = 'rank-entry';
+      entry.textContent = `${i + 1}. ${r.playerName}  ${r.handCategory}`;
+      return entry;
+    });
+    rankingEl.replaceChildren(title, ...entries);
     rankingEl.style.display = 'block';
   } else {
     rankingEl.style.display = 'none';
