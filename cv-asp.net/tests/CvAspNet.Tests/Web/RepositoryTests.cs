@@ -261,6 +261,25 @@ public sealed class PandaGamePlayerScoreRepositoryTests : IDisposable
     }
 
     [Fact]
+    public async Task DeleteAllButTop_KeepsTheBestInFindTopOrder()
+    {
+        var now = DateTime.Now;
+        Save(
+            new PandaGamePlayerScore { Nick = "Best", Score = 300, PlayedAt = now },
+            new PandaGamePlayerScore { Nick = "TieEarlier", Score = 100, PlayedAt = now.AddHours(-1) },
+            new PandaGamePlayerScore { Nick = "TieLater", Score = 100, PlayedAt = now },
+            new PandaGamePlayerScore { Nick = "Worst", Score = 5, PlayedAt = now });
+
+        await using (var db = database.CreateContext())
+        {
+            Assert.Equal(2, await new PandaGamePlayerScoreRepository(db).DeleteAllButTopAsync(2));
+            Assert.Equal(0, await new PandaGamePlayerScoreRepository(db).DeleteAllButTopAsync(2));
+        }
+
+        Assert.Equal(["Best", "TieEarlier"], (await FindTopAsync()).Select(score => score.Nick));
+    }
+
+    [Fact]
     public async Task Save_AssignsAnId()
     {
         await using var db = database.CreateContext();

@@ -1,10 +1,12 @@
 using System.Text.Json;
+using CvAspNet.Web;
 using CvAspNet.Web.Data;
 using CvAspNet.Web.Models;
 using CvAspNet.Web.Poker;
 using CvAspNet.Web.Repositories;
 using CvAspNet.Web.Services;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore;
@@ -30,10 +32,13 @@ builder.Services.AddScoped<IProfileService, ProfileService>();
 builder.Services.AddScoped<IPandaGamePlayerScoreService, PandaGamePlayerScoreService>();
 builder.Services.AddSingleton(TimeProvider.System);
 
-// Poker: the tables and sessions live in memory, for the lifetime of the process.
+// Poker: the tables and sessions live in memory, capped and swept (idle tables, run-out turns) by PokerTableSweeper.
+builder.Services.Configure<PokerOptions>(builder.Configuration.GetSection(PokerOptions.SectionName));
 builder.Services.AddSingleton<TableRepository>();
 builder.Services.AddSingleton<SessionRegistry>();
 builder.Services.AddSingleton<PokerWebSocketHandler>();
+builder.Services.AddSingleton<PokerTableSweeper>();
+builder.Services.AddHostedService(services => services.GetRequiredService<PokerTableSweeper>());
 
 // A body that is not valid JSON (or misses a field) gets the same answer as from the Kotlin backend.
 builder.Services.AddControllers().ConfigureApiBehaviorOptions(options =>
@@ -41,7 +46,21 @@ builder.Services.AddControllers().ConfigureApiBehaviorOptions(options =>
 
 builder.Services.AddHealthChecks().AddDbContextCheck<CvDbContext>("database");
 
+// The visitor's address behind the gateway (rate limits, logs); see ForwardedHeadersSetup.
+var knownProxies = ForwardedHeadersSetup.ParseKnownProxies(builder.Configuration[ForwardedHeadersSetup.KnownProxiesKey]);
+builder.Services.Configure<ForwardedHeadersOptions>(options => ForwardedHeadersSetup.Configure(options, knownProxies));
+
+// Per-visitor limits on creating tables, seats and Panda scores; see RateLimits.
+RateLimits.AddTo(builder.Services, builder.Configuration.GetSection(RateLimits.SectionName).Get<RateLimits>() ?? new RateLimits());
+
 var app = builder.Build();
+
+if (knownProxies.Count > 0)
+{
+    app.UseForwardedHeaders();
+}
+app.UseSecurityHeaders();
+app.UseRateLimiter();
 
 if (app.Configuration.GetValue("Database:MigrateOnStartup", true))
 {

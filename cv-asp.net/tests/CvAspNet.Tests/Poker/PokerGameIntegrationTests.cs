@@ -3,6 +3,7 @@ using CvAspNet.Poker.Evaluation;
 using CvAspNet.Poker.Model;
 using CvAspNet.Poker.Strategy;
 using CvAspNet.Web.Poker;
+using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging.Abstractions;
 
 namespace CvAspNet.Tests.Poker;
@@ -275,11 +276,14 @@ public class PokerGameIntegrationTests
 
     // ── TableRepository + SessionRegistry ──
 
+    private static TableRepository NewRepository() =>
+        new(NullLoggerFactory.Instance, Options.Create(new PokerOptions()), TimeProvider.System);
+
     [Fact]
     public void TableRepository_StoresAndRetrievesAGameEngine()
     {
-        var repository = new TableRepository(NullLoggerFactory.Instance);
-        var tableId = repository.Create(blindAmount: 10);
+        var repository = NewRepository();
+        var tableId = repository.Create(blindAmount: 10)!.Value;
 
         Assert.NotNull(repository.Get(tableId));
         Assert.Equal(1, repository.Count);
@@ -288,7 +292,7 @@ public class PokerGameIntegrationTests
     [Fact]
     public void SessionRegistry_IssuesATokenValidForItsTable()
     {
-        var tableId = new TableRepository(NullLoggerFactory.Instance).Create();
+        var tableId = NewRepository().Create()!.Value;
         var registry = new SessionRegistry(NullLogger<SessionRegistry>.Instance);
         var playerId = new PlayerId("player-1");
 
@@ -302,18 +306,18 @@ public class PokerGameIntegrationTests
     [Fact]
     public void SessionRegistry_RejectsATokenUsedAgainstAnotherTable()
     {
-        var repository = new TableRepository(NullLoggerFactory.Instance);
+        var repository = NewRepository();
         var registry = new SessionRegistry(NullLogger<SessionRegistry>.Instance);
-        var token = registry.Create(new PlayerId("p"), repository.Create());
+        var token = registry.Create(new PlayerId("p"), repository.Create()!.Value);
 
-        Assert.Null(registry.Validate(token, repository.Create()));
+        Assert.Null(registry.Validate(token, repository.Create()!.Value));
     }
 
     [Fact]
     public void SessionRegistry_RevokeRemovesTheSession()
     {
         var registry = new SessionRegistry(NullLogger<SessionRegistry>.Instance);
-        var token = registry.Create(new PlayerId("p"), new TableRepository(NullLoggerFactory.Instance).Create());
+        var token = registry.Create(new PlayerId("p"), NewRepository().Create()!.Value);
 
         registry.Revoke(token);
 

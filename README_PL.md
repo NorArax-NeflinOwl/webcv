@@ -64,7 +64,9 @@ dane przechowywane w PostgreSQL z migracjami Flyway, skonteneryzowany przy pomoc
 Podstrona z minigierką w stylu Dino z Google Chrome  panda skacząca przez przeszkody.
 Gra napisana w czystym HTML + CSS + JavaScript, serwowana przez ten sam serwer Spring Boot.
 Wyniki graczy zapisywane są w bazie PostgreSQL (tabela `panda_game_player_score`) i prezentowane
-jako tablica wyników.
+jako tablica wyników. Tablica jest publiczna, więc wynik jest sprawdzany: nick ma najwyżej 24 znaki, bez znaków
+sterujących, wynik 0-100000 (gra dodaje punkt na klatkę: to mniej więcej pół godziny bezbłędnej gry), a w bazie
+zostaje tylko 1000 najlepszych wyników.
 
 📁 Katalog: `/cv-shared/web/pandaGame.html`
 📁 Katalog: `/cv-shared/web/css/pandaGameStyle.css`
@@ -101,10 +103,35 @@ i dwóch botów (RandomBot). Frontend w czystym HTML + CSS + JavaScript.
 ```
 POST /api/pokertable                    → { tableId }           (tworzy stół z 2 botami)
 POST /api/pokertable/{id}/join          → { sessionToken, playerId }
-POST /api/pokertable/{id}/start?token=… → 204
-WS   /api/pokertable/{id}/ws?token=…   ← TableSnapshotDto (push po każdej zmianie stanu)
+POST /api/pokertable/{id}/start         → 204                   (Authorization: Bearer <sessionToken>)
+WS   /api/pokertable/{id}/ws            → { type: "Auth", token: sessionToken }   (pierwsza wiadomość, w ciągu 10 s)
+                                ← TableSnapshotDto (push po każdej zmianie stanu)
                                 → { type: "Fold"|"Check"|"Call"|"Raise", amount? }
 ```
+
+Token sesji nigdy nie trafia do URL-a, bo log dostępu bramy zapisuje URL-e (nagłówek `Authorization` pomija).
+Błędna wiadomość `Auth` zamyka WebSocket kodem 4001. Oba backendy nadal przyjmują starsze `?token=…` w `start`,
+`snapshot` i w adresie WebSocketa.
+
+API jest publiczne i anonimowe, więc stół ma jedno miejsce dla człowieka, zajmowane przez dołączenie jego twórcy,
+a identyfikatory stołów nie są nigdzie listowane (drugie dołączenie dostaje 409). Żądania są sprawdzane: `playerName`
+jest przycinany, ma 1-24 znaki, bez znaków sterujących i formatujących; `blindAmount` to 2-1000, a `coins` 1-100000;
+wszystko inne to 400.
+
+Stoły żyją w pamięci, więc backend .NET (ten wdrożony) pilnuje też, żeby się nie mnożyły. Jego wartości domyślne,
+sekcja `Poker` w `appsettings.json` (zmienne środowiskowe `Poker__MaxTables` itd.):
+
+| Limit | Domyślnie | Co się dzieje |
+|---|---|---|
+| `MaxTables` | 200 | kolejny `POST /api/pokertable` dostaje 503 |
+| `IdleTableMinutes` | 30 | stół, którego stan tyle czasu się nie zmienił, jest usuwany razem z sesją |
+| `DisconnectGraceSeconds` | 120 | tak samo stół bez otwartego WebSocketa (nikt się nie połączył albo gracz wyszedł) |
+| `TurnTimeoutSeconds` | 60 | gracz, który nie wykona ruchu, czeka (check), a gdy musi dopłacić - pasuje (fold) |
+| `MaxConnectionsPerSession` | 3 | kolejny WebSocket tej samej sesji jest odrzucany z 429 |
+| `MaxConnections` | 600 | kolejny WebSocket w ogóle jest odrzucany z 503 |
+
+WebSocket ze złym `?token=…` jest odrzucany (401) przed upgrade'em, a ze złą wiadomością `Auth` zamykany kodem 4001;
+gdy jego stół zostanie usunięty, serwer zamyka go kodem 4004, a strona o tym informuje.
 
 ---
 
@@ -120,8 +147,10 @@ To samo CV, Panda Game i Poker Game z backendem .NET: te same strony i te same m
 - C# 14 + ASP.NET Core 10 (kontrolery MVC, pliki statyczne, WebSockety, health checks)
 - PostgreSQL + EF Core (Npgsql) + DbUp (wykonuje skrypty w konwencji Flyway z `cv-shared/db/migration`)
 - `CvAspNet.Poker`  silnik Texas Hold'em jako osobna biblioteka (bez ASP.NET i bazy)
-- Docker + Docker Compose (własna baza na porcie 5443)
+- Docker + Docker Compose (własna baza na porcie 5443, publikowanym tylko na loopbacku)
 - xUnit + NSubstitute + SQLite in-memory + `WebApplicationFactory` (testy jednostkowe, repozytoriów, API i WebSocketu)
+- Nagłówki bezpieczeństwa w każdej odpowiedzi: Content-Security-Policy bez kodu inline (zob. `cv-shared/README.md`),
+  `frame-ancestors 'none'` / `X-Frame-Options: DENY`, `nosniff`, Referrer-Policy
 
 ---
 
@@ -163,7 +192,7 @@ Aplikacja dostępna pod adresem: `http://localhost:8280` (Kotlin) i `http://loca
 | `.../api/hello` | Hello World |
 | `.../api/backend` | Który backend serwuje stronę (etykieta w stopce) |
 | `.../api/pandagame/scores` | Wyniki Panda Game (GET  wszystkie wyniki, POST  zapis wyniku) |
-| `.../api/pokertable` | Lista stołów pokerowych (GET) / Nowy stół (POST) |
+| `.../api/pokertable` | Nowy stół pokerowy (POST); stoły nie są listowane |
 | `.../api/pokertable/{id}/join` | Dołącz do stołu (POST) |
 | `.../api/pokertable/{id}/start` | Rozpocznij rozdanie (POST) |
 | `.../api/pokertable/{id}/ws` | WebSocket  stan gry w czasie rzeczywistym |
@@ -174,15 +203,23 @@ Aplikacja dostępna pod adresem: `http://localhost:8280` (Kotlin) i `http://loca
 Publiczne wdrożenie to backend .NET w Dockerze na domowym serwerze z Linuksem, za bramą na Raspberry Pi, której
 Caddy kończy TLS i przekazuje ruch dalej (także `wss:` - strona wybiera schemat WebSocketa z własnego adresu).
 Różnica jest jedna: gdzie publikowane są porty, ustawiane w `cv-asp.net/.env` (wzór w `.env.example`) - aplikacja na
-adresie LAN serwera, do którego dostęp ma tylko brama, a baza tylko na loopbacku.
+adresie LAN serwera, do którego dostęp ma tylko brama (baza domyślnie jest publikowana tylko na loopbacku).
 
 ```bash
 cd cv-asp.net
 # .env jak w .env.example, z losowym POSTGRES_PASSWORD, a do tego:
 #   APP_HOST_PORT=192.168.1.5:8281
-#   POSTGRES_HOST_PORT=127.0.0.1:5443
+#   FORWARDED_KNOWN_PROXIES=192.168.1.7
 sudo docker compose up --build -d
 ```
+
+`FORWARDED_KNOWN_PROXIES` to adres bramy: tylko od niej aplikacja wierzy nagłówkowi `X-Forwarded-For`, żeby limity
+żądań i logi widziały odwiedzającego, a nie Pi. Docker zachowuje adres klienta dla ruchu z LAN-u na opublikowany
+port; jeśli logi nadal pokazują adres bramy Dockera (`172.x.0.1`), trzeba wpisać ten adres.
+
+Na jednego odwiedzającego (ten adres) backend .NET przyjmuje na minutę 10 nowych stołów pokerowych, 20 dołączeń
+i 10 wyników Pandy, sekcja `RateLimits` w `appsettings.json` (np. `RateLimits__PandaScoresPerMinute`); ponad to
+odpowiada 429 z `Retry-After`, a strony proszą o ponowienie później.
 
 ---
 
@@ -238,6 +275,8 @@ i ocenę rąk. Test integracyjny (`PokerGameIntegrationTest`) sprawdza pełny pr
 - [x] Projekt 03  Boty (RandomBot) + testy silnika i integracyjne
 - [ ] Projekt 03  Nowe poziomy trudności Botów
 - [ ] Projekt 03  Multiplayer
+- [ ] Projekt 03  backend Kotlin: limity stołów w pamięci z .NET (limit stołów, sprzątanie bezczynnych, timeout tury, limity WebSocketów), limity żądań na odwiedzającego, nagłówki bezpieczeństwa (CSP), nagłówki przekazywane przez bramę,
+  `?token=…` starszych klientów sprawdzany przed upgrade'em WebSocketa i złe wiadomości logowane tylko jako krótki początek
 - [x] Projekt 04  Backend C# + ASP.NET Core (zgodny z Kotlinem, wspólne strony i migracje)
 - [x] Wdrożenie na hosting
 

@@ -7,7 +7,8 @@ namespace CvAspNet.Web.Services;
 
 public interface IPandaGamePlayerScoreService
 {
-    /// <exception cref="ArgumentException">The nick is too long or the score is out of range.</exception>
+    /// <summary>Saves the score, then keeps only the best <see cref="PandaGamePlayerScoreService.MaxStoredScores"/>.</summary>
+    /// <exception cref="ArgumentException">The nick is too long or has control characters, or the score is out of range.</exception>
     Task<PandaGamePlayerScoreResponse> SaveScoreAsync(PandaGamePlayerScoreRequest request, CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<PandaGamePlayerScoreResponse>> TopScoresAsync(CancellationToken cancellationToken = default);
@@ -18,10 +19,20 @@ public sealed class PandaGamePlayerScoreService(
     TimeProvider timeProvider,
     ILogger<PandaGamePlayerScoreService> log) : IPandaGamePlayerScoreService
 {
-    public const int MaxNickLength = 64;
-    public const int MaxScore = 1_000_000;
+    /// <summary>The page's nick field takes 20 characters.</summary>
+    public const int MaxNickLength = 24;
+
+    /// <summary>
+    /// The game adds a point per frame: 100 000 is about half an hour of flawless play at 60 fps, at a speed that
+    /// grows with every 100 points. A higher score was not played, and the table is public.
+    /// </summary>
+    public const int MaxScore = 100_000;
+
     public const string DefaultNick = "Anonymous";
     public const int TopScoresCount = 10;
+
+    /// <summary>Only the best scores are kept, so that anonymous saves cannot fill the disk.</summary>
+    public const int MaxStoredScores = 1_000;
 
     /// <summary>Scores are stamped with Polish local time, whatever the server's time zone.</summary>
     public static readonly TimeZoneInfo PolishTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Warsaw");
@@ -31,6 +42,10 @@ public sealed class PandaGamePlayerScoreService(
         var nick = string.IsNullOrWhiteSpace(request.Nick) ? DefaultNick : request.Nick.Trim();
 
         if (nick.Length > MaxNickLength) throw new ArgumentException($"Nick cannot be longer than {MaxNickLength} characters");
+        if (nick.Any(character => char.IsControl(character) || CharUnicodeInfo.GetUnicodeCategory(character) == UnicodeCategory.Format))
+        {
+            throw new ArgumentException("Nick contains characters that are not allowed");
+        }
         if (request.Score < 0) throw new ArgumentException("Score cannot be negative");
         if (request.Score > MaxScore) throw new ArgumentException($"Score cannot exceed {MaxScore}");
 
@@ -40,6 +55,11 @@ public sealed class PandaGamePlayerScoreService(
             cancellationToken);
 
         log.LogDebug("Saved Panda score for nick={Nick}, score={Score}", nick, request.Score);
+
+        if (await repository.DeleteAllButTopAsync(MaxStoredScores, cancellationToken) is var pruned and > 0)
+        {
+            log.LogDebug("Pruned {Count} Panda scores below the best {Kept}", pruned, MaxStoredScores);
+        }
         return ToDto(saved);
     }
 

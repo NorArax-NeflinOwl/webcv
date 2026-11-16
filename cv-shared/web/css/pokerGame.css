@@ -295,6 +295,16 @@ body {
 
 /*  Ranking (showdown)  */
 
+/* Hidden until pokerGame.js shows them (no style attributes in the page: the Content-Security-Policy forbids them). */
+#ranking,
+#actions,
+#btn-call,
+#btn-start,
+#raise-controls,
+#game-over {
+  display: none;
+}
+
 #ranking {
   font-size: 0.78rem;
   text-align: center;
@@ -412,7 +422,6 @@ body {
   inset: 0;
   background: rgba(0, 0, 0, 0.72);
   backdrop-filter: blur(4px);
-  display: flex;
   align-items: center;
   justify-content: center;
   z-index: 100;

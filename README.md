@@ -60,6 +60,9 @@ A web server serving the CV page. Backend written in Kotlin with Spring Boot, da
 A mini-game in the style of the Google Chrome Dino  a panda jumping over obstacles.
 Built with plain HTML + CSS + JavaScript, served by the same Spring Boot server.
 Player scores are saved to PostgreSQL (`panda_game_player_score`) and displayed as a leaderboard.
+The leaderboard is public, so a score is checked: a nick of at most 24 characters without control characters, a
+score of 0-100000 (the game adds a point per frame: about half an hour of flawless play), and only the best 1000
+scores are kept.
 
 📁 Directory: `/cv-shared/web/pandaGame.html`
 📁 Directory: `/cv-shared/web/css/pandaGameStyle.css`
@@ -96,10 +99,34 @@ two bots (RandomBot). Frontend in plain HTML + CSS + JavaScript.
 ```
 POST /api/pokertable                    → { tableId }           (creates a table with 2 bots)
 POST /api/pokertable/{id}/join          → { sessionToken, playerId }
-POST /api/pokertable/{id}/start?token=… → 204
-WS   /api/pokertable/{id}/ws?token=…   ← TableSnapshotDto (pushed on every state change)
+POST /api/pokertable/{id}/start         → 204                   (Authorization: Bearer <sessionToken>)
+WS   /api/pokertable/{id}/ws            → { type: "Auth", token: sessionToken }   (first message, within 10 s)
+                                ← TableSnapshotDto (pushed on every state change)
                                 → { type: "Fold"|"Check"|"Call"|"Raise", amount? }
 ```
+
+The session token never goes into a URL, because the gateway's access log records URLs (it leaves the
+`Authorization` header out). A wrong `Auth` message closes the WebSocket with 4001. Both backends still accept the
+older `?token=…` on `start`, `snapshot` and the WebSocket URL.
+
+The API is public and anonymous, so a table has one human seat, taken by its creator's join, and table ids are
+not listed anywhere (a second join gets 409). Requests are checked: `playerName` is trimmed, 1-24 characters,
+without control or formatting characters; `blindAmount` is 2-1000 and `coins` 1-100000; anything else is a 400.
+
+The tables live in memory, so the .NET backend (the deployed one) also keeps them from piling up. Its defaults,
+section `Poker` of `appsettings.json` (environment variables `Poker__MaxTables` and so on):
+
+| Limit | Default | What happens |
+|---|---|---|
+| `MaxTables` | 200 | one more `POST /api/pokertable` is a 503 |
+| `IdleTableMinutes` | 30 | a table whose state has not changed for so long is removed with its session |
+| `DisconnectGraceSeconds` | 120 | so is a table without an open WebSocket (never connected, or the player left) |
+| `TurnTimeoutSeconds` | 60 | a player who does not act checks, or folds when a bet is owed |
+| `MaxConnectionsPerSession` | 3 | one more WebSocket of the same session is refused with 429 |
+| `MaxConnections` | 600 | one more WebSocket in total is refused with 503 |
+
+A WebSocket with a bad `?token=…` is refused (401) before the upgrade, one with a bad `Auth` message is closed with
+4001; when its table is removed, the server closes it with 4004 and the page says so.
 
 ---
 
@@ -115,8 +142,10 @@ The same CV, Panda Game and Poker Game with a .NET backend: the same pages and t
 - C# 14 + ASP.NET Core 10 (MVC controllers, static files, WebSockets, health checks)
 - PostgreSQL + EF Core (Npgsql) + DbUp (runs the Flyway-named scripts from `cv-shared/db/migration`)
 - `CvAspNet.Poker`  the Texas Hold'em engine as a separate library (no ASP.NET, no database)
-- Docker + Docker Compose (own database on port 5443)
+- Docker + Docker Compose (own database on port 5443, published on loopback only)
 - xUnit + NSubstitute + SQLite in-memory + `WebApplicationFactory` (unit, repository, API and WebSocket tests)
+- Security headers on every response: a Content-Security-Policy without inline code (see `cv-shared/README.md`),
+  `frame-ancestors 'none'` / `X-Frame-Options: DENY`, `nosniff`, a Referrer-Policy
 
 ---
 
@@ -158,7 +187,7 @@ Application available at: `http://localhost:8280` (Kotlin) and `http://localhost
 | `.../api/hello` | Hello World |
 | `.../api/backend` | Which backend serves the page (footer label) |
 | `.../api/pandagame/scores` | Panda Game scores (GET  all scores, POST  save score) |
-| `.../api/pokertable` | List poker tables (GET) / Create table (POST) |
+| `.../api/pokertable` | Create a poker table (POST); tables are not listed |
 | `.../api/pokertable/{id}/join` | Join a table (POST) |
 | `.../api/pokertable/{id}/start` | Start a hand (POST) |
 | `.../api/pokertable/{id}/ws` | WebSocket  real-time game state |
@@ -169,15 +198,23 @@ Application available at: `http://localhost:8280` (Kotlin) and `http://localhost
 The public deployment runs the .NET backend in Docker on a home Linux server, behind a Raspberry Pi gateway whose
 Caddy terminates TLS and proxies to it (`wss:` included: the page picks the WebSocket scheme from its own address).
 The only difference is where the ports are published, set in `cv-asp.net/.env` (see `.env.example`): the application
-on the server's LAN address, which only the gateway may reach, and the database on loopback.
+on the server's LAN address, which only the gateway may reach (the database is published on loopback by default).
 
 ```bash
 cd cv-asp.net
 # .env as in .env.example, with a random POSTGRES_PASSWORD, plus:
 #   APP_HOST_PORT=192.168.1.5:8281
-#   POSTGRES_HOST_PORT=127.0.0.1:5443
+#   FORWARDED_KNOWN_PROXIES=192.168.1.7
 sudo docker compose up --build -d
 ```
+
+`FORWARDED_KNOWN_PROXIES` is the gateway's address: only from it does the application believe `X-Forwarded-For`, so
+that the rate limits and the logs see the visitor instead of the Pi. Docker keeps the client's address for LAN
+traffic to a published port; if the logs still show a Docker gateway address (`172.x.0.1`), list that one.
+
+Per visitor (that address) the .NET backend allows 10 new poker tables, 20 joins and 10 Panda scores a minute,
+section `RateLimits` of `appsettings.json` (e.g. `RateLimits__PandaScoresPerMinute`); beyond that the answer is a
+429 with `Retry-After`, and the pages ask to try again later.
 
 Both containers have `restart: unless-stopped`, so they start again with Docker after the server reboots. A
 container stopped on purpose (`docker compose stop`) stays stopped.
@@ -236,6 +273,8 @@ and hand evaluation. The integration test (`PokerGameIntegrationTest`) verifies 
 - [x] Project 03  Bots (RandomBot) + engine & integration tests
 - [ ] Project 03  Advanced bot difficulty levels
 - [ ] Project 03  Multiplayer
+- [ ] Project 03  Kotlin backend: the .NET limits on in-memory tables (table cap, idle-table sweep, turn timeout, WebSocket caps), per-visitor rate limits, the security headers (CSP), forwarded headers from the gateway, an older
+  client's `?token=…` checked before the WebSocket upgrade, and bad payloads logged only as a short prefix
 - [x] Project 04  C# + ASP.NET Core backend (parity with Kotlin, shared pages and migrations)
 - [x] Deploy to hosting
 

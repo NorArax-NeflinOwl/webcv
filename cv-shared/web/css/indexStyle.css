@@ -434,6 +434,160 @@ body::before {
     animation: pulse-red 2s ease infinite;
 }
 
+/*  Loading state: skeletons until /api/profileinfo answers  */
+
+/* The entrance animations wait for the content: js/index.js removes .is-loading once the profile is in,
+   which starts them (and starts them again after a language switch). */
+.is-loading .header,
+.is-loading .links,
+.is-loading .section {
+    animation: none;
+}
+
+.skeleton {
+    display: block;
+    height: 12px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, var(--surface) 0%, #1c1c2a 40%, #26263a 50%, #1c1c2a 60%, var(--surface) 100%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s ease-in-out infinite;
+}
+
+.header__eyebrow .skeleton { width: 180px; }
+
+.skeleton--name {
+    width: min(440px, 85%);
+    height: .85em;
+    margin: .08em 0;
+}
+
+.skeleton--role {
+    width: min(320px, 70%);
+    height: 1em;
+}
+
+.header__bio .skeleton + .skeleton { margin-top: 12px; }
+
+.skeleton--line {
+    width: 100%;
+    height: 13px;
+}
+
+.skeleton--short { width: 62%; }
+
+.link-btn--skeleton {
+    min-width: 120px;
+    height: 37px;
+    pointer-events: none;
+}
+
+.skeleton--label {
+    width: 84px;
+    height: 10px;
+}
+
+.timeline-row--skeleton:hover {
+    border-color: var(--border);
+    background: var(--surface);
+}
+
+.skeleton--period {
+    width: 140px;
+    height: 10px;
+    margin-bottom: 14px;
+}
+
+.skeleton--company {
+    width: 45%;
+    height: 14px;
+    margin-bottom: 8px;
+}
+
+.skeleton--position {
+    width: 30%;
+    height: 12px;
+}
+
+.skill-item--skeleton:hover {
+    border-color: var(--border);
+    background: var(--surface);
+}
+
+.skeleton--skill {
+    width: 60%;
+    height: 14px;
+    margin-bottom: 8px;
+}
+
+.skeleton--tag {
+    width: 35%;
+    height: 10px;
+}
+
+/* Empty chips with the shimmer and varied widths. */
+.chip--skeleton {
+    width: 72px;
+    height: 27px;
+    background: linear-gradient(90deg, var(--surface) 0%, #1c1c2a 40%, #26263a 50%, #1c1c2a 60%, var(--surface) 100%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s ease-in-out infinite;
+}
+
+.chip--skeleton:nth-child(3n + 2) { width: 104px; }
+.chip--skeleton:nth-child(3n)     { width: 88px; }
+
+.chip--skeleton:hover { border-color: var(--border); }
+
+.skeleton--footer {
+    width: 160px;
+    height: 10px;
+}
+
+/*  Loading error  */
+
+.load-error {
+    margin-bottom: 48px;
+    padding: 16px 20px;
+    border: 1px solid var(--status-red);
+    border-radius: 4px;
+    background: var(--surface);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    animation: fadeUp .4s ease both;
+}
+
+.load-error[hidden] {
+    display: none;
+}
+
+.load-error__text {
+    font-size: 13px;
+    color: var(--text);
+}
+
+.load-error__retry {
+    cursor: pointer;
+}
+
+/* No shimmer and no movement for visitors who ask for less motion. */
+@media (prefers-reduced-motion: reduce) {
+    .skeleton,
+    .chip--skeleton {
+        animation: none;
+        background: #1a1a26;
+    }
+
+    .header,
+    .links,
+    .section,
+    .load-error {
+        animation: none;
+    }
+}
+
 /*  Animations  */
 
 @keyframes pulse {
@@ -449,4 +603,9 @@ body::before {
 @keyframes fadeUp {
     from { opacity: 0; transform: translateY(20px); }
     to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shimmer {
+    from { background-position: 100% 0; }
+    to   { background-position: -100% 0; }
 }

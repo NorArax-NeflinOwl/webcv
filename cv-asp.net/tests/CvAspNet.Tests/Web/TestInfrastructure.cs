@@ -48,10 +48,17 @@ public sealed class CvApplicationFactory : WebApplicationFactory<Program>
     /// <summary>Replaces services before the host starts, e.g. a substitute service.</summary>
     public Action<IServiceCollection> ConfigureServices { get; init; } = _ => { };
 
+    /// <summary>Configuration on top of appsettings.json, e.g. lower limits: {"Poker:MaxTables", "1"}.</summary>
+    public IReadOnlyDictionary<string, string> Settings { get; init; } = new Dictionary<string, string>();
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseSetting("Database:MigrateOnStartup", "false");
         builder.UseSetting("ConnectionStrings:CvDatabase", "Host=unused;Database=unused");
+        foreach (var (key, value) in Settings)
+        {
+            builder.UseSetting(key, value);
+        }
         builder.ConfigureTestServices(services =>
         {
             services.RemoveAll<DbContextOptions<CvDbContext>>();
@@ -66,4 +73,14 @@ public sealed class CvApplicationFactory : WebApplicationFactory<Program>
         base.Dispose(disposing);
         if (disposing) database.Dispose();
     }
+}
+
+/// <summary>A clock that only moves when told to.</summary>
+public sealed class ManualTimeProvider : TimeProvider
+{
+    private DateTimeOffset now = new(2026, 1, 1, 12, 0, 0, TimeSpan.Zero);
+
+    public override DateTimeOffset GetUtcNow() => now;
+
+    public void Advance(TimeSpan by) => now += by;
 }

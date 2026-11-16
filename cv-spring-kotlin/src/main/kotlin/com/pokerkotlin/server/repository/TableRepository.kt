@@ -26,11 +26,12 @@ class TableRepository {
     // 
 
     /**
-     * Creates a new table with a random UUID and returns its [TableId].
+     * Creates a new table with a random UUID and returns its [TableId]. The table has one human seat:
+     * the page seats its player against bots.
      */
     fun create(blindAmount: Int = 10): TableId {
         val id = TableId(UUID.randomUUID().toString())
-        val engine = GameEngine(tableId = id, blindAmount = blindAmount)
+        val engine = GameEngine(tableId = id, blindAmount = blindAmount, maxHumanSeats = 1)
         tables[id.value] = engine
         if (log.isInfoEnabled) log.info("Table created [tableId={}] (blind={})", id.value, blindAmount)
         return id
@@ -77,7 +78,4 @@ class TableRepository {
 
     /** Number of currently active tables  useful for metrics / actuator. */
     fun count(): Int = tables.size
-
-    /** Snapshot of all active table IDs (order not guaranteed). */
-    fun allTableIds(): List<TableId> = tables.keys.map { TableId(it) }
 }

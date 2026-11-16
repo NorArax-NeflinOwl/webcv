@@ -19,12 +19,17 @@ A backend that serves `web/` has to answer the same requests with the same JSON:
 | `GET /api/backend` | `{"label":"…"}` — the footer's name of the backend serving the page |
 | `GET /api/hello` | Plain text |
 | `GET /api/profileinfo?lang=pl\|en` | The CV (`ProfileDto`) |
-| `GET`, `POST /api/pandagame/scores` | Top 10 scores / save a score (`{"nick","score"}` → 201) |
-| `/api/pokertable…` and `WS /api/pokertable/{id}/ws?token=…` | Poker — see the protocol in the main README |
+| `GET`, `POST /api/pandagame/scores` | Top 10 scores / save a score (`{"nick","score"}` → 201; 400 for a nick over 24 characters or with control characters, or a score outside 0-100000; only the best 1000 are kept) |
+| `/api/pokertable…` and `WS /api/pokertable/{id}/ws` | Poker — see the protocol in the main README (the session token in `Authorization: Bearer …` and in the WebSocket's first message, never in the URL) |
 
 ## Rules for changes
 
 - **A page change** reaches both backends at their next build — check it on both.
+- **Nothing inline in the pages**: no `<script>` without `src`, no `<style>`, no `style="…"` attribute and no
+  `on…=` handler. cv-asp.net sends a Content-Security-Policy that blocks them (scripts and styles from the site
+  only, plus Google Fonts; `data:` images; requests and WebSockets to the same origin). Hide an element in the
+  stylesheet and show it from the script (`element.style.display = …` is allowed), and put user data in with
+  `textContent`, never `innerHTML`.
 - **A new migration** is a new file with the next version (`V5__…sql`). Never edit a migration that a
   database has already run: Flyway refuses to start when an applied script's checksum changes, and DbUp
   silently skips it.

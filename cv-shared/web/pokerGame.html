@@ -69,19 +69,19 @@
 
     <!-- [1,2] Ranking / showdown -->
     <div id="info-right" class="info-cell">
-      <div id="ranking" style="display:none"></div>
+      <div id="ranking"></div>
     </div>
 
     <!-- Row 2  -->
 
     <!-- [2,0] Action buttons -->
     <div id="action-area" class="action-area">
-      <div id="actions" style="display:none">
+      <div id="actions">
         <button id="btn-fold"  class="btn btn-fold">Fold</button>
         <button id="btn-check" class="btn btn-check">Check</button>
-        <button id="btn-call"  class="btn btn-call"  style="display:none">Call</button>
+        <button id="btn-call"  class="btn btn-call">Call</button>
       </div>
-      <button id="btn-start" class="btn btn-start" style="display:none">
+      <button id="btn-start" class="btn btn-start">
         ▶ Next hand
       </button>
     </div>
@@ -98,7 +98,7 @@
 
     <!-- [2,2] Raise controls -->
     <div id="raise-area" class="raise-area">
-      <div id="raise-controls" style="display:none">
+      <div id="raise-controls">
         <label for="raise-amount">Raise</label>
         <input id="raise-amount" type="number" min="1" step="10" value="20" />
         <button id="btn-raise" class="btn btn-raise">Raise ↑</button>
@@ -108,7 +108,7 @@
   </div><!-- /game-screen -->
 
   <!--  Game over overlay  -->
-  <div id="game-over" style="display:none">
+  <div id="game-over">
     <div class="game-over-card">
       <div id="game-over-icon"></div>
       <h2 id="game-over-title"></h2>

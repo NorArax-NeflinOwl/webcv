@@ -4,9 +4,12 @@
  * Protocol summary:
  *   POST /api/pokertable                     → { tableId }
  *   POST /api/pokertable/{id}/join           → { sessionToken, playerId }
- *   POST /api/pokertable/{id}/start?token=…  → 204
- *   WS   /api/pokertable/{id}/ws?token=…     ← TableSnapshotDto push
+ *   POST /api/pokertable/{id}/start          → 204   (Authorization: Bearer <sessionToken>)
+ *   WS   /api/pokertable/{id}/ws             → { type: "Auth", token: sessionToken }  (first message)
+ *                                    ← TableSnapshotDto push
  *                                    → { type: "Fold"|"Check"|"Call"|"Raise", amount? }
+ *
+ * The session token never goes into a URL: URLs end up in the gateway's access log.
  */
 
 'use strict';
@@ -36,9 +39,10 @@ const SUIT_META = {
   BLACK_SPADE:  { symbol: '♠', css: 'black-spade'  },
 };
 
+// Only the fixed labels above reach the markup: an unknown rank or suit from the server shows as '?'.
 function cardHTML(card) {
-  const rank = RANK_LABEL[card.rank] ?? card.rank;
-  const meta = SUIT_META[card.suit]  ?? { symbol: card.suit, css: 'black-spade' };
+  const rank = RANK_LABEL[card.rank] ?? '?';
+  const meta = SUIT_META[card.suit]  ?? { symbol: '?', css: 'black-spade' };
   return `<div class="card ${meta.css}">
     <span class="card-rank">${rank}</span>
     <span class="card-suit">${meta.symbol}</span>
@@ -57,15 +61,22 @@ function cardsHTML(cards, faceDown = false, count = 2) {
 
 //  API helpers 
 
-async function apiPost(path, body = null) {
+// The public server limits tables and requests; these answers mean "later", not "broken".
+const BUSY_MESSAGES = {
+  429: 'Too many requests, please try again in a minute.',
+  503: 'All poker tables are busy, please try again in a few minutes.',
+};
+
+async function apiPost(path, body = null, token = null) {
   const opts = { method: 'POST', headers: {} };
+  if (token !== null) opts.headers['Authorization'] = `Bearer ${token}`;
   if (body !== null) {
     opts.headers['Content-Type'] = 'application/json';
     opts.body = JSON.stringify(body);
   }
   const res = await fetch(path, opts);
   if (!res.ok) {
-    const err = new Error(`${path} → ${res.status} ${res.statusText}`);
+    const err = new Error(BUSY_MESSAGES[res.status] ?? `${path} → ${res.status} ${res.statusText}`);
     err.status = res.status;
     throw err;
   }
@@ -75,15 +86,16 @@ async function apiPost(path, body = null) {
 
 const createTable = ()             => apiPost('/api/pokertable', { blindAmount: 10 });
 const joinTable   = (id, name)     => apiPost(`/api/pokertable/${id}/join`, { playerName: name, coins: 1000 });
-const startHand   = (id, token)    => apiPost(`/api/pokertable/${id}/start?token=${token}`);
+const startHand   = (id, token)    => apiPost(`/api/pokertable/${id}/start`, null, token);
 
 //  WebSocket 
 
 function connectWS(tableId, token) {
   const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
-  const ws = new WebSocket(`${proto}//${location.host}/api/pokertable/${tableId}/ws?token=${token}`);
+  const ws = new WebSocket(`${proto}//${location.host}/api/pokertable/${tableId}/ws`);
 
   ws.onopen = async () => {
+    ws.send(JSON.stringify({ type: 'Auth', token }));
     setStatus('Connected');
     window.addEventListener('beforeunload', onBeforeUnload);
     await startHand(tableId, token);
@@ -97,7 +109,8 @@ function connectWS(tableId, token) {
   };
 
   ws.onclose = (e) => {
-    setStatus(`Disconnected (${e.code})`);
+    // 4004: the server removed the table (idle too long, or the player was gone).
+    setStatus(e.code === 4004 ? 'The table was closed after inactivity. Reload to play again.' : `Disconnected (${e.code})`);
     window.removeEventListener('beforeunload', onBeforeUnload);
   };
   ws.onerror = () => setStatus('WebSocket error');
@@ -193,7 +206,7 @@ function render(snap) {
   const checkBtn = el('btn-check');
   if (snap.toCall > 0) {
     callBtn.textContent    = `Call ${snap.toCall}`;
-    callBtn.style.display  = '';
+    callBtn.style.display  = 'block';
     checkBtn.style.display = 'none';
   } else {
     callBtn.style.display  = 'none';
@@ -202,7 +215,7 @@ function render(snap) {
 
   // "Next hand" button  only after a completed hand, never on the initial waiting state
   // (the first hand is started automatically via ws.onopen)
-  el('btn-start').style.display = snap.phase === 'Showdown' ? '' : 'none';
+  el('btn-start').style.display = snap.phase === 'Showdown' ? 'block' : 'none';
 
   // Game over detection: after showdown, if only 1 player has chips left the session is over
   if (snap.phase === 'Showdown') {
@@ -214,12 +227,18 @@ function render(snap) {
   }
 
   // Ranking (showdown)
+  // Built as text nodes: the player names come from the clients and must never be parsed as HTML.
   const rankingEl = el('ranking');
   if (snap.ranking && snap.ranking.length > 0) {
-    rankingEl.innerHTML = '<h3>Results</h3>' +
-      snap.ranking.map((r, i) =>
-        `<div class="rank-entry">${i + 1}. ${r.playerName}  ${r.handCategory}</div>`
-      ).join('');
+    const title = document.createElement('h3');
+    title.textContent = 'Results';
+    const entries = snap.ranking.map((r, i) => {
+      const entry = document.createElement('div');
+      entry.className   = 'rank-entry';
+      entry.textContent = `${i + 1}. ${r.playerName}  ${r.handCategory}`;
+      return entry;
+    });
+    rankingEl.replaceChildren(title, ...entries);
     rankingEl.style.display = 'block';
   } else {
     rankingEl.style.display = 'none';
@@ -287,6 +306,9 @@ function showGameOver(humanWon, finalCoins) {
 
 const el = (id) => document.getElementById(id);
 
+// The stylesheet hides some elements at first, so the inline style alone does not tell.
+const isShown = (id) => getComputedStyle(el(id)).display !== 'none';
+
 function setStatus(msg) {
   const s = el('status');
   if (s) s.textContent = msg;
@@ -308,16 +330,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // Ignore when typing in an input field
     if (e.target.tagName === 'INPUT') return;
 
-    const actionsVisible = el('actions').style.display !== 'none';
+    const actionsVisible = isShown('actions');
 
     switch (e.key) {
       case ' ':
         e.preventDefault();
         if (actionsVisible) {
-          el('btn-call').style.display !== 'none'
+          isShown('btn-call')
             ? sendAction('Call')
             : sendAction('Check');
-        } else if (el('btn-start').style.display !== 'none') {
+        } else if (isShown('btn-start')) {
           onStartHand();
         }
         break;
@@ -330,7 +352,7 @@ document.addEventListener('DOMContentLoaded', () => {
       case 'R':
       case 'Enter':
         if (actionsVisible) onRaise();
-        else if (el('btn-start').style.display !== 'none') {
+        else if (isShown('btn-start')) {
           onStartHand();
         }
         break;
