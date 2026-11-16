@@ -7,9 +7,6 @@ namespace CvAspNet.Web.Poker;
 
 // ── REST ──
 
-public sealed record TableListResponse(IReadOnlyList<TableInfoDto> Tables, int Count);
-
-public sealed record TableInfoDto(string TableId);
 
 public sealed record CreateTableRequest(int BlindAmount = 10);
 

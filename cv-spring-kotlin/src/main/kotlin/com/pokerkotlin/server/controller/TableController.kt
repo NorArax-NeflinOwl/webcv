@@ -9,8 +9,7 @@ import com.pokerkotlin.server.dto.CreateTableRequest
 import com.pokerkotlin.server.dto.CreateTableResponse
 import com.pokerkotlin.server.dto.JoinTableRequest
 import com.pokerkotlin.server.dto.JoinTableResponse
-import com.pokerkotlin.server.dto.TableInfoDto
-import com.pokerkotlin.server.dto.TableListResponse
+import com.pokerkotlin.server.dto.PokerInput
 import com.pokerkotlin.server.dto.TableSnapshotDto
 import com.pokerkotlin.server.dto.toDto
 import com.pokerkotlin.server.repository.TableRepository
@@ -41,6 +40,9 @@ import java.util.UUID
  * The `sessionToken` is a bearer credential that authorises the WebSocket connection
  * and all subsequent actions. It is intentionally kept separate from HTTP session
  * cookies so that the same token works for both the REST and WS layers.
+ *
+ * There is no list of tables: a table's id is known only to whoever created it, and its one human seat
+ * is taken by the creator's join (the page plays one human against the bots).
  */
 @RestController
 @RequestMapping("/api/pokertable")
@@ -51,26 +53,6 @@ class TableController(
 
     private val secureRandom = SecureRandom()
 
-    // 
-    // GET /api/pokertable  list all active tables
-    // 
-
-    /**
-     * Returns a list of all currently active table IDs.
-     *
-     * Example response:
-     * ```json
-     * { "tables": [{"tableId": "…"}, {"tableId": "…"}], "count": 2 }
-     * ```
-     */
-    @GetMapping
-    fun listTables(): TableListResponse {
-        val ids = tableRepository.allTableIds()
-        return TableListResponse(
-            tables = ids.map { TableInfoDto(it.value) },
-            count  = ids.size,
-        )
-    }
 
     // 
     // POST /api/pokertable  create a new table (with 2 bots pre-seated)
@@ -87,6 +69,7 @@ class TableController(
     @ResponseStatus(HttpStatus.CREATED)
     fun createTable(@RequestBody(required = false) body: CreateTableRequest?): CreateTableResponse {
         val blind = body?.blindAmount ?: 10
+        PokerInput.checkBlind(blind)?.let { throw ResponseStatusException(HttpStatus.BAD_REQUEST, it) }
         val tableId = tableRepository.create(blindAmount = blind)
         val engine = tableRepository.getOrThrow(tableId)
 
@@ -119,6 +102,7 @@ class TableController(
      * Returns: `{"sessionToken": "<uuid>", "playerId": "<uuid>"}`
      *
      * The token must be passed as `?token=…` on the WebSocket URL.
+     * 409 when the table's human seat is already taken.
      */
     @PostMapping("/{id}/join")
     @ResponseStatus(HttpStatus.CREATED)
@@ -126,21 +110,29 @@ class TableController(
         @PathVariable id: String,
         @RequestBody body: JoinTableRequest,
     ): JoinTableResponse {
+        val playerName = PokerInput.checkName(body.playerName)
+            .getOrElse { throw ResponseStatusException(HttpStatus.BAD_REQUEST, it.message) }
+        PokerInput.checkCoins(body.coins)?.let { throw ResponseStatusException(HttpStatus.BAD_REQUEST, it) }
+
         val tableId = TableId(id)
         val engine = tableRepository.get(tableId)
             ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Table not found: $id")
 
         val playerId = PlayerId(UUID.randomUUID().toString())
-        engine.addPlayer(
-            player = Player(
-                id = playerId,
-                name = body.playerName,
-                coins = body.coins,
-                holeCards = Hand(emptyList()),
-                isBot = false,
-            ),
-            strategy = null,    // human  actions come through WebSocket
-        )
+        try {
+            engine.addPlayer(
+                player = Player(
+                    id = playerId,
+                    name = playerName,
+                    coins = body.coins,
+                    holeCards = Hand(emptyList()),
+                    isBot = false,
+                ),
+                strategy = null,    // human  actions come through WebSocket
+            )
+        } catch (ex: IllegalStateException) {
+            throw ResponseStatusException(HttpStatus.CONFLICT, ex.message)
+        }
 
         val token = sessionRegistry.create(playerId = playerId, tableId = tableId)
         return JoinTableResponse(sessionToken = token, playerId = playerId.value)

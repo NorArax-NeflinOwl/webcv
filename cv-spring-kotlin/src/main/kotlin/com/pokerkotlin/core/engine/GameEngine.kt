@@ -17,7 +17,14 @@ class GameEngine(
     private val random: SecureRandom = SecureRandom(),
     /** Deck factory  overridable in tests to inject a deterministic card order. */
     private val deckFactory: () -> Deck = { Deck.shuffle(random) },
+    /** How many of the [MAX_SEATS] seats humans may take. */
+    private val maxHumanSeats: Int = MAX_SEATS,
 ) {
+    companion object {
+        /** Texas Hold'em seats at most 10 players: 2 hole cards each and the board stay well within one deck. */
+        const val MAX_SEATS = 10
+    }
+
     //  Internal seat representation 
     private data class Seat(
         val player: Player,
@@ -52,9 +59,15 @@ class GameEngine(
     // Seat management
     // 
 
+    /** @throws IllegalStateException when no seat is free (for a human, when [maxHumanSeats] are taken). */
+    @Synchronized
     fun addPlayer(player: Player, strategy: BotStrategy? = null) {
         require(seats.none { it.player.id == player.id }) {
             "Player ${player.name} is already seated at this table"
+        }
+        check(seats.size < MAX_SEATS) { "The table is full" }
+        check(strategy != null || seats.count { it.strategy == null } < maxHumanSeats) {
+            "The table has no free seat for another player"
         }
         seats.add(Seat(player, strategy))
         if (log.isInfoEnabled) {

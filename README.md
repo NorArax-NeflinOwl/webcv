@@ -101,6 +101,10 @@ WS   /api/pokertable/{id}/ws?token=…   ← TableSnapshotDto (pushed on every s
                                 → { type: "Fold"|"Check"|"Call"|"Raise", amount? }
 ```
 
+The API is public and anonymous, so a table has one human seat, taken by its creator's join, and table ids are
+not listed anywhere (a second join gets 409). Requests are checked: `playerName` is trimmed, 1-24 characters,
+without control or formatting characters; `blindAmount` is 2-1000 and `coins` 1-100000; anything else is a 400.
+
 ---
 
 ### 04  CV Page: C# + ASP.NET Core + PostgreSQL + Docker
@@ -158,7 +162,7 @@ Application available at: `http://localhost:8280` (Kotlin) and `http://localhost
 | `.../api/hello` | Hello World |
 | `.../api/backend` | Which backend serves the page (footer label) |
 | `.../api/pandagame/scores` | Panda Game scores (GET  all scores, POST  save score) |
-| `.../api/pokertable` | List poker tables (GET) / Create table (POST) |
+| `.../api/pokertable` | Create a poker table (POST); tables are not listed |
 | `.../api/pokertable/{id}/join` | Join a table (POST) |
 | `.../api/pokertable/{id}/start` | Start a hand (POST) |
 | `.../api/pokertable/{id}/ws` | WebSocket  real-time game state |

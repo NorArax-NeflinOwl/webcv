@@ -2,9 +2,6 @@ package com.pokerkotlin.server.dto
 
 //  REST: GET /api/pokertable 
 
-data class TableListResponse(val tables: List<TableInfoDto>, val count: Int)
-
-data class TableInfoDto(val tableId: String)
 
 //  REST: POST /api/pokertable 
 

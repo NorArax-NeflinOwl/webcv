@@ -50,6 +50,22 @@ class GameEngineTest {
     //  startHand 
 
     @Test
+    fun `addPlayer refuses more than MAX_SEATS players`() {
+        repeat(GameEngine.MAX_SEATS) { engine.addPlayer(player("p$it", "Player $it")) }
+        assertThrows(IllegalStateException::class.java) {
+            engine.addPlayer(player("late", "Late"))
+        }
+    }
+
+    @Test
+    fun `addPlayer refuses a human beyond maxHumanSeats but still seats bots`() {
+        val oneHuman = GameEngine(tableId = TableId("test"), maxHumanSeats = 1)
+        oneHuman.addPlayer(p0)
+        assertThrows(IllegalStateException::class.java) { oneHuman.addPlayer(p1) }
+        oneHuman.addPlayer(p1, com.pokerkotlin.core.strategy.RandomBotStrategy(java.security.SecureRandom()))
+    }
+
+    @Test
     fun `startHand requires at least 2 players`() {
         engine.addPlayer(p0)
         assertThrows(IllegalArgumentException::class.java) {

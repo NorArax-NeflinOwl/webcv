@@ -19,11 +19,16 @@ public sealed class PokerApiTests : IDisposable
 
     public void Dispose() => factory.Dispose();
 
-    private async Task<(string TableId, JoinTableResponse Session)> CreateAndJoinAsync()
+    private async Task<string> CreateTableAsync()
     {
         var created = await client.PostAsJsonAsync("/api/pokertable", new CreateTableRequest(BlindAmount: 10));
         Assert.Equal(HttpStatusCode.Created, created.StatusCode);
-        var tableId = (await created.Content.ReadFromJsonAsync<CreateTableResponse>())!.TableId;
+        return (await created.Content.ReadFromJsonAsync<CreateTableResponse>())!.TableId;
+    }
+
+    private async Task<(string TableId, JoinTableResponse Session)> CreateAndJoinAsync()
+    {
+        var tableId = await CreateTableAsync();
 
         var joined = await client.PostAsJsonAsync($"/api/pokertable/{tableId}/join", new JoinTableRequest("Alice"));
         Assert.Equal(HttpStatusCode.Created, joined.StatusCode);
@@ -59,12 +64,9 @@ public sealed class PokerApiTests : IDisposable
     }
 
     [Fact]
-    public async Task CreateTable_SeatsTwoBotsAndIsListed()
+    public async Task CreateTable_SeatsTwoBots()
     {
         var (tableId, session) = await CreateAndJoinAsync();
-
-        var tables = await client.GetFromJsonAsync<TableListResponse>("/api/pokertable");
-        Assert.Contains(tables!.Tables, table => table.TableId == tableId);
 
         Assert.Equal(HttpStatusCode.NoContent, (await client.PostAsync($"/api/pokertable/{tableId}/start?token={session.SessionToken}", null)).StatusCode);
         var snapshot = await client.GetFromJsonAsync<TableSnapshotDto>($"/api/pokertable/{tableId}/snapshot?token={session.SessionToken}");
@@ -78,6 +80,78 @@ public sealed class PokerApiTests : IDisposable
         var response = await client.PostAsync("/api/pokertable", null);
 
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Tables_AreNotListed()
+    {
+        await CreateAndJoinAsync();
+
+        var response = await client.GetAsync("/api/pokertable");
+
+        Assert.Equal(HttpStatusCode.MethodNotAllowed, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Join_ASecondHumanIs409()
+    {
+        var (tableId, _) = await CreateAndJoinAsync();
+
+        var stranger = await client.PostAsJsonAsync($"/api/pokertable/{tableId}/join", new JoinTableRequest("Mallory"));
+
+        Assert.Equal(HttpStatusCode.Conflict, stranger.StatusCode);
+    }
+
+    [Theory]
+    [InlineData(1)]
+    [InlineData(-10)]
+    [InlineData(PokerInput.MaxBlind + 1)]
+    public async Task CreateTable_RejectsABlindOutOfRange(int blindAmount)
+    {
+        var response = await client.PostAsJsonAsync("/api/pokertable", new CreateTableRequest(blindAmount));
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-1)]
+    [InlineData(int.MaxValue)]
+    public async Task Join_RejectsCoinsOutOfRange(int coins)
+    {
+        var tableId = await CreateTableAsync();
+
+        var response = await client.PostAsJsonAsync($"/api/pokertable/{tableId}/join", new JoinTableRequest("Alice", coins));
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    [InlineData("A name that is much too long for a seat")]
+    [InlineData("Line\nbreak")]
+    [InlineData("Evil\u202Eeman")]
+    public async Task Join_RejectsAnInvalidName(string playerName)
+    {
+        var tableId = await CreateTableAsync();
+
+        var response = await client.PostAsJsonAsync($"/api/pokertable/{tableId}/join", new JoinTableRequest(playerName));
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Join_TrimsTheName()
+    {
+        var tableId = await CreateTableAsync();
+        var joined = await (await client.PostAsJsonAsync($"/api/pokertable/{tableId}/join", new JoinTableRequest("  <b>Alice</b>  "))).Content.ReadFromJsonAsync<JoinTableResponse>();
+        await client.PostAsync($"/api/pokertable/{tableId}/start?token={joined!.SessionToken}", null);
+
+        var snapshot = await client.GetFromJsonAsync<TableSnapshotDto>($"/api/pokertable/{tableId}/snapshot?token={joined.SessionToken}");
+
+        // Markup is kept as text: the page renders names with textContent.
+        Assert.Equal("<b>Alice</b>", snapshot!.Players.Single(player => player.Id == joined.PlayerId).Name);
     }
 
     [Fact]

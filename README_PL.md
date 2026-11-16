@@ -106,6 +106,11 @@ WS   /api/pokertable/{id}/ws?token=…   ← TableSnapshotDto (push po każdej z
                                 → { type: "Fold"|"Check"|"Call"|"Raise", amount? }
 ```
 
+API jest publiczne i anonimowe, więc stół ma jedno miejsce dla człowieka, zajmowane przez dołączenie jego twórcy,
+a identyfikatory stołów nie są nigdzie listowane (drugie dołączenie dostaje 409). Żądania są sprawdzane: `playerName`
+jest przycinany, ma 1-24 znaki, bez znaków sterujących i formatujących; `blindAmount` to 2-1000, a `coins` 1-100000;
+wszystko inne to 400.
+
 ---
 
 ### 04  Strona CV: C# + ASP.NET Core + PostgreSQL + Docker
@@ -163,7 +168,7 @@ Aplikacja dostępna pod adresem: `http://localhost:8280` (Kotlin) i `http://loca
 | `.../api/hello` | Hello World |
 | `.../api/backend` | Który backend serwuje stronę (etykieta w stopce) |
 | `.../api/pandagame/scores` | Wyniki Panda Game (GET  wszystkie wyniki, POST  zapis wyniku) |
-| `.../api/pokertable` | Lista stołów pokerowych (GET) / Nowy stół (POST) |
+| `.../api/pokertable` | Nowy stół pokerowy (POST); stoły nie są listowane |
 | `.../api/pokertable/{id}/join` | Dołącz do stołu (POST) |
 | `.../api/pokertable/{id}/start` | Rozpocznij rozdanie (POST) |
 | `.../api/pokertable/{id}/ws` | WebSocket  stan gry w czasie rzeczywistym |

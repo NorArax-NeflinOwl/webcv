@@ -1,5 +1,6 @@
 using CvAspNet.Poker.Engine;
 using CvAspNet.Poker.Model;
+using CvAspNet.Poker.Strategy;
 
 namespace CvAspNet.Tests.Poker;
 
@@ -43,6 +44,27 @@ public class GameEngineTests
         {
             if (engine.Snapshot().CurrentTurnId is { } turn) await engine.ApplyActionAsync(new PlayerAction.Check(turn));
         }
+    }
+
+    // ── Seats ──
+
+    [Fact]
+    public void AddPlayer_RefusesMoreThanMaxSeats()
+    {
+        var engine = new GameEngine(new TableId("test"));
+        for (var i = 0; i < GameEngine.MaxSeats; i++) engine.AddPlayer(NewPlayer(new PlayerId($"p{i}"), $"Player {i}"));
+
+        Assert.Throws<InvalidOperationException>(() => engine.AddPlayer(NewPlayer(new PlayerId("one-too-many"), "Late")));
+    }
+
+    [Fact]
+    public void AddPlayer_RefusesAHumanBeyondMaxHumanSeatsButStillSeatsBots()
+    {
+        var engine = new GameEngine(new TableId("test"), maxHumanSeats: 1);
+        engine.AddPlayer(NewPlayer(P0, "Alice"));
+
+        Assert.Throws<InvalidOperationException>(() => engine.AddPlayer(NewPlayer(P1, "Mallory")));
+        engine.AddPlayer(NewPlayer(P1, "Bot"), new RandomBotStrategy());
     }
 
     // ── StartHand ──

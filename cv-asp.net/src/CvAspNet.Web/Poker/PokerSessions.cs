@@ -19,10 +19,11 @@ public sealed class TableRepository(ILoggerFactory loggerFactory)
     private readonly ILogger<TableRepository> log = loggerFactory.CreateLogger<TableRepository>();
     private readonly ConcurrentDictionary<string, GameEngine> tables = new();
 
+    /// <summary>A table with one human seat: the page seats its player against bots.</summary>
     public TableId Create(int blindAmount = 10)
     {
         var id = new TableId(Guid.NewGuid().ToString());
-        tables[id.Value] = new GameEngine(id, blindAmount, logger: loggerFactory.CreateLogger<GameEngine>());
+        tables[id.Value] = new GameEngine(id, blindAmount, logger: loggerFactory.CreateLogger<GameEngine>(), maxHumanSeats: 1);
         log.LogInformation("Table created [tableId={TableId}] (blind={Blind})", id, blindAmount);
         return id;
     }
@@ -54,9 +55,6 @@ public sealed class TableRepository(ILoggerFactory loggerFactory)
     }
 
     public int Count => tables.Count;
-
-    /// <summary>The ids of all active tables, in no particular order.</summary>
-    public IReadOnlyList<TableId> AllTableIds() => tables.Keys.Select(key => new TableId(key)).ToList();
 }
 
 /// <summary>

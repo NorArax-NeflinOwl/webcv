@@ -17,6 +17,9 @@ namespace CvAspNet.Poker.Engine;
 /// </summary>
 public sealed class GameEngine
 {
+    /// <summary>Texas Hold'em seats at most 10 players: 2 hole cards each and the board stay well within one deck.</summary>
+    public const int MaxSeats = 10;
+
     private const int HoleCardCount = 2;
     private const int FlopCardCount = 3;
 
@@ -45,6 +48,7 @@ public sealed class GameEngine
     }
 
     private readonly int blindAmount;
+    private readonly int maxHumanSeats;
     private readonly Func<Deck> deckFactory;
     private readonly ILogger<GameEngine> log;
     private readonly List<Seat> seats = [];
@@ -56,10 +60,12 @@ public sealed class GameEngine
     private int dealerIndex;
 
     /// <param name="deckFactory">Supplies each hand's deck; tests pass a fixed card order.</param>
-    public GameEngine(TableId tableId, int blindAmount = 10, Func<Deck>? deckFactory = null, ILogger<GameEngine>? logger = null)
+    /// <param name="maxHumanSeats">How many of the <see cref="MaxSeats"/> seats humans may take.</param>
+    public GameEngine(TableId tableId, int blindAmount = 10, Func<Deck>? deckFactory = null, ILogger<GameEngine>? logger = null, int maxHumanSeats = MaxSeats)
     {
         TableId = tableId;
         this.blindAmount = blindAmount;
+        this.maxHumanSeats = maxHumanSeats;
         this.deckFactory = deckFactory ?? Deck.Shuffle;
         log = logger ?? NullLogger<GameEngine>.Instance;
     }
@@ -72,11 +78,17 @@ public sealed class GameEngine
     // ── Seat management ──
 
     /// <param name="strategy">Null seats a human, who acts through <see cref="ApplyActionAsync"/>.</param>
+    /// <exception cref="InvalidOperationException">No free seat (for a human, when <c>maxHumanSeats</c> are taken).</exception>
     public void AddPlayer(Player player, IBotStrategy? strategy = null) => RunLocked(() =>
     {
         if (seats.Any(seat => seat.Player.Id == player.Id))
         {
             throw new ArgumentException($"Player {player.Name} is already seated at this table");
+        }
+        if (seats.Count >= MaxSeats) throw new InvalidOperationException("The table is full");
+        if (strategy is null && seats.Count(seat => seat.IsHuman) >= maxHumanSeats)
+        {
+            throw new InvalidOperationException("The table has no free seat for another player");
         }
         seats.Add(new Seat(player, strategy));
 
