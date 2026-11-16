@@ -207,6 +207,10 @@ sudo docker compose up --build -d
 that the rate limits and the logs see the visitor instead of the Pi. Docker keeps the client's address for LAN
 traffic to a published port; if the logs still show a Docker gateway address (`172.x.0.1`), list that one.
 
+Per visitor (that address) the .NET backend allows 10 new poker tables, 20 joins and 10 Panda scores a minute,
+section `RateLimits` of `appsettings.json` (e.g. `RateLimits__PandaScoresPerMinute`); beyond that the answer is a
+429 with `Retry-After`, and the pages ask to try again later.
+
 Both containers have `restart: unless-stopped`, so they start again with Docker after the server reboots. A
 container stopped on purpose (`docker compose stop`) stays stopped.
 
@@ -264,7 +268,7 @@ and hand evaluation. The integration test (`PokerGameIntegrationTest`) verifies 
 - [x] Project 03  Bots (RandomBot) + engine & integration tests
 - [ ] Project 03  Advanced bot difficulty levels
 - [ ] Project 03  Multiplayer
-- [ ] Project 03  Kotlin backend: the .NET limits on in-memory tables (table cap, idle-table sweep, turn timeout, WebSocket caps)
+- [ ] Project 03  Kotlin backend: the .NET limits on in-memory tables (table cap, idle-table sweep, turn timeout, WebSocket caps) and per-visitor rate limits
 - [x] Project 04  C# + ASP.NET Core backend (parity with Kotlin, shared pages and migrations)
 - [x] Deploy to hosting
 

@@ -213,6 +213,10 @@ sudo docker compose up --build -d
 żądań i logi widziały odwiedzającego, a nie Pi. Docker zachowuje adres klienta dla ruchu z LAN-u na opublikowany
 port; jeśli logi nadal pokazują adres bramy Dockera (`172.x.0.1`), trzeba wpisać ten adres.
 
+Na jednego odwiedzającego (ten adres) backend .NET przyjmuje na minutę 10 nowych stołów pokerowych, 20 dołączeń
+i 10 wyników Pandy, sekcja `RateLimits` w `appsettings.json` (np. `RateLimits__PandaScoresPerMinute`); ponad to
+odpowiada 429 z `Retry-After`, a strony proszą o ponowienie później.
+
 ---
 
 ## Uruchomienie lokalne (bez Dockera)
@@ -267,7 +271,7 @@ i ocenę rąk. Test integracyjny (`PokerGameIntegrationTest`) sprawdza pełny pr
 - [x] Projekt 03  Boty (RandomBot) + testy silnika i integracyjne
 - [ ] Projekt 03  Nowe poziomy trudności Botów
 - [ ] Projekt 03  Multiplayer
-- [ ] Projekt 03  backend Kotlin: limity stołów w pamięci z .NET (limit stołów, sprzątanie bezczynnych, timeout tury, limity WebSocketów)
+- [ ] Projekt 03  backend Kotlin: limity stołów w pamięci z .NET (limit stołów, sprzątanie bezczynnych, timeout tury, limity WebSocketów) i limity żądań na odwiedzającego
 - [x] Projekt 04  Backend C# + ASP.NET Core (zgodny z Kotlinem, wspólne strony i migracje)
 - [x] Wdrożenie na hosting
 

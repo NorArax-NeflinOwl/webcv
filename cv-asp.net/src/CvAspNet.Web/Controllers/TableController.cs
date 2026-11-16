@@ -2,6 +2,7 @@ using CvAspNet.Poker.Model;
 using CvAspNet.Poker.Strategy;
 using CvAspNet.Web.Poker;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace CvAspNet.Web.Controllers;
 
@@ -28,6 +29,7 @@ public sealed class TableController(TableRepository tableRepository, SessionRegi
 
     /// <summary>Creates a table with two random bots already seated; the body is optional: {"blindAmount": 10}.</summary>
     [HttpPost]
+    [EnableRateLimiting(RateLimits.PokerTables)]
     public ActionResult<CreateTableResponse> CreateTable(CreateTableRequest? body)
     {
         var blindAmount = body?.BlindAmount ?? 10;
@@ -55,6 +57,7 @@ public sealed class TableController(TableRepository tableRepository, SessionRegi
     /// 409 when the table's human seat is already taken.
     /// </summary>
     [HttpPost("{id}/join")]
+    [EnableRateLimiting(RateLimits.PokerJoins)]
     public ActionResult<JoinTableResponse> JoinTable(string id, JoinTableRequest body)
     {
         if (PokerInput.CheckName(body.PlayerName, out var playerName) is { } invalidName) return InvalidInput(invalidName);

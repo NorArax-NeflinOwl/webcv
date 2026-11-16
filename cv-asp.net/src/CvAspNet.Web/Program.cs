@@ -50,12 +50,16 @@ builder.Services.AddHealthChecks().AddDbContextCheck<CvDbContext>("database");
 var knownProxies = ForwardedHeadersSetup.ParseKnownProxies(builder.Configuration[ForwardedHeadersSetup.KnownProxiesKey]);
 builder.Services.Configure<ForwardedHeadersOptions>(options => ForwardedHeadersSetup.Configure(options, knownProxies));
 
+// Per-visitor limits on creating tables, seats and Panda scores; see RateLimits.
+RateLimits.AddTo(builder.Services, builder.Configuration.GetSection(RateLimits.SectionName).Get<RateLimits>() ?? new RateLimits());
+
 var app = builder.Build();
 
 if (knownProxies.Count > 0)
 {
     app.UseForwardedHeaders();
 }
+app.UseRateLimiter();
 
 if (app.Configuration.GetValue("Database:MigrateOnStartup", true))
 {

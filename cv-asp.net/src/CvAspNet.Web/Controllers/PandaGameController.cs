@@ -2,6 +2,7 @@ using CvAspNet.Web.Models;
 using CvAspNet.Web.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace CvAspNet.Web.Controllers;
 
@@ -11,6 +12,7 @@ namespace CvAspNet.Web.Controllers;
 public sealed class PandaGameController(IPandaGamePlayerScoreService pandaGameService) : ControllerBase
 {
     [HttpPost("scores")]
+    [EnableRateLimiting(RateLimits.PandaScores)]
     public async Task<ActionResult<PandaGamePlayerScoreResponse>> SaveScore(PandaGamePlayerScoreRequest request, CancellationToken cancellationToken) =>
         StatusCode(StatusCodes.Status201Created, await pandaGameService.SaveScoreAsync(request, cancellationToken));
 
