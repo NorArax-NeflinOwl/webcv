@@ -104,6 +104,23 @@ public class PandaGamePlayerScoreServiceTests
         await repository.DidNotReceiveWithAnyArgs().SaveAsync(default!, default);
     }
 
+    [Theory]
+    [InlineData("Line\nbreak")]
+    [InlineData("Evil\u202Eeman")]
+    public async Task SaveScore_RejectsANickWithControlOrFormattingCharacters(string nick)
+    {
+        await Assert.ThrowsAsync<ArgumentException>(() => service.SaveScoreAsync(new PandaGamePlayerScoreRequest(nick, 10)));
+        await repository.DidNotReceiveWithAnyArgs().SaveAsync(default!, default);
+    }
+
+    [Fact]
+    public async Task SaveScore_KeepsOnlyTheBestScores()
+    {
+        await service.SaveScoreAsync(new PandaGamePlayerScoreRequest("Player", 10));
+
+        await repository.Received(1).DeleteAllButTopAsync(PandaGamePlayerScoreService.MaxStoredScores, Arg.Any<CancellationToken>());
+    }
+
     // ── TopScores ──
 
     [Fact]

@@ -60,6 +60,9 @@ A web server serving the CV page. Backend written in Kotlin with Spring Boot, da
 A mini-game in the style of the Google Chrome Dino  a panda jumping over obstacles.
 Built with plain HTML + CSS + JavaScript, served by the same Spring Boot server.
 Player scores are saved to PostgreSQL (`panda_game_player_score`) and displayed as a leaderboard.
+The leaderboard is public, so a score is checked: a nick of at most 24 characters without control characters, a
+score of 0-100000 (the game adds a point per frame: about half an hour of flawless play), and only the best 1000
+scores are kept.
 
 📁 Directory: `/cv-shared/web/pandaGame.html`
 📁 Directory: `/cv-shared/web/css/pandaGameStyle.css`

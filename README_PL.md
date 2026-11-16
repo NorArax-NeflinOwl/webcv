@@ -64,7 +64,9 @@ dane przechowywane w PostgreSQL z migracjami Flyway, skonteneryzowany przy pomoc
 Podstrona z minigierką w stylu Dino z Google Chrome  panda skacząca przez przeszkody.
 Gra napisana w czystym HTML + CSS + JavaScript, serwowana przez ten sam serwer Spring Boot.
 Wyniki graczy zapisywane są w bazie PostgreSQL (tabela `panda_game_player_score`) i prezentowane
-jako tablica wyników.
+jako tablica wyników. Tablica jest publiczna, więc wynik jest sprawdzany: nick ma najwyżej 24 znaki, bez znaków
+sterujących, wynik 0-100000 (gra dodaje punkt na klatkę: to mniej więcej pół godziny bezbłędnej gry), a w bazie
+zostaje tylko 1000 najlepszych wyników.
 
 📁 Katalog: `/cv-shared/web/pandaGame.html`
 📁 Katalog: `/cv-shared/web/css/pandaGameStyle.css`

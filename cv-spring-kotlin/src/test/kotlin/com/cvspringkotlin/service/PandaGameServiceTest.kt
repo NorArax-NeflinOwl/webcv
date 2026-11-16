@@ -17,6 +17,31 @@ class PandaGameServiceTest {
     @BeforeEach
     fun setUp() {
         clearMocks(pandaScoreRepository)
+        every { pandaScoreRepository.count() } returns 1L
+    }
+
+    @Test
+    fun `saveScore rejects a nick with control or formatting characters`() {
+        listOf("Line\nbreak", "Evil\u202Eeman").forEach { nick ->
+            assertThrows(IllegalArgumentException::class.java) {
+                service.saveScore(PandaGamePlayerScoreRequest(nick = nick, score = 10))
+            }
+        }
+        verify(exactly = 0) { pandaScoreRepository.save(any()) }
+    }
+
+    @Test
+    fun `saveScore deletes the worst scores beyond the stored maximum`() {
+        val worst = PandaGamePlayerScore(nick = "Worst", score = 1, playedAt = LocalDateTime.of(2026, 6, 14, 10, 0))
+        every { pandaScoreRepository.save(any()) } answers { it.invocation.args[0] as PandaGamePlayerScore }
+        every { pandaScoreRepository.count() } returns PandaGamePlayerScoreService.MAX_STORED_SCORES + 1L
+        every { pandaScoreRepository.findAllByOrderByScoreAscPlayedAtDesc(any()) } returns listOf(worst)
+        every { pandaScoreRepository.deleteAll(any<Iterable<PandaGamePlayerScore>>()) } just Runs
+
+        service.saveScore(PandaGamePlayerScoreRequest(nick = "Player", score = 10))
+
+        verify { pandaScoreRepository.findAllByOrderByScoreAscPlayedAtDesc(match { it.pageNumber == 0 && it.pageSize == 1 }) }
+        verify { pandaScoreRepository.deleteAll(listOf(worst)) }
     }
 
     //  saveScore  happy path 

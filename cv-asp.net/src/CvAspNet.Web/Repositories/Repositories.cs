@@ -45,6 +45,10 @@ public interface IPandaGamePlayerScoreRepository
 
     /// <summary>The best scores, highest first; on equal scores the earlier one first.</summary>
     Task<IReadOnlyList<PandaGamePlayerScore>> FindTopAsync(int count, CancellationToken cancellationToken = default);
+
+    /// <summary>Deletes every score outside the best <paramref name="keep"/> (in <see cref="FindTopAsync"/> order).</summary>
+    /// <returns>How many were deleted.</returns>
+    Task<int> DeleteAllButTopAsync(int keep, CancellationToken cancellationToken = default);
 }
 
 internal sealed class ProfileRepository(CvDbContext db) : IProfileRepository
@@ -116,4 +120,19 @@ internal sealed class PandaGamePlayerScoreRepository(CvDbContext db) : IPandaGam
             .ThenBy(score => score.PlayedAt)
             .Take(count)
             .ToListAsync(cancellationToken);
+
+    public async Task<int> DeleteAllButTopAsync(int keep, CancellationToken cancellationToken = default)
+    {
+        var excess = await db.PandaGamePlayerScores.CountAsync(cancellationToken) - keep;
+        if (excess <= 0) return 0;
+
+        // The worst ones: the reverse of FindTopAsync's order.
+        var worst = await db.PandaGamePlayerScores.AsNoTracking()
+            .OrderBy(score => score.Score)
+            .ThenByDescending(score => score.PlayedAt)
+            .Take(excess)
+            .Select(score => score.Id)
+            .ToListAsync(cancellationToken);
+        return await db.PandaGamePlayerScores.Where(score => worst.Contains(score.Id)).ExecuteDeleteAsync(cancellationToken);
+    }
 }

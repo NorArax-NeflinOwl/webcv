@@ -1,6 +1,7 @@
 package com.cvspringkotlin.repository
 
 import com.cvspringkotlin.model.entity.*
+import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
@@ -70,4 +71,7 @@ interface IconRepository : JpaRepository<Icon, UUID> {
 interface PandaGamePlayerScoreRepository : JpaRepository<PandaGamePlayerScore, UUID> {
 
     fun findTop10ByOrderByScoreDescPlayedAtAsc(): List<PandaGamePlayerScore>
+
+    /** The worst scores first: the leaderboard's order reversed. */
+    fun findAllByOrderByScoreAscPlayedAtDesc(pageable: Pageable): List<PandaGamePlayerScore>
 }
