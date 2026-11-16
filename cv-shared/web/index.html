@@ -19,6 +19,12 @@
         <button class="link-btn load-error__retry" id="load-error-retry" type="button"></button>
     </div>
 
+    <!-- Shown by js/index.js while it asks again for a profile the starting server could not give yet -->
+    <p class="load-wait" id="load-wait" role="status" hidden>
+        <span class="load-wait__dot" aria-hidden="true"></span>
+        <span id="load-wait-text"></span>
+    </p>
+
     <!-- Header -->
     <header class="header">
         <div class="header__top-row">

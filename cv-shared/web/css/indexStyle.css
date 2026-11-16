@@ -572,6 +572,32 @@ body::before {
     cursor: pointer;
 }
 
+/* While a starting server is asked again: a quiet line with a pulsing dot, the placeholders stay below it. */
+.load-wait {
+    margin-bottom: 32px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    letter-spacing: .04em;
+    color: var(--text);
+    opacity: .8;
+    animation: fadeUp .4s ease both;
+}
+
+.load-wait[hidden] {
+    display: none;
+}
+
+.load-wait__dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
+    animation: pulse 1.6s ease-in-out infinite;
+}
+
 /* No shimmer and no movement for visitors who ask for less motion. */
 @media (prefers-reduced-motion: reduce) {
     .skeleton,
@@ -583,7 +609,9 @@ body::before {
     .header,
     .links,
     .section,
-    .load-error {
+    .load-error,
+    .load-wait,
+    .load-wait__dot {
         animation: none;
     }
 }

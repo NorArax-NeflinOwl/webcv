@@ -1,20 +1,46 @@
 //  Actuator health check 
+//  Startup retries
+/**
+ * A server that is starting (the home server woken from sleep, a container
+ * restarting) can fail the first requests: the page asks again after these
+ * pauses, about a minute and a half in all, before it shows an error.
+ */
+const STARTUP_RETRY_SECONDS = [2, 3, 5, 8, 13, 20, 30];
+
+function wait(seconds) {
+    return new Promise(resolve => setTimeout(resolve, seconds * 1000));
+}
+
+/** The answer's JSON; a failed status, or the gateway's HTML offline page, throws. */
+async function fetchJson(url) {
+    const res = await fetch(url, { cache: 'no-store' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+}
+
 async function checkHealth() {
     const link = document.getElementById('health-link');
     if (!link) return;
-    try {
-        const res  = await fetch('/actuator/health');
-        const data = await res.json();
-        if (data.status === 'UP') {
+    for (let attempt = 0; ; attempt++) {
+        let status = null;
+        try {
+            status = (await fetchJson('/actuator/health')).status;
+        } catch {
+            // Not answering yet: asked again below.
+        }
+        if (status === 'UP') {
+            link.classList.remove('health-error');
             link.classList.add('health-ok');
             link.title = 'Status: UP';
-        } else {
-            link.classList.add('health-error');
-            link.title = `Status: ${data.status}`;
+            return;
         }
-    } catch {
-        link.classList.add('health-error');
-        link.title = 'No connection to application';
+        // Neutral while the server may still be starting; red only once it has had its time.
+        if (attempt >= STARTUP_RETRY_SECONDS.length) {
+            link.classList.add('health-error');
+            link.title = status ? `Status: ${status}` : 'No connection to application';
+            return;
+        }
+        await wait(STARTUP_RETRY_SECONDS[attempt]);
     }
 }
 
@@ -316,6 +342,11 @@ const skeletons = new Map(SKELETON_HOSTS.map(id => [
     [...(document.getElementById(id)?.querySelectorAll(':scope > [data-skeleton]') ?? [])].map(node => node.cloneNode(true)),
 ]));
 
+const LOAD_WAIT_TEXT = {
+    pl: 'Serwer właśnie się uruchamia – profil pojawi się za chwilę…',
+    en: 'The server is starting up – the profile will appear in a moment…',
+};
+
 const LOAD_ERROR_TEXT = {
     pl: { message: 'Nie udało się wczytać profilu.', retry: 'Spróbuj ponownie' },
     en: { message: 'The profile could not be loaded.', retry: 'Try again' },
@@ -327,6 +358,7 @@ function prefersReducedMotion() {
 
 function showSkeletons() {
     hideLoadError();
+    hideLoadWait();
     SKELETON_HOSTS.forEach(id => {
         const host = document.getElementById(id);
         if (!host) return;
@@ -364,6 +396,16 @@ function showLoadError(language) {
     document.getElementById('load-error').hidden = false;
 }
 
+function showLoadWait(language) {
+    setText('load-wait-text', LOAD_WAIT_TEXT[language] ?? LOAD_WAIT_TEXT.en);
+    document.getElementById('load-wait').hidden = false;
+}
+
+function hideLoadWait() {
+    const line = document.getElementById('load-wait');
+    if (line) line.hidden = true;
+}
+
 function hideLoadError() {
     const box = document.getElementById('load-error');
     if (box) box.hidden = true;
@@ -375,35 +417,50 @@ let profileRequest = 0;  // a newer request (a quick language switch) wins over 
 async function loadProfile(language) {
     const request = ++profileRequest;
     showSkeletons();
-    try {
-        const res  = await fetch(`/api/profileinfo?lang=${language}`);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
+    for (let attempt = 0; ; attempt++) {
+        let data;
+        try {
+            data = await fetchJson(`/api/profileinfo?lang=${language}`);
+            if (!data?.name) throw new Error('The profile came back empty');
+        } catch (err) {
+            if (request !== profileRequest) return;
+            if (attempt >= STARTUP_RETRY_SECONDS.length) {
+                hideLoadWait();
+                console.error('Profile loading error:', err);
+                showLoadError(language);
+                return;
+            }
+            // The placeholders stay; a line says the server is starting, and the profile is asked for again.
+            showLoadWait(language);
+            await wait(STARTUP_RETRY_SECONDS[attempt]);
+            if (request !== profileRequest) return;
+            continue;
+        }
         if (request !== profileRequest) return;
-
-        document.title = data.title ?? document.title;
-
-        setText('eyebrow',       data.eyebrow);
-        setText('name',          data.name);
-        setHTML('role',          data.role);
-        setText('bio',           data.bio);
-        setText('footer-status', data.footer);
-
-        if (data.footerStatus)  applyFooterStatus(data.footerStatus);
-        if (data.links)         renderLinks(data.links);
-        if (data.experiences)   renderExperiences(data.experiences, language);
-        if (data.technologies)  renderTechnologies(data.technologies);
-        if (data.stacks)        renderChips(data.stacks);
-
-        removeSkeletons();
-        setLoading(false);  // starts the entrance animations, now on the real content
-        animateSkills();
-
-    } catch (err) {
-        if (request !== profileRequest) return;
-        console.error('Profile loading error:', err);
-        showLoadError(language);
+        hideLoadWait();
+        renderProfile(data, language);
+        return;
     }
+}
+
+function renderProfile(data, language) {
+    document.title = data.title ?? document.title;
+
+    setText('eyebrow',       data.eyebrow);
+    setText('name',          data.name);
+    setHTML('role',          data.role);
+    setText('bio',           data.bio);
+    setText('footer-status', data.footer);
+
+    if (data.footerStatus)  applyFooterStatus(data.footerStatus);
+    if (data.links)         renderLinks(data.links);
+    if (data.experiences)   renderExperiences(data.experiences, language);
+    if (data.technologies)  renderTechnologies(data.technologies);
+    if (data.stacks)        renderChips(data.stacks);
+
+    removeSkeletons();
+    setLoading(false);  // starts the entrance animations, now on the real content
+    animateSkills();
 }
 
 //  Language switcher
@@ -446,12 +503,17 @@ function setHTML(id, value) {
  * the server which one is serving it instead of hard-coding the stack.
  */
 async function loadBackendLabel() {
-    try {
-        const res  = await fetch('/api/backend');
-        const data = await res.json();
-        setText('backend-label', data.label);
-    } catch (err) {
-        console.error('Backend label loading error:', err);
+    for (let attempt = 0; ; attempt++) {
+        try {
+            setText('backend-label', (await fetchJson('/api/backend')).label);
+            return;
+        } catch (err) {
+            if (attempt >= STARTUP_RETRY_SECONDS.length) {
+                console.error('Backend label loading error:', err);
+                return;
+            }
+            await wait(STARTUP_RETRY_SECONDS[attempt]);
+        }
     }
 }
 
