@@ -15,7 +15,7 @@ class PokerInputTest {
 
     @Test
     fun `checkName rejects empty, long, control and formatting characters`() {
-        listOf("", "   ", "A name that is much too long for a seat", "Line\nbreak", "Evil‮eman")
+        listOf("", "   ", "A name that is much too long for a seat", "Line\nbreak", "Evil\u202Eeman")
             .forEach { assertTrue(PokerInput.checkName(it).isFailure, it) }
     }
 
