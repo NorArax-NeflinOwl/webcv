@@ -111,6 +111,21 @@ a identyfikatory stołów nie są nigdzie listowane (drugie dołączenie dostaje
 jest przycinany, ma 1-24 znaki, bez znaków sterujących i formatujących; `blindAmount` to 2-1000, a `coins` 1-100000;
 wszystko inne to 400.
 
+Stoły żyją w pamięci, więc backend .NET (ten wdrożony) pilnuje też, żeby się nie mnożyły. Jego wartości domyślne,
+sekcja `Poker` w `appsettings.json` (zmienne środowiskowe `Poker__MaxTables` itd.):
+
+| Limit | Domyślnie | Co się dzieje |
+|---|---|---|
+| `MaxTables` | 200 | kolejny `POST /api/pokertable` dostaje 503 |
+| `IdleTableMinutes` | 30 | stół, którego stan tyle czasu się nie zmienił, jest usuwany razem z sesją |
+| `DisconnectGraceSeconds` | 120 | tak samo stół bez otwartego WebSocketa (nikt się nie połączył albo gracz wyszedł) |
+| `TurnTimeoutSeconds` | 60 | gracz, który nie wykona ruchu, czeka (check), a gdy musi dopłacić - pasuje (fold) |
+| `MaxConnectionsPerSession` | 3 | kolejny WebSocket tej samej sesji jest odrzucany z 429 |
+| `MaxConnections` | 600 | kolejny WebSocket w ogóle jest odrzucany z 503 |
+
+WebSocket ze złym tokenem jest odrzucany (401) przed upgrade'em; gdy jego stół zostanie usunięty, serwer zamyka go
+kodem 4004, a strona o tym informuje.
+
 ---
 
 ### 04  Strona CV: C# + ASP.NET Core + PostgreSQL + Docker
@@ -242,6 +257,7 @@ i ocenę rąk. Test integracyjny (`PokerGameIntegrationTest`) sprawdza pełny pr
 - [x] Projekt 03  Boty (RandomBot) + testy silnika i integracyjne
 - [ ] Projekt 03  Nowe poziomy trudności Botów
 - [ ] Projekt 03  Multiplayer
+- [ ] Projekt 03  backend Kotlin: limity stołów w pamięci z .NET (limit stołów, sprzątanie bezczynnych, timeout tury, limity WebSocketów)
 - [x] Projekt 04  Backend C# + ASP.NET Core (zgodny z Kotlinem, wspólne strony i migracje)
 - [x] Wdrożenie na hosting
 

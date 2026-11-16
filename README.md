@@ -105,6 +105,21 @@ The API is public and anonymous, so a table has one human seat, taken by its cre
 not listed anywhere (a second join gets 409). Requests are checked: `playerName` is trimmed, 1-24 characters,
 without control or formatting characters; `blindAmount` is 2-1000 and `coins` 1-100000; anything else is a 400.
 
+The tables live in memory, so the .NET backend (the deployed one) also keeps them from piling up. Its defaults,
+section `Poker` of `appsettings.json` (environment variables `Poker__MaxTables` and so on):
+
+| Limit | Default | What happens |
+|---|---|---|
+| `MaxTables` | 200 | one more `POST /api/pokertable` is a 503 |
+| `IdleTableMinutes` | 30 | a table whose state has not changed for so long is removed with its session |
+| `DisconnectGraceSeconds` | 120 | so is a table without an open WebSocket (never connected, or the player left) |
+| `TurnTimeoutSeconds` | 60 | a player who does not act checks, or folds when a bet is owed |
+| `MaxConnectionsPerSession` | 3 | one more WebSocket of the same session is refused with 429 |
+| `MaxConnections` | 600 | one more WebSocket in total is refused with 503 |
+
+A WebSocket with a bad token is refused (401) before the upgrade; when its table is removed, the server closes it
+with 4004 and the page says so.
+
 ---
 
 ### 04  CV Page: C# + ASP.NET Core + PostgreSQL + Docker
@@ -239,6 +254,7 @@ and hand evaluation. The integration test (`PokerGameIntegrationTest`) verifies 
 - [x] Project 03  Bots (RandomBot) + engine & integration tests
 - [ ] Project 03  Advanced bot difficulty levels
 - [ ] Project 03  Multiplayer
+- [ ] Project 03  Kotlin backend: the .NET limits on in-memory tables (table cap, idle-table sweep, turn timeout, WebSocket caps)
 - [x] Project 04  C# + ASP.NET Core backend (parity with Kotlin, shared pages and migrations)
 - [x] Deploy to hosting
 

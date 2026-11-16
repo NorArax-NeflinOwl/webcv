@@ -31,7 +31,10 @@ public sealed class TableController(TableRepository tableRepository, SessionRegi
         var blindAmount = body?.BlindAmount ?? 10;
         if (PokerInput.CheckBlind(blindAmount) is { } invalidBlind) return InvalidInput(invalidBlind);
 
-        var tableId = tableRepository.Create(blindAmount);
+        if (tableRepository.Create(blindAmount) is not { } tableId)
+        {
+            return Problem(statusCode: StatusCodes.Status503ServiceUnavailable, detail: "Too many tables in play, try again later");
+        }
         var engine = tableRepository.GetOrThrow(tableId);
 
         // Pre-seated bots: the human only needs to join and start.
@@ -93,13 +96,13 @@ public sealed class TableController(TableRepository tableRepository, SessionRegi
 
     /// <summary>The table from the requesting player's side; a polling fallback for clients without WebSocket.</summary>
     [HttpGet("{id}/snapshot")]
-    public ActionResult<TableSnapshotDto> Snapshot(string id, [FromQuery] string token)
+    public async Task<ActionResult<TableSnapshotDto>> Snapshot(string id, [FromQuery] string token, CancellationToken cancellationToken)
     {
         var tableId = new TableId(id);
         if (sessionRegistry.Validate(token, tableId) is not { } session) return InvalidToken();
         if (tableRepository.Get(tableId) is not { } engine) return TableNotFound(id);
 
-        return engine.Snapshot(session.PlayerId).ToDto();
+        return (await engine.SnapshotAsync(session.PlayerId, cancellationToken)).ToDto();
     }
 
     private ObjectResult InvalidInput(string reason) => Problem(statusCode: StatusCodes.Status400BadRequest, detail: reason);

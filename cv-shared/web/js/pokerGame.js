@@ -58,6 +58,12 @@ function cardsHTML(cards, faceDown = false, count = 2) {
 
 //  API helpers 
 
+// The public server limits tables and requests; these answers mean "later", not "broken".
+const BUSY_MESSAGES = {
+  429: 'Too many requests, please try again in a minute.',
+  503: 'All poker tables are busy, please try again in a few minutes.',
+};
+
 async function apiPost(path, body = null) {
   const opts = { method: 'POST', headers: {} };
   if (body !== null) {
@@ -66,7 +72,7 @@ async function apiPost(path, body = null) {
   }
   const res = await fetch(path, opts);
   if (!res.ok) {
-    const err = new Error(`${path} → ${res.status} ${res.statusText}`);
+    const err = new Error(BUSY_MESSAGES[res.status] ?? `${path} → ${res.status} ${res.statusText}`);
     err.status = res.status;
     throw err;
   }
@@ -98,7 +104,8 @@ function connectWS(tableId, token) {
   };
 
   ws.onclose = (e) => {
-    setStatus(`Disconnected (${e.code})`);
+    // 4004: the server removed the table (idle too long, or the player was gone).
+    setStatus(e.code === 4004 ? 'The table was closed after inactivity. Reload to play again.' : `Disconnected (${e.code})`);
     window.removeEventListener('beforeunload', onBeforeUnload);
   };
   ws.onerror = () => setStatus('WebSocket error');

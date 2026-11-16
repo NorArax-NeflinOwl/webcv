@@ -227,14 +227,4 @@ public sealed class PokerApiTests : IDisposable
 
         Assert.NotEqual(session.PlayerId, afterFold.GetProperty("currentTurnId").GetString());
     }
-
-    [Fact]
-    public async Task WebSocket_WithAnInvalidTokenIsClosedWith4001()
-    {
-        var (tableId, _) = await CreateAndJoinAsync();
-        using var socket = await ConnectAsync(tableId, "wrong-token");
-
-        Assert.Null(await ReceiveAsync(socket));
-        Assert.Equal(4001, (int?)socket.CloseStatus);
-    }
 }

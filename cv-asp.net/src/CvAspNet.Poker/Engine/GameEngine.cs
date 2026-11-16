@@ -14,6 +14,10 @@ namespace CvAspNet.Poker.Engine;
 /// connected player); the events are raised after the lock is released, so a listener may call
 /// back into the engine.
 /// </para>
+/// <para>
+/// A table that is no longer wanted is <see cref="Close"/>d: every later operation fails, and
+/// <see cref="Closing"/> tells the connections to go.
+/// </para>
 /// </summary>
 public sealed class GameEngine
 {
@@ -51,26 +55,59 @@ public sealed class GameEngine
     private readonly int maxHumanSeats;
     private readonly Func<Deck> deckFactory;
     private readonly ILogger<GameEngine> log;
+    private readonly TimeProvider timeProvider;
     private readonly List<Seat> seats = [];
     private readonly SemaphoreSlim tableLock = new(1, 1);
     private readonly List<GameEvent> pendingEvents = [];
+    private readonly CancellationTokenSource closing = new();
 
     private GameState gameState = GameState.WaitingForPlayers.Instance;
     private HandState hand = new(Deck.Of());
     private int dealerIndex;
+    private DateTimeOffset turnStartedAt;
+    private long lastActivityTicks;
+    private int closed;
 
     /// <param name="deckFactory">Supplies each hand's deck; tests pass a fixed card order.</param>
     /// <param name="maxHumanSeats">How many of the <see cref="MaxSeats"/> seats humans may take.</param>
-    public GameEngine(TableId tableId, int blindAmount = 10, Func<Deck>? deckFactory = null, ILogger<GameEngine>? logger = null, int maxHumanSeats = MaxSeats)
+    /// <param name="timeProvider">The clock of <see cref="LastActivity"/> and the turn timeout; tests pass a fake one.</param>
+    public GameEngine(
+        TableId tableId,
+        int blindAmount = 10,
+        Func<Deck>? deckFactory = null,
+        ILogger<GameEngine>? logger = null,
+        int maxHumanSeats = MaxSeats,
+        TimeProvider? timeProvider = null)
     {
         TableId = tableId;
         this.blindAmount = blindAmount;
         this.maxHumanSeats = maxHumanSeats;
         this.deckFactory = deckFactory ?? Deck.Shuffle;
         log = logger ?? NullLogger<GameEngine>.Instance;
+        this.timeProvider = timeProvider ?? TimeProvider.System;
+        TouchActivity();
     }
 
     public TableId TableId { get; }
+
+    /// <summary>When a player was last seated or the game state last changed.</summary>
+    public DateTimeOffset LastActivity => new(Interlocked.Read(ref lastActivityTicks), TimeSpan.Zero);
+
+    public bool IsClosed => Volatile.Read(ref closed) == 1;
+
+    /// <summary>Cancelled once the table is closed.</summary>
+    public CancellationToken Closing => closing.Token;
+
+    /// <summary>
+    /// Ends the table: the operations that follow fail with <see cref="InvalidOperationException"/>, and
+    /// <see cref="Closing"/> is cancelled. One already running finishes. Safe to call more than once.
+    /// </summary>
+    public void Close()
+    {
+        if (Interlocked.Exchange(ref closed, 1) == 1) return;
+        log.LogInformation("[{TableId}] Table closed", TableId);
+        closing.Cancel();
+    }
 
     /// <summary>Raised once per state change, after the operation that caused it has released the table.</summary>
     public event Action<GameEvent>? EventPublished;
@@ -91,6 +128,7 @@ public sealed class GameEngine
             throw new InvalidOperationException("The table has no free seat for another player");
         }
         seats.Add(new Seat(player, strategy));
+        TouchActivity();
 
         var type = strategy is null ? "human" : $"bot[{strategy.GetType().Name}]";
         log.LogInformation("[{TableId}] Player joined: {Name} ({Type}) | coins={Coins}", TableId, player.Name, type, player.Coins);
@@ -135,12 +173,46 @@ public sealed class GameEngine
     }, cancellationToken);
 
     /// <summary>
+    /// Acts for a human who has let the turn run for <paramref name="timeout"/> or longer: a check when
+    /// nothing is owed, otherwise a fold; then the bots play on. A stalled player cannot freeze the table.
+    /// </summary>
+    /// <returns>True when the turn had expired and was played.</returns>
+    public Task<bool> ExpireTurnAsync(TimeSpan timeout, CancellationToken cancellationToken = default) => RunLockedAsync(() =>
+    {
+        if (gameState is GameState.WaitingForPlayers or GameState.Showdown || hand.ActionQueue.Count == 0) return false;
+
+        var current = hand.ActionQueue[0];
+        if (seats.Find(seat => seat.Player.Id == current) is not { IsHuman: true } seat) return false;
+        if (timeProvider.GetUtcNow() - turnStartedAt < timeout) return false;
+
+        PlayerAction action = ToCall(current) == 0 ? new PlayerAction.Check(current) : new PlayerAction.Fold(current);
+        log.LogInformation("[{TableId}] {Name} timed out after {Timeout} — auto {Action}", TableId, seat.Player.Name, timeout, action.GetType().Name);
+        ApplyAction(action);
+        ProcessBotActions();
+        return true;
+    }, cancellationToken);
+
+    /// <summary>
     /// The table as one player sees it: opponents' hole cards stay hidden (null) until the showdown.
     /// </summary>
     /// <param name="forPlayer">The viewer; null for an observer, who sees no hole cards.</param>
     public TableView Snapshot(PlayerId? forPlayer = null)
     {
         tableLock.Wait();
+        try
+        {
+            return BuildSnapshot(forPlayer);
+        }
+        finally
+        {
+            tableLock.Release();
+        }
+    }
+
+    /// <summary><see cref="Snapshot"/> without blocking a thread while another operation holds the table.</summary>
+    public async Task<TableView> SnapshotAsync(PlayerId? forPlayer = null, CancellationToken cancellationToken = default)
+    {
+        await tableLock.WaitAsync(cancellationToken);
         try
         {
             return BuildSnapshot(forPlayer);
@@ -344,7 +416,12 @@ public sealed class GameEngine
         {
             var nextId = hand.ActionQueue[0];
             var strategy = seats.Find(seat => seat.Player.Id == nextId)?.Strategy;
-            if (strategy is null) return;  // a human: wait for ApplyActionAsync
+            if (strategy is null)
+            {
+                // A human: wait for ApplyActionAsync, or for ExpireTurnAsync once the turn has run too long.
+                turnStartedAt = timeProvider.GetUtcNow();
+                return;
+            }
 
             var view = BuildSnapshot(nextId);
             var playerView = view.Players.First(player => player.Id == nextId);
@@ -473,6 +550,13 @@ public sealed class GameEngine
 
     private void Publish() => pendingEvents.Add(new GameEvent.StateChanged(TableId));
 
+    private void TouchActivity() => Interlocked.Exchange(ref lastActivityTicks, timeProvider.GetUtcNow().UtcTicks);
+
+    private void ThrowIfClosed()
+    {
+        if (IsClosed) throw new InvalidOperationException("The table is closed");
+    }
+
     // ── Locking ──
 
     private void RunLocked(Action operation)
@@ -480,6 +564,7 @@ public sealed class GameEngine
         tableLock.Wait();
         try
         {
+            ThrowIfClosed();
             operation();
         }
         finally
@@ -488,18 +573,26 @@ public sealed class GameEngine
         }
     }
 
-    private async Task RunLockedAsync(Action operation, CancellationToken cancellationToken)
+    private Task RunLockedAsync(Action operation, CancellationToken cancellationToken) => RunLockedAsync(() =>
+    {
+        operation();
+        return true;
+    }, cancellationToken);
+
+    private async Task<T> RunLockedAsync<T>(Func<T> operation, CancellationToken cancellationToken)
     {
         await tableLock.WaitAsync(cancellationToken);
         try
         {
-            operation();
+            ThrowIfClosed();
+            return operation();
         }
         finally
         {
-            // Whatever changed before a failure is announced too.
+            // Whatever changed before a failure is announced too; a change counts as activity.
             List<GameEvent> published = [.. pendingEvents];
             pendingEvents.Clear();
+            if (published.Count > 0) TouchActivity();
             tableLock.Release();
             foreach (var gameEvent in published)
             {

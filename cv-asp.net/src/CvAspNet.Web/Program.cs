@@ -30,10 +30,13 @@ builder.Services.AddScoped<IProfileService, ProfileService>();
 builder.Services.AddScoped<IPandaGamePlayerScoreService, PandaGamePlayerScoreService>();
 builder.Services.AddSingleton(TimeProvider.System);
 
-// Poker: the tables and sessions live in memory, for the lifetime of the process.
+// Poker: the tables and sessions live in memory, capped and swept (idle tables, run-out turns) by PokerTableSweeper.
+builder.Services.Configure<PokerOptions>(builder.Configuration.GetSection(PokerOptions.SectionName));
 builder.Services.AddSingleton<TableRepository>();
 builder.Services.AddSingleton<SessionRegistry>();
 builder.Services.AddSingleton<PokerWebSocketHandler>();
+builder.Services.AddSingleton<PokerTableSweeper>();
+builder.Services.AddHostedService(services => services.GetRequiredService<PokerTableSweeper>());
 
 // A body that is not valid JSON (or misses a field) gets the same answer as from the Kotlin backend.
 builder.Services.AddControllers().ConfigureApiBehaviorOptions(options =>
