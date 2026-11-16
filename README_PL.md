@@ -101,10 +101,15 @@ i dwóch botów (RandomBot). Frontend w czystym HTML + CSS + JavaScript.
 ```
 POST /api/pokertable                    → { tableId }           (tworzy stół z 2 botami)
 POST /api/pokertable/{id}/join          → { sessionToken, playerId }
-POST /api/pokertable/{id}/start?token=… → 204
-WS   /api/pokertable/{id}/ws?token=…   ← TableSnapshotDto (push po każdej zmianie stanu)
+POST /api/pokertable/{id}/start         → 204                   (Authorization: Bearer <sessionToken>)
+WS   /api/pokertable/{id}/ws            → { type: "Auth", token: sessionToken }   (pierwsza wiadomość, w ciągu 10 s)
+                                ← TableSnapshotDto (push po każdej zmianie stanu)
                                 → { type: "Fold"|"Check"|"Call"|"Raise", amount? }
 ```
+
+Token sesji nigdy nie trafia do URL-a, bo log dostępu bramy zapisuje URL-e (nagłówek `Authorization` pomija).
+Błędna wiadomość `Auth` zamyka WebSocket kodem 4001. Oba backendy nadal przyjmują starsze `?token=…` w `start`,
+`snapshot` i w adresie WebSocketa.
 
 API jest publiczne i anonimowe, więc stół ma jedno miejsce dla człowieka, zajmowane przez dołączenie jego twórcy,
 a identyfikatory stołów nie są nigdzie listowane (drugie dołączenie dostaje 409). Żądania są sprawdzane: `playerName`
@@ -123,8 +128,8 @@ sekcja `Poker` w `appsettings.json` (zmienne środowiskowe `Poker__MaxTables` it
 | `MaxConnectionsPerSession` | 3 | kolejny WebSocket tej samej sesji jest odrzucany z 429 |
 | `MaxConnections` | 600 | kolejny WebSocket w ogóle jest odrzucany z 503 |
 
-WebSocket ze złym tokenem jest odrzucany (401) przed upgrade'em; gdy jego stół zostanie usunięty, serwer zamyka go
-kodem 4004, a strona o tym informuje.
+WebSocket ze złym `?token=…` jest odrzucany (401) przed upgrade'em, a ze złą wiadomością `Auth` zamykany kodem 4001;
+gdy jego stół zostanie usunięty, serwer zamyka go kodem 4004, a strona o tym informuje.
 
 ---
 

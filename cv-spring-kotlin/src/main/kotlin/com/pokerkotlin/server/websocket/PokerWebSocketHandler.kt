@@ -14,6 +14,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
@@ -30,9 +31,11 @@ import java.util.concurrent.ConcurrentHashMap
  * ## Protocol
  *
  * ### Handshake / authorisation
- * The client connects with a `token` query-parameter issued by
- * `POST /api/pokertable/{id}/join`. The handler validates the token against
- * [SessionRegistry] and rejects the connection with 4001 POLICY_VIOLATION
+ * The client sends the token issued by `POST /api/pokertable/{id}/join` as its first
+ * message, `{"type":"Auth","token":"…"}`, within 10 seconds, so that the token stays
+ * out of the URL (and out of the gateway's access log). Older clients may still pass
+ * it as a `token` query-parameter. The handler validates the token against
+ * [SessionRegistry] and closes the connection with 4001 POLICY_VIOLATION
  * if it is invalid or belongs to a different table.
  *
  * ### Server → Client (push)
@@ -74,8 +77,25 @@ class PokerWebSocketHandler(
     // 
 
     override fun afterConnectionEstablished(session: WebSocketSession) {
-        val (playerSession, tableId) = authenticate(session) ?: return
+        if (queryToken(session) == null) {
+            // The page's way: wait for {"type":"Auth","token":"…"} (see handleTextMessage).
+            session.attributes[ATTR_AWAITING_AUTH] = true
+            val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+            scopes[session.id] = scope
+            scope.launch {
+                delay(AUTH_TIMEOUT_MS)
+                if (session.attributes[ATTR_AWAITING_AUTH] == true && session.isOpen) {
+                    log.warn("[WS] No authentication within {} ms [wsId={}]", AUTH_TIMEOUT_MS, session.id)
+                    session.close(CloseStatus(4001, "Authentication timeout"))
+                }
+            }
+            return
+        }
+        val (playerSession, tableId) = authenticate(session, queryToken(session)) ?: return
+        onAuthenticated(session, playerSession, tableId)
+    }
 
+    private fun onAuthenticated(session: WebSocketSession, playerSession: PlayerSession, tableId: TableId) {
         val engine = tableRepository.get(tableId)
             ?: run {
                 log.warn("[WS] Table not found [tableId={}]", tableId.value)
@@ -99,7 +119,7 @@ class PokerWebSocketHandler(
 
         //  Subscribe to engine events in a background coroutine 
         val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
-        scopes[session.id] = scope
+        scopes.put(session.id, scope)?.cancel()  // also ends the authentication timeout
         scope.launch {
             engine.events.collect { event ->
                 when (event) {
@@ -128,6 +148,18 @@ class PokerWebSocketHandler(
     // 
 
     override fun handleTextMessage(session: WebSocketSession, message: TextMessage) {
+        if (session.attributes.remove(ATTR_AWAITING_AUTH) == true) {
+            val token = try {
+                val auth = objectMapper.readTree(message.payload)
+                if (auth.path("type").asText() == "Auth") auth.path("token").asText().ifEmpty { null } else null
+            } catch (ex: Exception) {
+                null
+            }
+            val (playerSession, tableId) = authenticate(session, token) ?: return
+            onAuthenticated(session, playerSession, tableId)
+            return
+        }
+
         val safeSession = safeSessions[session.id] ?: session
         val playerSession = session.attributes[ATTR_PLAYER_SESSION] as? PlayerSession
             ?: run {
@@ -176,13 +208,20 @@ class PokerWebSocketHandler(
     // Helpers
     // 
 
+    /** The older clients' `?token=…`, or null. */
+    private fun queryToken(session: WebSocketSession): String? = session.uri?.query
+        ?.split("&")
+        ?.firstOrNull { it.startsWith("token=") }
+        ?.removePrefix("token=")
+        ?.ifBlank { null }
+
     /**
-     * Validates the session token from the query-string.
+     * Validates the session token (from the first message or the query-string).
      *
      * Returns a [Pair] of (PlayerSession, TableId) on success,
      * or closes the connection and returns null on failure.
      */
-    private fun authenticate(session: WebSocketSession): Pair<PlayerSession, TableId>? {
+    private fun authenticate(session: WebSocketSession, token: String?): Pair<PlayerSession, TableId>? {
         val path = session.uri?.path ?: ""
         val tableId = extractTableId(path)
             ?: run {
@@ -190,11 +229,6 @@ class PokerWebSocketHandler(
                 session.close(CloseStatus(4001, "Malformed URL"))
                 return null
             }
-
-        val token = session.uri?.query
-            ?.split("&")
-            ?.firstOrNull { it.startsWith("token=") }
-            ?.removePrefix("token=")
 
         if (token.isNullOrBlank()) {
             log.warn("[WS] Missing token [tableId={}]", tableId.value)
@@ -233,5 +267,7 @@ class PokerWebSocketHandler(
 
     private companion object {
         const val ATTR_PLAYER_SESSION = "playerSession"
+        const val ATTR_AWAITING_AUTH = "awaitingAuth"
+        const val AUTH_TIMEOUT_MS = 10_000L
     }
 }

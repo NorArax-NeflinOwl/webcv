@@ -20,7 +20,7 @@ A backend that serves `web/` has to answer the same requests with the same JSON:
 | `GET /api/hello` | Plain text |
 | `GET /api/profileinfo?lang=pl\|en` | The CV (`ProfileDto`) |
 | `GET`, `POST /api/pandagame/scores` | Top 10 scores / save a score (`{"nick","score"}` → 201) |
-| `/api/pokertable…` and `WS /api/pokertable/{id}/ws?token=…` | Poker — see the protocol in the main README |
+| `/api/pokertable…` and `WS /api/pokertable/{id}/ws` | Poker — see the protocol in the main README (the session token in `Authorization: Bearer …` and in the WebSocket's first message, never in the URL) |
 
 ## Rules for changes
 

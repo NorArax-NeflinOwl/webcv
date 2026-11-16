@@ -4,9 +4,12 @@
  * Protocol summary:
  *   POST /api/pokertable                     → { tableId }
  *   POST /api/pokertable/{id}/join           → { sessionToken, playerId }
- *   POST /api/pokertable/{id}/start?token=…  → 204
- *   WS   /api/pokertable/{id}/ws?token=…     ← TableSnapshotDto push
+ *   POST /api/pokertable/{id}/start          → 204   (Authorization: Bearer <sessionToken>)
+ *   WS   /api/pokertable/{id}/ws             → { type: "Auth", token: sessionToken }  (first message)
+ *                                    ← TableSnapshotDto push
  *                                    → { type: "Fold"|"Check"|"Call"|"Raise", amount? }
+ *
+ * The session token never goes into a URL: URLs end up in the gateway's access log.
  */
 
 'use strict';
@@ -64,8 +67,9 @@ const BUSY_MESSAGES = {
   503: 'All poker tables are busy, please try again in a few minutes.',
 };
 
-async function apiPost(path, body = null) {
+async function apiPost(path, body = null, token = null) {
   const opts = { method: 'POST', headers: {} };
+  if (token !== null) opts.headers['Authorization'] = `Bearer ${token}`;
   if (body !== null) {
     opts.headers['Content-Type'] = 'application/json';
     opts.body = JSON.stringify(body);
@@ -82,15 +86,16 @@ async function apiPost(path, body = null) {
 
 const createTable = ()             => apiPost('/api/pokertable', { blindAmount: 10 });
 const joinTable   = (id, name)     => apiPost(`/api/pokertable/${id}/join`, { playerName: name, coins: 1000 });
-const startHand   = (id, token)    => apiPost(`/api/pokertable/${id}/start?token=${token}`);
+const startHand   = (id, token)    => apiPost(`/api/pokertable/${id}/start`, null, token);
 
 //  WebSocket 
 
 function connectWS(tableId, token) {
   const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
-  const ws = new WebSocket(`${proto}//${location.host}/api/pokertable/${tableId}/ws?token=${token}`);
+  const ws = new WebSocket(`${proto}//${location.host}/api/pokertable/${tableId}/ws`);
 
   ws.onopen = async () => {
+    ws.send(JSON.stringify({ type: 'Auth', token }));
     setStatus('Connected');
     window.addEventListener('beforeunload', onBeforeUnload);
     await startHand(tableId, token);

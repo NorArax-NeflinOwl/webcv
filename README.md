@@ -96,10 +96,15 @@ two bots (RandomBot). Frontend in plain HTML + CSS + JavaScript.
 ```
 POST /api/pokertable                    → { tableId }           (creates a table with 2 bots)
 POST /api/pokertable/{id}/join          → { sessionToken, playerId }
-POST /api/pokertable/{id}/start?token=… → 204
-WS   /api/pokertable/{id}/ws?token=…   ← TableSnapshotDto (pushed on every state change)
+POST /api/pokertable/{id}/start         → 204                   (Authorization: Bearer <sessionToken>)
+WS   /api/pokertable/{id}/ws            → { type: "Auth", token: sessionToken }   (first message, within 10 s)
+                                ← TableSnapshotDto (pushed on every state change)
                                 → { type: "Fold"|"Check"|"Call"|"Raise", amount? }
 ```
+
+The session token never goes into a URL, because the gateway's access log records URLs (it leaves the
+`Authorization` header out). A wrong `Auth` message closes the WebSocket with 4001. Both backends still accept the
+older `?token=…` on `start`, `snapshot` and the WebSocket URL.
 
 The API is public and anonymous, so a table has one human seat, taken by its creator's join, and table ids are
 not listed anywhere (a second join gets 409). Requests are checked: `playerName` is trimmed, 1-24 characters,
@@ -117,8 +122,8 @@ section `Poker` of `appsettings.json` (environment variables `Poker__MaxTables` 
 | `MaxConnectionsPerSession` | 3 | one more WebSocket of the same session is refused with 429 |
 | `MaxConnections` | 600 | one more WebSocket in total is refused with 503 |
 
-A WebSocket with a bad token is refused (401) before the upgrade; when its table is removed, the server closes it
-with 4004 and the page says so.
+A WebSocket with a bad `?token=…` is refused (401) before the upgrade, one with a bad `Auth` message is closed with
+4001; when its table is removed, the server closes it with 4004 and the page says so.
 
 ---
 

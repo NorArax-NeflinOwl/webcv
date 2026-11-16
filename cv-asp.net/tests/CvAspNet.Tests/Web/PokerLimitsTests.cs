@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Net.WebSockets;
+using System.Text;
 using CvAspNet.Poker.Engine;
 using CvAspNet.Poker.Model;
 using CvAspNet.Poker.Strategy;
@@ -255,6 +256,21 @@ public sealed class PokerLimitsApiTests : IDisposable
         var refused = await Assert.ThrowsAnyAsync<Exception>(() => ConnectAsync(tableId, session.SessionToken));
 
         Assert.Contains("429", refused.Message);
+    }
+
+    [Fact]
+    public async Task WebSocket_AuthenticatedByMessageIsClosedWith4029BeyondTheSessionLimit()
+    {
+        var (tableId, session) = await CreateAndJoinAsync();
+        using var first = await ConnectAsync(tableId, session.SessionToken);
+        using var second = await factory.Server.CreateWebSocketClient().ConnectAsync(new Uri(factory.Server.BaseAddress, $"api/pokertable/{tableId}/ws"), CancellationToken.None);
+
+        await second.SendAsync(Encoding.UTF8.GetBytes($$"""{"type":"Auth","token":"{{session.SessionToken}}"}"""), WebSocketMessageType.Text, true, CancellationToken.None);
+
+        using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+        var result = await second.ReceiveAsync(new byte[1024], timeout.Token);
+        Assert.Equal(WebSocketMessageType.Close, result.MessageType);
+        Assert.Equal(4029, (int?)second.CloseStatus);
     }
 
     [Fact]

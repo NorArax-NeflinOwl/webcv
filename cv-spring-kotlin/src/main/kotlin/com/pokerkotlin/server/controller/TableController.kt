@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
@@ -145,17 +146,18 @@ class TableController(
     /**
      * Starts a new hand on the table.
      *
-     * Requires the session token in the `X-Session-Token` header.
+     * Requires the session token as `Authorization: Bearer <token>` (or the older `?token=…`).
      * Returns 204 No Content on success.
      */
     @PostMapping("/{id}/start")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun startHand(
         @PathVariable id: String,
-        @RequestParam token: String,
+        @RequestHeader(name = "Authorization", required = false) authorization: String?,
+        @RequestParam(required = false) token: String?,
     ) {
         val tableId = TableId(id)
-        sessionRegistry.validate(token, tableId)
+        sessionToken(authorization, token)?.let { sessionRegistry.validate(it, tableId) }
             ?: throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid or expired session token")
 
         val engine = tableRepository.get(tableId)
@@ -184,15 +186,27 @@ class TableController(
     @GetMapping("/{id}/snapshot")
     fun snapshot(
         @PathVariable id: String,
-        @RequestParam token: String,
+        @RequestHeader(name = "Authorization", required = false) authorization: String?,
+        @RequestParam(required = false) token: String?,
     ): TableSnapshotDto {
         val tableId = TableId(id)
-        val session = sessionRegistry.validate(token, tableId)
+        val session = sessionToken(authorization, token)?.let { sessionRegistry.validate(it, tableId) }
             ?: throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid or expired session token")
 
         val engine = tableRepository.get(tableId)
             ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Table not found: $id")
 
         return engine.snapshot(forPlayer = session.playerId).toDto()
+    }
+
+    /**
+     * `Authorization: Bearer <token>` (the page's way: URLs end up in the gateway's access log),
+     * else the older `?token=…`.
+     */
+    private fun sessionToken(authorization: String?, queryToken: String?): String? {
+        if (authorization != null && authorization.startsWith("Bearer ", ignoreCase = true)) {
+            return authorization.substring("Bearer ".length).trim().ifEmpty { null }
+        }
+        return queryToken?.ifEmpty { null }
     }
 }
