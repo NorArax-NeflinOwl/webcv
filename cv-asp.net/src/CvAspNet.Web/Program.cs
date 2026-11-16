@@ -73,7 +73,13 @@ app.UseRewriter(new RewriteOptions()
     .AddRewrite("^pandaGame$", "pandaGame.html", skipRemainingRules: true)
     .AddRewrite("^pokerGame$", "pokerGame.html", skipRemainingRules: true));
 app.UseDefaultFiles(new DefaultFilesOptions { FileProvider = webFiles });
-app.UseStaticFiles(new StaticFileOptions { FileProvider = webFiles });
+// Pages, scripts and styles are checked with the server on every load (an unchanged file costs a 304), so a browser
+// never runs a cached old script against a newer API after a deploy.
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = webFiles,
+    OnPrepareResponse = context => context.Context.Response.Headers.CacheControl = "no-cache",
+});
 
 app.UseWebSockets();
 app.Map("/api/pokertable/{id}/ws", (HttpContext context, string id, PokerWebSocketHandler handler) => handler.HandleAsync(context, id));

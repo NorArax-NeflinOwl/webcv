@@ -34,6 +34,18 @@ public sealed class ApplicationTests : IDisposable
 
     [Theory]
     [InlineData("/")]
+    [InlineData("/js/index.js")]
+    [InlineData("/css/indexStyle.css")]
+    public async Task PageFiles_AreRevalidatedOnEveryLoad(string path)
+    {
+        var response = await client.GetAsync(path);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.True(response.Headers.CacheControl?.NoCache, $"{path} must carry Cache-Control: no-cache");
+    }
+
+    [Theory]
+    [InlineData("/")]
     [InlineData("/pokerGame")]
     [InlineData("/api/pandagame/scores")]
     public async Task Responses_CarryTheSecurityHeaders(string path)
