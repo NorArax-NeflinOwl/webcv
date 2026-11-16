@@ -199,8 +199,13 @@ on the server's LAN address, which only the gateway may reach (the database is p
 cd cv-asp.net
 # .env as in .env.example, with a random POSTGRES_PASSWORD, plus:
 #   APP_HOST_PORT=192.168.1.5:8281
+#   FORWARDED_KNOWN_PROXIES=192.168.1.7
 sudo docker compose up --build -d
 ```
+
+`FORWARDED_KNOWN_PROXIES` is the gateway's address: only from it does the application believe `X-Forwarded-For`, so
+that the rate limits and the logs see the visitor instead of the Pi. Docker keeps the client's address for LAN
+traffic to a published port; if the logs still show a Docker gateway address (`172.x.0.1`), list that one.
 
 Both containers have `restart: unless-stopped`, so they start again with Docker after the server reboots. A
 container stopped on purpose (`docker compose stop`) stays stopped.

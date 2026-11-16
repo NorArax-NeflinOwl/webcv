@@ -205,8 +205,13 @@ adresie LAN serwera, do którego dostęp ma tylko brama (baza domyślnie jest pu
 cd cv-asp.net
 # .env jak w .env.example, z losowym POSTGRES_PASSWORD, a do tego:
 #   APP_HOST_PORT=192.168.1.5:8281
+#   FORWARDED_KNOWN_PROXIES=192.168.1.7
 sudo docker compose up --build -d
 ```
+
+`FORWARDED_KNOWN_PROXIES` to adres bramy: tylko od niej aplikacja wierzy nagłówkowi `X-Forwarded-For`, żeby limity
+żądań i logi widziały odwiedzającego, a nie Pi. Docker zachowuje adres klienta dla ruchu z LAN-u na opublikowany
+port; jeśli logi nadal pokazują adres bramy Dockera (`172.x.0.1`), trzeba wpisać ten adres.
 
 ---
 

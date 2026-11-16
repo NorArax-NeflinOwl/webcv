@@ -1,10 +1,12 @@
 using System.Text.Json;
+using CvAspNet.Web;
 using CvAspNet.Web.Data;
 using CvAspNet.Web.Models;
 using CvAspNet.Web.Poker;
 using CvAspNet.Web.Repositories;
 using CvAspNet.Web.Services;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore;
@@ -44,7 +46,16 @@ builder.Services.AddControllers().ConfigureApiBehaviorOptions(options =>
 
 builder.Services.AddHealthChecks().AddDbContextCheck<CvDbContext>("database");
 
+// The visitor's address behind the gateway (rate limits, logs); see ForwardedHeadersSetup.
+var knownProxies = ForwardedHeadersSetup.ParseKnownProxies(builder.Configuration[ForwardedHeadersSetup.KnownProxiesKey]);
+builder.Services.Configure<ForwardedHeadersOptions>(options => ForwardedHeadersSetup.Configure(options, knownProxies));
+
 var app = builder.Build();
+
+if (knownProxies.Count > 0)
+{
+    app.UseForwardedHeaders();
+}
 
 if (app.Configuration.GetValue("Database:MigrateOnStartup", true))
 {
