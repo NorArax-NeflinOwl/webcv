@@ -49,6 +49,7 @@ function applyFooterStatus(status) {
 
 //  Staggered skill card animation 
 function animateSkills() {
+    if (prefersReducedMotion()) return;
     const items = document.querySelectorAll('.skill-item');
     items.forEach((el, i) => {
         el.style.opacity    = '0';
@@ -303,11 +304,82 @@ function renderChips(stacks) {
         .join('');
 }
 
+//  Loading state
+/*
+ * index.html ships skeleton placeholders ([data-skeleton]) in every element the profile fills, so they show from
+ * the first paint. They are kept here to show them again on a language switch; body.is-loading holds the
+ * entrance animations back until the content is in (see indexStyle.css).
+ */
+const SKELETON_HOSTS = ['eyebrow', 'name', 'role', 'bio', 'links', 'experience-list', 'skills-grid', 'stack-chips', 'footer-status'];
+const skeletons = new Map(SKELETON_HOSTS.map(id => [
+    id,
+    [...(document.getElementById(id)?.querySelectorAll(':scope > [data-skeleton]') ?? [])].map(node => node.cloneNode(true)),
+]));
+
+const LOAD_ERROR_TEXT = {
+    pl: { message: 'Nie udało się wczytać profilu.', retry: 'Spróbuj ponownie' },
+    en: { message: 'The profile could not be loaded.', retry: 'Try again' },
+};
+
+function prefersReducedMotion() {
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+function showSkeletons() {
+    hideLoadError();
+    SKELETON_HOSTS.forEach(id => {
+        const host = document.getElementById(id);
+        if (!host) return;
+        if (id === 'links') {
+            // The static buttons stay; the profile's links make way for their placeholders.
+            host.querySelectorAll('.link-btn--dynamic, [data-skeleton]').forEach(node => node.remove());
+            const firstStatic = host.querySelector('.link-btn') ?? null;
+            skeletons.get(id).forEach(node => host.insertBefore(node.cloneNode(true), firstStatic));
+        } else {
+            host.replaceChildren(...skeletons.get(id).map(node => node.cloneNode(true)));
+        }
+    });
+    setLoading(true);
+}
+
+/** Removes whatever placeholder the profile did not replace (a missing field), so nothing shimmers forever. */
+function removeSkeletons() {
+    document.querySelectorAll('[data-skeleton]').forEach(node => node.remove());
+}
+
+function setLoading(loading) {
+    const container = document.querySelector('.container');
+    container?.setAttribute('aria-busy', String(loading));
+    document.body.classList.toggle('is-loading', loading);
+    // A style flush, so that leaving the state restarts the entrance animations even after a quick answer.
+    if (loading) void document.body.offsetWidth;
+}
+
+function showLoadError(language) {
+    removeSkeletons();
+    setLoading(false);
+    const text = LOAD_ERROR_TEXT[language] ?? LOAD_ERROR_TEXT.en;
+    setText('load-error-text', text.message);
+    setText('load-error-retry', text.retry);
+    document.getElementById('load-error').hidden = false;
+}
+
+function hideLoadError() {
+    const box = document.getElementById('load-error');
+    if (box) box.hidden = true;
+}
+
 //  Fetch & populate profile
+let profileRequest = 0;  // a newer request (a quick language switch) wins over an older answer
+
 async function loadProfile(language) {
+    const request = ++profileRequest;
+    showSkeletons();
     try {
         const res  = await fetch(`/api/profileinfo?lang=${language}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
+        if (request !== profileRequest) return;
 
         document.title = data.title ?? document.title;
 
@@ -323,10 +395,14 @@ async function loadProfile(language) {
         if (data.technologies)  renderTechnologies(data.technologies);
         if (data.stacks)        renderChips(data.stacks);
 
+        removeSkeletons();
+        setLoading(false);  // starts the entrance animations, now on the real content
         animateSkills();
 
     } catch (err) {
+        if (request !== profileRequest) return;
         console.error('Profile loading error:', err);
+        showLoadError(language);
     }
 }
 
@@ -338,6 +414,9 @@ function initLanguageSwitcher() {
     document.querySelectorAll('.lang-btn').forEach(btn => {
         btn.addEventListener('click', () => applyLanguage(btn.dataset.lang));
     });
+
+    document.getElementById('load-error-retry')?.addEventListener('click', () =>
+        loadProfile(localStorage.getItem('lang') ?? 'pl'));
 }
 
 function applyLanguage(language) {
